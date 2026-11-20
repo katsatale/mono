@@ -1,13 +1,20 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T17:39:08.346Z",
+  "exportedAt": "2026-11-20T17:39:58.269Z",
   "cardOrder": [
-    "housing",
     "streaming",
+    "housing",
     "loans",
     "telecom",
     "business"
   ],
-  "items": []
+  "items": [
+    {
+      "id": "id-mwp98hg8-px7f",
+      "category": "housing",
+      "name": "FF",
+      "amount": 454
+    }
+  ]
 }
