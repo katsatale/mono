@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T17:47:09.665Z",
+  "exportedAt": "2026-11-20T17:47:18.479Z",
   "cardOrder": [
     "housing",
     "streaming",
@@ -9,12 +9,5 @@
     "telecom",
     "business"
   ],
-  "items": [
-    {
-      "id": "id-mwp9twrb-auxl",
-      "category": "housing",
-      "name": "22222",
-      "amount": 222
-    }
-  ]
+  "items": []
 }
