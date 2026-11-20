@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T23:15:39.340Z",
+  "exportedAt": "2026-11-20T23:16:02.652Z",
   "cardOrder": [
     "income",
     "streaming",
@@ -16,6 +16,12 @@
       "category": "streaming",
       "name": "Netflix",
       "amount": 5690
+    },
+    {
+      "id": "id-mwpll88e-km25",
+      "category": "streaming",
+      "name": "Apple tárhely",
+      "amount": 1290
     }
   ]
 }
