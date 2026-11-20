@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T23:13:02.176Z",
+  "exportedAt": "2026-11-20T23:15:39.340Z",
   "cardOrder": [
     "income",
     "streaming",
@@ -10,5 +10,12 @@
     "housing",
     "telecom"
   ],
-  "items": []
+  "items": [
+    {
+      "id": "id-mwplkq65-nyc1",
+      "category": "streaming",
+      "name": "Netflix",
+      "amount": 5690
+    }
+  ]
 }
