@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T23:16:02.652Z",
+  "exportedAt": "2026-11-20T23:16:24.908Z",
   "cardOrder": [
     "income",
     "streaming",
@@ -22,6 +22,12 @@
       "category": "streaming",
       "name": "Apple tárhely",
       "amount": 1290
+    },
+    {
+      "id": "id-mwpllpen-8u6i",
+      "category": "streaming",
+      "name": "Disney",
+      "amount": 2990
     }
   ]
 }
