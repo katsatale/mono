@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T23:19:27.378Z",
+  "exportedAt": "2026-11-20T23:20:17.406Z",
   "cardOrder": [
     "income",
     "streaming",
@@ -46,6 +46,12 @@
       "category": "streaming",
       "name": "Prime Video 2",
       "amount": 990
+    },
+    {
+      "id": "id-mwplqor7-69r8",
+      "category": "telecom",
+      "name": "Telekom MOBIL",
+      "amount": 5440
     }
   ]
 }
