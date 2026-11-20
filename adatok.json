@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T23:20:17.406Z",
+  "exportedAt": "2026-11-20T23:20:46.830Z",
   "cardOrder": [
     "income",
     "streaming",
@@ -52,6 +52,12 @@
       "category": "telecom",
       "name": "Telekom MOBIL",
       "amount": 5440
+    },
+    {
+      "id": "id-mwplrbcw-fyvx",
+      "category": "telecom",
+      "name": "Telekom VEZETÉKES INTERNET",
+      "amount": 7440
     }
   ]
 }
