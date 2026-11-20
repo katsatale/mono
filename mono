@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="hu" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>MONO — Fix költség kalkulátor</title>
+    <!-- iOS és Android PWA teljes képernyős mobilapp beállítások -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MONO">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#09090b">
+    <link id="apple-touch-icon-link" rel="apple-touch-icon" sizes="180x180">
+    <link id="web-manifest-link" rel="manifest">
+    <!-- Tailwind CSS betöltése -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #090a0d;
+            color: #f4f4f5;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* iOS notch / Dynamic Island safe-area támogatás a ragadós fejlécben */
+        .safe-header {
+            padding-top: env(safe-area-inset-top);
+        }
+
+        /* iOS Safari automatikus ráközelítés (auto-zoom) megakadályozása gépeléskor */
+        @media screen and (max-width: 768px) {
+            input[type="text"],
+            input[type="number"],
+            select {
+                font-size: 16px !important;
+            }
+        }
+
+        /* Tabuláris számok a pontos Ft igazításhoz */
+        .tabular-nums {
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Műszaki micro-grid háttértextúra a fejléchez */
+        .header-micro-grid {
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        /* Szám mező nyilainak elrejtése a letisztult megjelenésért */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* Finom hover és fókuszfények a kártyákhoz és mezőkhöz */
+        .monolith-card {
+            background: linear-gradient(180deg, rgba(24, 26, 32, 0.92) 0%, rgba(17, 19, 24, 0.96) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+            transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+        }
+        .monolith-card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 14px 36px -10px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .monolith-input {
+            background-color: rgba(9, 10, 13, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+        }
+        .monolith-input:hover {
+            border-color: rgba(255, 255, 255, 0.16);
+        }
+        .monolith-input:focus {
+            outline: none;
+            background-color: #090a0d;
+            border-color: rgba(255, 255, 255, 0.32);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
+        }
+
+        /* Finom, sötét módú görgetősáv a kártyákon belüli listákhoz */
+        .custom-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background-color: rgba(161, 161, 170, 0.22);
+            border-radius: 9999px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(161, 161, 170, 0.4);
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.97) translateY(4px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-modal {
+            animation: modalFadeIn 0.16s ease-out forwards;
+        }
+
+        /* Drag & Drop kártya mozgatás stílusai */
+        .drag-handle {
+            cursor: grab;
+            touch-action: none;
+        }
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+        .monolith-card.is-dragging {
+            opacity: 0.45;
+            transform: scale(0.985);
+            border-color: rgba(56, 189, 248, 0.5);
+        }
+        .monolith-card.drag-over {
+            border-color: rgba(56, 189, 248, 0.75);
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.28), 0 18px 40px -10px rgba(0, 0, 0, 0.85);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-zinc-100 selection:text-zinc-950">
+
+    <!-- FEJLÉC -->
+    <header class="sticky top-0 z-30 bg-[#090a0d]/85 backdrop-blur-xl border-b border-white/[0.07] header-micro-grid safe-header">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+            <!-- Bal oldali blokk: Geometrikus MONO embléma, főcím és alcím -->
+            <div class="flex items-center gap-3.5 min-w-0">
+                <div class="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-[#1f222b] via-[#12141a] to-[#090a0d] text-white flex items-center justify-center shrink-0 shadow-lg shadow-black/60 ring-1 ring-white/15 overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-white/[0.02] via-transparent to-white/[0.12]"></div>
+                    <svg class="w-6 h-6 relative z-10" viewBox="0 0 28 28" fill="none">
+                        <!-- Bal monolit oszlop -->
+                        <path d="M5 21V7L11.5 14V21H5Z" fill="url(#mono-grad-1)"/>
+                        <!-- Jobb monolit oszlop -->
+                        <path d="M23 21V7L16.5 14V21H23Z" fill="url(#mono-grad-2)"/>
+                        <!-- Középső ék / csúcs -->
+                        <path d="M14 11.2L17.2 7.8L14 15.2L10.8 7.8L14 11.2Z" fill="#38bdf8"/>
+                        <defs>
+                            <linearGradient id="mono-grad-1" x1="5" y1="7" x2="11.5" y2="21" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#FFFFFF"/>
+                                <stop offset="1" stop-color="#A1A1AA"/>
+                            </linearGradient>
+                            <linearGradient id="mono-grad-2" x1="23" y1="7" x2="16.5" y2="21" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#E4E4E7"/>
+                                <stop offset="1" stop-color="#71717A"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl sm:text-2xl font-black tracking-[0.14em] text-white leading-none">
+                            MONO
+                        </h1>
+                        <span class="text-[10px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded bg-white/[0.06] text-zinc-400 border border-white/10">
+                            BUDGET
+                        </span>
+                    </div>
+                    <p class="text-xs text-zinc-400 mt-1 truncate">
+                        Havi fix költség és előfizetés követő
+                    </p>
+                </div>
+            </div>
+
+            <!-- Jobb oldali blokk: Állapotjelző jelvény + Export / Import gombok -->
+            <div class="flex flex-wrap items-center md:justify-end gap-2.5 shrink-0">
+                <!-- Kattintható biztonsági mentés állapotjelző -->
+                <button id="btn-backup-status" type="button"
+                    class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/20 transition cursor-pointer whitespace-nowrap"
+                    title="Minden adatod szinkronban van az utolsó mentéssel.">
+                    <span class="relative flex h-2 w-2 shrink-0">
+                        <span id="backup-status-ping" class="hidden animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                        <span id="backup-status-dot" class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                    </span>
+                    <span id="backup-status-text">Mentés naprakész</span>
+                </button>
+
+                <!-- Export gomb -->
+                <button id="btn-export" type="button"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-zinc-100 text-zinc-950 hover:bg-white transition cursor-pointer shadow-sm whitespace-nowrap">
+                    <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3"/>
+                    </svg>
+                    Export (.json)
+                </button>
+
+                <!-- Import gomb -->
+                <label for="input-import"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/[0.04] text-zinc-200 border border-white/10 hover:bg-white/[0.08] hover:border-white/20 transition cursor-pointer whitespace-nowrap">
+                    <svg class="w-3.5 h-3.5 text-zinc-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M16 8l-4-4m0 0L8 8m4-4v12"/>
+                    </svg>
+                    Import
+                </label>
+                <input id="input-import" type="file" accept=".json,application/json" class="hidden">
+            </div>
+
+        </div>
+    </header>
+
+    <!-- Értesítési konténer (alert() helyett) -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- FŐ TARTALOM -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+        <!-- FELSŐ ÖSSZESÍTŐ SÁV: KÉT KÁRTYA -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <!-- 1. Összesítő kártya: Havi fix kiadás -->
+            <div class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
+                <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent"></div>
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                        Összes fix kiadás / hó
+                    </span>
+                    <span id="badge-total-items" class="text-xs font-medium text-zinc-300 bg-white/[0.05] border border-white/10 px-2.5 py-0.5 rounded-full tabular-nums whitespace-nowrap">
+                        0 tétel
+                    </span>
+                </div>
+                <div id="display-total-fixed" class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white tabular-nums mt-3">
+                    0 <span class="text-lg sm:text-xl font-semibold text-zinc-500">Ft</span>
+                </div>
+            </div>
+
+            <!-- 2. Összesítő kártya: Éves vetített összeg -->
+            <div class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
+                <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/15 to-transparent"></div>
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                        Éves vetített kiadás
+                    </span>
+                    <span class="text-xs font-medium text-zinc-500">
+                        12 hónapra vetítve
+                    </span>
+                </div>
+                <div id="display-annual-fixed" class="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-200 tabular-nums mt-3">
+                    0 <span class="text-lg sm:text-xl font-semibold text-zinc-500">Ft</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ESZTÉTIKUS ELVÁLASZTÓ SÁV -->
+        <div class="my-6 sm:my-7 flex items-center gap-4" aria-hidden="true">
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/[0.08] to-white/[0.08]"></div>
+            <span class="text-[11px] font-semibold uppercase tracking-widest text-zinc-500">
+                Kategóriák &amp; Tételek • Átrendezhető
+            </span>
+            <div class="h-px flex-1 bg-gradient-to-l from-transparent via-white/[0.08] to-white/[0.08]"></div>
+        </div>
+
+        <!-- FŐ KÖLTSÉG BLOKKOK RÁCSA (RÖGZÍTETT h-[340px] MAGASSÁGÚ, SZABADON ÁTRENDEZHETŐ KÁRTYÁK) -->
+        <section id="cards-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- 1. KÁRTYA: STREAMING SZOLGÁLTATÁSOK (PIROSAS AKCENTUS) -->
+            <div data-card-category="streaming" class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6 h-[340px] flex flex-col">
+                <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-rose-500/75 to-transparent"></div>
+
+                <div class="flex items-center justify-between gap-2.5 pb-2.5 shrink-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <div class="drag-handle p-1 -ml-1 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.06] transition shrink-0" title="Húzd a kártyát az átrendezéshez" aria-label="Kártya mozgatása">
+                            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                                <circle cx="5.5" cy="3.5" r="1.25"/><circle cx="10.5" cy="3.5" r="1.25"/>
+                                <circle cx="5.5" cy="8" r="1.25"/><circle cx="10.5" cy="8" r="1.25"/>
+                                <circle cx="5.5" cy="12.5" r="1.25"/><circle cx="10.5" cy="12.5" r="1.25"/>
+                            </svg>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-rose-500/10 border border-rose-500/25 text-rose-400 flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="4" width="20" height="14" rx="2"/>
+                                <path d="M8 21h8M12 18v3M10 9l5 3-5 3V9z" fill="currentColor" stroke="none"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-base font-bold tracking-tight text-white truncate">
+                            Streaming szolgáltatások
+                        </h2>
+                    </div>
+                    <span id="subtotal-streaming" class="text-sm font-bold text-zinc-100 tabular-nums whitespace-nowrap shrink-0 bg-white/[0.04] border border-white/10 px-3 py-1 rounded-lg">
+                        0 <span class="text-xs font-medium text-zinc-400">Ft / hó</span>
+                    </span>
+                </div>
+
+                <div class="w-full h-[3px] bg-white/[0.05] rounded-full overflow-hidden mb-3 shrink-0" title="Arány az összes fix kiadáson belül">
+                    <div id="bar-streaming" class="h-full bg-rose-500/80 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+
+                <form id="form-streaming" class="space-y-2 shrink-0">
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                        <div class="sm:col-span-7">
+                            <label class="sr-only" for="input-streaming-name">Szolgáltatás neve</label>
+                            <input id="input-streaming-name" type="text" required maxlength="50"
+                                placeholder="Megnevezés (pl. Netflix, Disney+, Spotify)"
+                                class="monolith-input w-full rounded-xl px-3.5 py-2 text-sm text-zinc-100 placeholder-zinc-500">
+                        </div>
+
+                        <div class="sm:col-span-5 relative">
+                            <label class="sr-only" for="input-streaming-amount">Összeg (Ft)</label>
+                            <input id="input-streaming-amount" type="number" required min="1" step="1" placeholder="Összeg"
+                                class="monolith-input w-full rounded-xl pl-3.5 pr-8 py-2 text-sm font-medium text-zinc-100 placeholder-zinc-500 tabular-nums">
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500 pointer-events-none">Ft</span>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-bold py-2 px-4 rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 shadow-xs">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Összeg mentése
+                    </button>
+                </form>
+
+                <div class="border-t border-white/[0.07] my-2.5 shrink-0"></div>
+
+                <ul id="list-streaming" class="flex-1 overflow-y-auto pr-1 divide-y divide-white/[0.06] custom-scroll"></ul>
+            </div>
+
+            <!-- 2. KÁRTYA: ALBÉRLET ÉS REZSI (HIDEG KÉK AKCENTUS) -->
+            <div data-card-category="housing" class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6 h-[340px] flex flex-col">
+                <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-sky-500/75 to-transparent"></div>
+
+                <div class="flex items-center justify-between gap-2.5 pb-2.5 shrink-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <div class="drag-handle p-1 -ml-1 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.06] transition shrink-0" title="Húzd a kártyát az átrendezéshez" aria-label="Kártya mozgatása">
+                            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                                <circle cx="5.5" cy="3.5" r="1.25"/><circle cx="10.5" cy="3.5" r="1.25"/>
+                                <circle cx="5.5" cy="8" r="1.25"/><circle cx="10.5" cy="8" r="1.25"/>
+                                <circle cx="5.5" cy="12.5" r="1.25"/><circle cx="10.5" cy="12.5" r="1.25"/>
+                            </svg>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/25 text-sky-400 flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1v-9.5z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-base font-bold tracking-tight text-white truncate">
+                            Albérlet és rezsi
+                        </h2>
+                    </div>
+                    <span id="subtotal-housing" class="text-sm font-bold text-zinc-100 tabular-nums whitespace-nowrap shrink-0 bg-white/[0.04] border border-white/10 px-3 py-1 rounded-lg">
+                        0 <span class="text-xs font-medium text-zinc-400">Ft / hó</span>
+                    </span>
+                </div>
+
+                <div class="w-full h-[3px] bg-white/[0.05] rounded-full overflow-hidden mb-3 shrink-0" title="Arány az összes fix kiadáson belül">
+                    <div id="bar-housing" class="h-full bg-sky-500/80 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+
+                <form id="form-housing" class="space-y-2 shrink-0">
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                        <div class="sm:col-span-7">
+                            <input id="input-housing-name" type="text" required maxlength="50"
+                                placeholder="Megnevezés (pl. Albérlet, Villanyszámla)"
+                                class="monolith-input w-full rounded-xl px-3.5 py-2 text-sm text-zinc-100 placeholder-zinc-500">
+                        </div>
+                        <div class="sm:col-span-5 relative">
+                            <input id="input-housing-amount" type="number" required min="1" step="1" placeholder="Összeg"
+                                class="monolith-input w-full rounded-xl pl-3.5 pr-8 py-2 text-sm font-medium text-zinc-100 placeholder-zinc-500 tabular-nums">
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500 pointer-events-none">Ft</span>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-bold py-2 px-4 rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 shadow-xs">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Összeg mentése
+                    </button>
+                </form>
+
+                <div class="border-t border-white/[0.07] my-2.5 shrink-0"></div>
+
+                <ul id="list-housing" class="flex-1 overflow-y-auto pr-1 divide-y divide-white/[0.06] custom-scroll"></ul>
+            </div>
+
+            <!-- 3. KÁRTYA: HITELEK (MELEG BOROSTYÁN AKCENTUS) -->
+            <div data-card-category="loans" class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6 h-[340px] flex flex-col">
+                <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-amber-500/75 to-transparent"></div>
+
+                <div class="flex items-center justify-between gap-2.5 pb-2.5 shrink-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <div class="drag-handle p-1 -ml-1 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.06] transition shrink-0" title="Húzd a kártyát az átrendezéshez" aria-label="Kártya mozgatása">
+                            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                                <circle cx="5.5" cy="3.5" r="1.25"/><circle cx="10.5" cy="3.5" r="1.25"/>
+                                <circle cx="5.5" cy="8" r="1.25"/><circle cx="10.5" cy="8" r="1.25"/>
+                                <circle cx="5.5" cy="12.5" r="1.25"/><circle cx="10.5" cy="12.5" r="1.25"/>
+                            </svg>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-400 flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M4 10h16M6 10v8M10 10v8M14 10v8M18 10v8M12 3l9 7H3l9-7z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-base font-bold tracking-tight text-white truncate">
+                            Hitelek
+                        </h2>
+                    </div>
+                    <span id="subtotal-loans" class="text-sm font-bold text-zinc-100 tabular-nums whitespace-nowrap shrink-0 bg-white/[0.04] border border-white/10 px-3 py-1 rounded-lg">
+                        0 <span class="text-xs font-medium text-zinc-400">Ft / hó</span>
+                    </span>
+                </div>
+
+                <div class="w-full h-[3px] bg-white/[0.05] rounded-full overflow-hidden mb-3 shrink-0" title="Arány az összes fix kiadáson belül">
+                    <div id="bar-loans" class="h-full bg-amber-500/80 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+
+                <form id="form-loans" class="space-y-2 shrink-0">
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                        <div class="sm:col-span-7">
+                            <input id="input-loans-name" type="text" required maxlength="50"
+                                placeholder="Megnevezés (pl. Személyi kölcsön)"
+                                class="monolith-input w-full rounded-xl px-3.5 py-2 text-sm text-zinc-100 placeholder-zinc-500">
+                        </div>
+                        <div class="sm:col-span-5 relative">
+                            <input id="input-loans-amount" type="number" required min="1" step="1" placeholder="Összeg"
+                                class="monolith-input w-full rounded-xl pl-3.5 pr-8 py-2 text-sm font-medium text-zinc-100 placeholder-zinc-500 tabular-nums">
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500 pointer-events-none">Ft</span>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-bold py-2 px-4 rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 shadow-xs">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Összeg mentése
+                    </button>
+                </form>
+
+                <div class="border-t border-white/[0.07] my-2.5 shrink-0"></div>
+
+                <ul id="list-loans" class="flex-1 overflow-y-auto pr-1 divide-y divide-white/[0.06] custom-scroll"></ul>
+            </div>
+
+            <!-- 4. KÁRTYA: TELEFONSZÁMLÁK ÉS INTERNET (LILA AKCENTUS) -->
+            <div data-card-category="telecom" class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6 h-[340px] flex flex-col">
+                <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-violet-500/75 to-transparent"></div>
+
+                <div class="flex items-center justify-between gap-2.5 pb-2.5 shrink-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <div class="drag-handle p-1 -ml-1 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.06] transition shrink-0" title="Húzd a kártyát az átrendezéshez" aria-label="Kártya mozgatása">
+                            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                                <circle cx="5.5" cy="3.5" r="1.25"/><circle cx="10.5" cy="3.5" r="1.25"/>
+                                <circle cx="5.5" cy="8" r="1.25"/><circle cx="10.5" cy="8" r="1.25"/>
+                                <circle cx="5.5" cy="12.5" r="1.25"/><circle cx="10.5" cy="12.5" r="1.25"/>
+                            </svg>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/25 text-violet-400 flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="7" y="2" width="10" height="20" rx="2"/>
+                                <line x1="12" y1="18" x2="12.01" y2="18" stroke-width="2.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-base font-bold tracking-tight text-white truncate">
+                            Telefonszámlák és internet
+                        </h2>
+                    </div>
+                    <span id="subtotal-telecom" class="text-sm font-bold text-zinc-100 tabular-nums whitespace-nowrap shrink-0 bg-white/[0.04] border border-white/10 px-3 py-1 rounded-lg">
+                        0 <span class="text-xs font-medium text-zinc-400">Ft / hó</span>
+                    </span>
+                </div>
+
+                <div class="w-full h-[3px] bg-white/[0.05] rounded-full overflow-hidden mb-3 shrink-0" title="Arány az összes fix kiadáson belül">
+                    <div id="bar-telecom" class="h-full bg-violet-500/80 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+
+                <form id="form-telecom" class="space-y-2 shrink-0">
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                        <div class="sm:col-span-7">
+                            <input id="input-telecom-name" type="text" required maxlength="50"
+                                placeholder="Megnevezés (pl. Mobil előfizetés, Otthoni net)"
+                                class="monolith-input w-full rounded-xl px-3.5 py-2 text-sm text-zinc-100 placeholder-zinc-500">
+                        </div>
+                        <div class="sm:col-span-5 relative">
+                            <input id="input-telecom-amount" type="number" required min="1" step="1" placeholder="Összeg"
+                                class="monolith-input w-full rounded-xl pl-3.5 pr-8 py-2 text-sm font-medium text-zinc-100 placeholder-zinc-500 tabular-nums">
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500 pointer-events-none">Ft</span>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-bold py-2 px-4 rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 shadow-xs">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Összeg mentése
+                    </button>
+                </form>
+
+                <div class="border-t border-white/[0.07] my-2.5 shrink-0"></div>
+
+                <ul id="list-telecom" class="flex-1 overflow-y-auto pr-1 divide-y divide-white/[0.06] custom-scroll"></ul>
+            </div>
+
+            <!-- 5. KÁRTYA: VÁLLALKOZÓI KÖLTSÉGEK (SMARAGDZÖLD AKCENTUS) -->
+            <div data-card-category="business" class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6 h-[340px] flex flex-col">
+                <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-500/75 to-transparent"></div>
+
+                <div class="flex items-center justify-between gap-2.5 pb-2.5 shrink-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <div class="drag-handle p-1 -ml-1 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.06] transition shrink-0" title="Húzd a kártyát az átrendezéshez" aria-label="Kártya mozgatása">
+                            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                                <circle cx="5.5" cy="3.5" r="1.25"/><circle cx="10.5" cy="3.5" r="1.25"/>
+                                <circle cx="5.5" cy="8" r="1.25"/><circle cx="10.5" cy="8" r="1.25"/>
+                                <circle cx="5.5" cy="12.5" r="1.25"/><circle cx="10.5" cy="12.5" r="1.25"/>
+                            </svg>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="7" width="20" height="14" rx="2"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
+                            </svg>
+                        </div>
+                        <div class="min-w-0">
+                            <h2 class="text-base font-bold tracking-tight text-white truncate leading-tight">
+                                Vállalkozói költségek
+                            </h2>
+                            <p class="text-[11px] text-zinc-400 truncate">
+                                Járulékok és könyvelés
+                            </p>
+                        </div>
+                    </div>
+                    <span id="subtotal-business" class="text-sm font-bold text-zinc-100 tabular-nums whitespace-nowrap shrink-0 bg-white/[0.04] border border-white/10 px-3 py-1 rounded-lg">
+                        0 <span class="text-xs font-medium text-zinc-400">Ft / hó</span>
+                    </span>
+                </div>
+
+                <div class="w-full h-[3px] bg-white/[0.05] rounded-full overflow-hidden mb-3 shrink-0" title="Arány az összes fix kiadáson belül">
+                    <div id="bar-business" class="h-full bg-emerald-500/80 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+
+                <form id="form-business" class="space-y-2 shrink-0">
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                        <div class="sm:col-span-7">
+                            <input id="input-business-name" type="text" required maxlength="50"
+                                placeholder="Megnevezés (pl. Könyvelő, TB / SZOCHO)"
+                                class="monolith-input w-full rounded-xl px-3.5 py-2 text-sm text-zinc-100 placeholder-zinc-500">
+                        </div>
+                        <div class="sm:col-span-5 relative">
+                            <input id="input-business-amount" type="number" required min="1" step="1" placeholder="Összeg"
+                                class="monolith-input w-full rounded-xl pl-3.5 pr-8 py-2 text-sm font-medium text-zinc-100 placeholder-zinc-500 tabular-nums">
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500 pointer-events-none">Ft</span>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-bold py-2 px-4 rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 shadow-xs">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Összeg mentése
+                    </button>
+                </form>
+
+                <div class="border-t border-white/[0.07] my-2.5 shrink-0"></div>
+
+                <ul id="list-business" class="flex-1 overflow-y-auto pr-1 divide-y divide-white/[0.06] custom-scroll"></ul>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- LÁBLÉC -->
+    <footer class="max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 border-t border-white/[0.07] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-zinc-500">
+        <span>MONO — Személyes pénzügyi áttekintő</span>
+        <span>Helyi adattárolás aktív • Véletlen törlés elleni védelem bekapcsolva</span>
+    </footer>
+
+    <!-- MODÁLIS ABLAK 1: SZIGORÚ TÖRLÉS MEGERŐSÍTÉS -->
+    <div id="modal-delete" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-xs" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+        <div class="bg-[#13151b] border border-white/10 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-modal">
+            <div class="flex items-start gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/25 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h3 id="delete-modal-title" class="text-base font-bold text-white">
+                        Biztosan törlöd ezt a tételt?
+                    </h3>
+                    <p id="delete-modal-category" class="text-xs font-medium text-zinc-400 mt-0.5">
+                        Kategória
+                    </p>
+                    <div class="mt-3 p-3 rounded-xl bg-[#090a0d] border border-white/[0.08]">
+                        <p id="delete-modal-summary" class="text-sm font-bold text-zinc-100 tabular-nums">
+                            Tétel — 0 Ft
+                        </p>
+                    </div>
+                    <p class="text-xs text-zinc-400 mt-2.5">
+                        Ez a művelet véglegesen eltávolítja a tételt a havi összesítőből.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-6 flex items-center justify-end gap-2.5">
+                <button id="btn-cancel-delete" type="button"
+                    class="px-4 py-2.5 rounded-xl text-xs font-semibold bg-white/[0.05] text-zinc-200 border border-white/10 hover:bg-white/[0.1] transition cursor-pointer">
+                    Mégse
+                </button>
+                <button id="btn-confirm-delete" type="button"
+                    class="px-4 py-2.5 rounded-xl text-xs font-semibold bg-rose-600 text-white hover:bg-rose-500 transition cursor-pointer shadow-xs">
+                    Igen, törlöm
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODÁLIS ABLAK 2: TÉTEL SZERKESZTÉSE -->
+    <div id="modal-edit" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-xs" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+        <div class="bg-[#13151b] border border-white/10 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-modal">
+            <h3 id="edit-modal-title" class="text-base font-bold text-white">
+                Tétel módosítása
+            </h3>
+            <p id="edit-modal-subtitle" class="text-xs text-zinc-400 mt-0.5">
+                Megnevezés és havi összeg frissítése
+            </p>
+
+            <form id="form-edit-item" class="mt-4 space-y-4">
+                <div>
+                    <label for="edit-item-name" class="block text-xs font-semibold text-zinc-300 mb-1">
+                        Megnevezés
+                    </label>
+                    <input id="edit-item-name" type="text" required maxlength="50"
+                        class="monolith-input w-full rounded-xl px-3.5 py-2.5 text-sm font-medium text-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed">
+                </div>
+
+                <div>
+                    <label for="edit-item-amount" class="block text-xs font-semibold text-zinc-300 mb-1">
+                        Havi összeg (Ft)
+                    </label>
+                    <input id="edit-item-amount" type="number" required min="1" step="1"
+                        class="monolith-input w-full rounded-xl px-3.5 py-2.5 text-sm font-bold text-zinc-100 tabular-nums">
+                </div>
+
+                <div class="pt-2 flex items-center justify-end gap-2.5">
+                    <button id="btn-cancel-edit" type="button"
+                        class="px-4 py-2.5 rounded-xl text-xs font-semibold bg-white/[0.05] text-zinc-200 border border-white/10 hover:bg-white/[0.1] transition cursor-pointer">
+                        Mégse
+                    </button>
+                    <button type="submit"
+                        class="px-4 py-2.5 rounded-xl text-xs font-bold bg-zinc-100 text-zinc-950 hover:bg-white transition cursor-pointer">
+                        Összeg mentése
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * MONO — Személyes fix költség kalkulátor
+         * Sötét téma, 0 Ft-os kiindulási állapot, előre megadott példa adatok nélkül.
+         */
+
+        const STORAGE_KEY = 'monolith_budget_v1';
+
+        const CATEGORY_LABELS = {
+            streaming: 'Streaming szolgáltatások',
+            housing: 'Albérlet és rezsi',
+            loans: 'Hitelek',
+            telecom: 'Telefonszámlák és internet',
+            business: 'Vállalkozói költségek'
+        };
+
+        const DEFAULT_CARD_ORDER = ['streaming', 'housing', 'loans', 'telecom', 'business'];
+
+        // Teljesen üres kiinduló állapot (példa adatok nélkül, biztonsági mentés és kártyasorrend követéssel)
+        let appState = {
+            items: [],
+            cardOrder: [...DEFAULT_CARD_ORDER],
+            hasUnsavedExport: false,
+            lastExportedAt: null
+        };
+
+        let pendingDeleteId = null;
+        let pendingEditId = null;
+
+        // Szám formázása szóközökkel (pl. "245 000")
+        function formatNumberHU(value) {
+            const num = Math.round(Number(value) || 0);
+            return new Intl.NumberFormat('hu-HU', {
+                maximumFractionDigits: 0
+            }).format(num);
+        }
+
+        // Magyar forint formázás szövegként (pl. "245 000 Ft")
+        function formatHUF(value) {
+            return `${formatNumberHU(value)} Ft`;
+        }
+
+        // XSS elleni védelem felhasználói szövegekhez
+        function escapeHTML(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Diszkrét értesítő buborék megjelenítése (alert() helyett)
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            const isError = type === 'error';
+            toast.className = `pointer-events-auto px-4 py-2.5 rounded-xl text-xs font-semibold shadow-xl border transition-all duration-200 flex items-center gap-2 ${
+                isError
+                    ? 'bg-rose-950/95 border-rose-500/40 text-rose-200'
+                    : 'bg-[#161820]/95 border-white/15 text-zinc-100'
+            }`;
+            toast.innerHTML = `
+                <span class="w-1.5 h-1.5 rounded-full ${isError ? 'bg-rose-400' : 'bg-sky-400'} shrink-0"></span>
+                <span>${escapeHTML(message)}</span>
+            `;
+
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(6px)';
+                setTimeout(() => toast.remove(), 220);
+            }, 2600);
+        }
+
+        // Teljes felület és összesítők újrarenderelése
+        function renderAll() {
+            const categories = Object.keys(CATEGORY_LABELS);
+            let totalMonthly = 0;
+            const categoryTotals = {};
+
+            categories.forEach(cat => {
+                const items = appState.items.filter(item => item.category === cat);
+                const sum = items.reduce((acc, item) => acc + (Number(item.amount) || 0), 0);
+                categoryTotals[cat] = sum;
+                totalMonthly += sum;
+
+                const subtotalEl = document.getElementById(`subtotal-${cat}`);
+                if (subtotalEl) {
+                    subtotalEl.innerHTML = `${formatNumberHU(sum)} <span class="text-xs font-medium text-zinc-400">Ft / hó</span>`;
+                }
+
+                const listEl = document.getElementById(`list-${cat}`);
+                if (listEl) {
+                    if (items.length === 0) {
+                        listEl.innerHTML = `
+                            <li class="py-6 text-center text-xs text-zinc-500">
+                                Még nincs rögzített tétel ebben a kategóriában
+                            </li>`;
+                    } else {
+                        listEl.innerHTML = items.map(item => `
+                            <li class="py-2.5 flex items-center justify-between gap-2.5 group">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    ${cat === 'streaming' ? getStreamingBadgeHTML(item.name) : ''}
+                                    <span class="text-sm font-medium text-zinc-200 truncate" title="${escapeHTML(item.name)}">
+                                        ${escapeHTML(item.name)}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <span class="text-sm font-bold text-white tabular-nums">
+                                        ${formatHUF(item.amount)}
+                                    </span>
+                                    <div class="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition">
+                                        <button type="button" data-action="edit" data-id="${escapeHTML(item.id)}"
+                                            class="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.08] transition cursor-pointer"
+                                            title="Módosítás" aria-label="Tétel módosítása">
+                                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                            </svg>
+                                        </button>
+                                        <button type="button" data-action="delete" data-id="${escapeHTML(item.id)}"
+                                            class="p-1.5 rounded-lg text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition cursor-pointer"
+                                            title="Törlés" aria-label="Tétel törlése">
+                                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="3 6 5 6 21 6"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m5 0V4a1 1 0 011-1h2a1 1 0 011 1v2"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </li>
+                        `).join('');
+                    }
+                }
+            });
+
+            // Arányjelző sávok frissítése
+            categories.forEach(cat => {
+                const barEl = document.getElementById(`bar-${cat}`);
+                if (barEl) {
+                    const pct = totalMonthly > 0 ? Math.round((categoryTotals[cat] / totalMonthly) * 100) : 0;
+                    barEl.style.width = `${pct}%`;
+                }
+            });
+
+            // Felső összesítő kártyák frissítése
+            const totalFixedEl = document.getElementById('display-total-fixed');
+            if (totalFixedEl) {
+                totalFixedEl.innerHTML = `${formatNumberHU(totalMonthly)} <span class="text-lg sm:text-xl font-semibold text-zinc-500">Ft</span>`;
+            }
+
+            const annualFixedEl = document.getElementById('display-annual-fixed');
+            if (annualFixedEl) {
+                annualFixedEl.innerHTML = `${formatNumberHU(totalMonthly * 12)} <span class="text-lg sm:text-xl font-semibold text-zinc-500">Ft</span>`;
+            }
+
+            const badgeItemsEl = document.getElementById('badge-total-items');
+            if (badgeItemsEl) {
+                badgeItemsEl.textContent = `${appState.items.length} tétel`;
+            }
+        }
+
+        // Inline SVG márkajelzések a streaming szolgáltatásokhoz
+        function getStreamingBadgeHTML(serviceName) {
+            const normalized = String(serviceName || '').trim().toLowerCase();
+            switch (normalized) {
+                case 'netflix':
+                    return `
+                        <div class="w-8 h-8 rounded-lg bg-[#141414] border border-red-500/30 flex items-center justify-center shrink-0" title="Netflix">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                <path d="M5 3h3.2l4.6 12.2V3H16v18h-3.1L8.2 8.7V21H5V3z" fill="#E50914"/>
+                            </svg>
+                        </div>`;
+                case 'disney+':
+                case 'disney':
+                    return `
+                        <div class="w-8 h-8 rounded-lg bg-[#0b1838] border border-sky-400/30 flex items-center justify-center shrink-0" title="Disney+">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                <path d="M4 13.5C7 8 15 6.5 20 11" stroke="#38BDF8" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M12 7v10M7 12h10" stroke="#E0F2FE" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>`;
+                case 'prime video':
+                case 'amazon prime':
+                case 'prime':
+                    return `
+                        <div class="w-8 h-8 rounded-lg bg-[#0c1d2c] border border-cyan-400/30 flex items-center justify-center shrink-0" title="Prime Video">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                <path d="M4 14c4.5 3.5 11.5 3.5 16 0" stroke="#00A8E1" stroke-width="2.2" stroke-linecap="round"/>
+                                <path d="M17.5 12.5l2.8 1.2-1.3 2.7" stroke="#00A8E1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>`;
+                case 'youtube premium':
+                case 'youtube':
+                    return `
+                        <div class="w-8 h-8 rounded-lg bg-[#1f1012] border border-rose-500/30 flex items-center justify-center shrink-0" title="YouTube Premium">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                <rect x="2.5" y="5.5" width="19" height="13" rx="3.5" fill="#FF0000"/>
+                                <path d="M10 9l5.5 3-5.5 3V9z" fill="#FFFFFF"/>
+                            </svg>
+                        </div>`;
+                default:
+                    return `
+                        <div class="w-8 h-8 rounded-lg bg-white/[0.05] border border-white/10 text-zinc-300 flex items-center justify-center shrink-0" title="Streaming">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="8 5 19 12 8 19 8 5" fill="currentColor" stroke="none"/>
+                            </svg>
+                        </div>`;
+            }
+        }
+
+        // Dátum formázása magyar formátumban az állapotjelző tooltiphez
+        function formatDateTimeHU(isoString) {
+            if (!isoString) return 'Még nem készült fájlmentés';
+            try {
+                const date = new Date(isoString);
+                return new Intl.DateTimeFormat('hu-HU', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }).format(date);
+            } catch (e) {
+                return 'Ismeretlen időpont';
+            }
+        }
+
+        // Fejléc biztonsági mentés állapotjelző frissítése
+        function updateBackupStatusUI() {
+            const btn = document.getElementById('btn-backup-status');
+            const ping = document.getElementById('backup-status-ping');
+            const dot = document.getElementById('backup-status-dot');
+            const text = document.getElementById('backup-status-text');
+
+            if (!btn || !ping || !dot || !text) return;
+
+            if (appState.hasUnsavedExport) {
+                btn.className = 'inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/15 border border-amber-500/35 text-xs font-semibold text-amber-300 hover:bg-amber-500/25 transition cursor-pointer whitespace-nowrap';
+                ping.classList.remove('hidden');
+                dot.className = 'relative inline-flex rounded-full h-2 w-2 bg-amber-400';
+                text.textContent = 'Nincs exportálva • Kattints a mentéshez';
+                btn.title = `Nem mentett módosítások vannak! Utolsó fájlmentés: ${formatDateTimeHU(appState.lastExportedAt)}. Kattints az azonnali letöltéshez.`;
+            } else {
+                btn.className = 'inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/20 transition cursor-pointer whitespace-nowrap';
+                ping.classList.add('hidden');
+                dot.className = 'relative inline-flex rounded-full h-2 w-2 bg-emerald-400';
+                text.textContent = 'Mentés naprakész';
+                btn.title = appState.lastExportedAt
+                    ? `Biztonsági mentés naprakész (${formatDateTimeHU(appState.lastExportedAt)}). Kattints új mentéshez.`
+                    : 'Minden adatod naprakész. Kattints biztonsági mentés letöltéséhez.';
+            }
+        }
+
+        // Állapot mentése a localStorage-ba
+        function saveState(markDirty = false) {
+            if (markDirty) {
+                appState.hasUnsavedExport = true;
+            }
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            } catch (err) {
+                console.error('Hiba a helyi mentés közben:', err);
+                showToast('Nem sikerült a helyi mentés.', 'error');
+            }
+            updateBackupStatusUI();
+        }
+
+        // Állapot betöltése a localStorage-ból
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return;
+                const parsed = JSON.parse(raw);
+                if (parsed && Array.isArray(parsed.items)) {
+                    appState.items = parsed.items.filter(item =>
+                        item &&
+                        typeof item.id === 'string' &&
+                        typeof item.category === 'string' &&
+                        typeof item.name === 'string' &&
+                        Number.isFinite(Number(item.amount)) &&
+                        Number(item.amount) > 0
+                    );
+                    appState.hasUnsavedExport = Boolean(parsed.hasUnsavedExport);
+                    appState.lastExportedAt = parsed.lastExportedAt || null;
+                    if (Array.isArray(parsed.cardOrder)) {
+                        appState.cardOrder = sanitizeCardOrder(parsed.cardOrder);
+                    }
+                }
+            } catch (err) {
+                console.warn('Nem sikerült beolvasni a mentett adatokat:', err);
+            }
+        }
+
+        // Kártyasorrend érvényesítése (mind az 5 kategória pontosan egyszer szerepeljen)
+        function sanitizeCardOrder(order) {
+            if (!Array.isArray(order)) return [...DEFAULT_CARD_ORDER];
+            const valid = order.filter(cat => DEFAULT_CARD_ORDER.includes(cat));
+            const unique = [...new Set(valid)];
+            DEFAULT_CARD_ORDER.forEach(cat => {
+                if (!unique.includes(cat)) unique.push(cat);
+            });
+            return unique;
+        }
+
+        // Kártyák DOM sorrendjének alkalmazása az elmentett állapot szerint
+        function applyCardOrder() {
+            const grid = document.getElementById('cards-grid');
+            if (!grid) return;
+            const order = sanitizeCardOrder(appState.cardOrder);
+            order.forEach(cat => {
+                const card = grid.querySelector(`[data-card-category="${cat}"]`);
+                if (card) {
+                    grid.appendChild(card);
+                }
+            });
+        }
+
+        // Aktuális DOM sorrend kiolvasása és mentése
+        function persistCurrentGridOrder() {
+            const grid = document.getElementById('cards-grid');
+            if (!grid) return;
+            const currentOrder = Array.from(grid.querySelectorAll('[data-card-category]'))
+                .map(el => el.dataset.cardCategory);
+            const sanitized = sanitizeCardOrder(currentOrder);
+            const changed = JSON.stringify(sanitized) !== JSON.stringify(appState.cardOrder);
+            appState.cardOrder = sanitized;
+            if (changed) {
+                saveState(true);
+                showToast('Kártyák sorrendje elmentve');
+            }
+        }
+
+        // Szabadon árendezhető Drag & Drop (egér + érintőképernyő) inicializálása
+        function initCardDragAndDrop() {
+            const grid = document.getElementById('cards-grid');
+            if (!grid) return;
+
+            let draggedCard = null;
+            let activeTouchCard = null;
+
+            const cards = Array.from(grid.querySelectorAll('[data-card-category]'));
+
+            cards.forEach(card => {
+                const handle = card.querySelector('.drag-handle');
+                if (!handle) return;
+
+                // Asztali böngésző: csak a fogantyúról indítva válik húzhatóvá, így a szövegkijelölés és űrlapok zavartalanok
+                handle.addEventListener('pointerdown', () => {
+                    card.setAttribute('draggable', 'true');
+                });
+                window.addEventListener('pointerup', () => {
+                    card.removeAttribute('draggable');
+                });
+
+                card.addEventListener('dragstart', (e) => {
+                    draggedCard = card;
+                    card.classList.add('is-dragging');
+                    if (e.dataTransfer) {
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('text/plain', card.dataset.cardCategory);
+                    }
+                });
+
+                card.addEventListener('dragend', () => {
+                    card.classList.remove('is-dragging');
+                    card.removeAttribute('draggable');
+                    cards.forEach(c => c.classList.remove('drag-over'));
+                    draggedCard = null;
+                    persistCurrentGridOrder();
+                });
+
+                card.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    if (!draggedCard || draggedCard === card) return;
+
+                    const rect = card.getBoundingClientRect();
+                    const isAfter = (e.clientY - rect.top) > rect.height / 2 ||
+                                    ((e.clientX - rect.left) > rect.width / 2 && Math.abs(e.clientY - rect.top - rect.height / 2) < rect.height * 0.35);
+
+                    if (isAfter) {
+                        grid.insertBefore(draggedCard, card.nextSibling);
+                    } else {
+                        grid.insertBefore(draggedCard, card);
+                    }
+                });
+
+                card.addEventListener('dragenter', (e) => {
+                    e.preventDefault();
+                    if (draggedCard && draggedCard !== card) {
+                        card.classList.add('drag-over');
+                    }
+                });
+
+                card.addEventListener('dragleave', () => {
+                    card.classList.remove('drag-over');
+                });
+
+                card.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    card.classList.remove('drag-over');
+                });
+
+                // Mobil / érintőképernyő támogatás a fogantyún keresztül
+                handle.addEventListener('touchstart', (e) => {
+                    if (e.touches.length !== 1) return;
+                    activeTouchCard = card;
+                    card.classList.add('is-dragging');
+                }, { passive: true });
+
+                handle.addEventListener('touchmove', (e) => {
+                    if (!activeTouchCard || e.touches.length !== 1) return;
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const elemBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+                    const targetCard = elemBelow ? elemBelow.closest('[data-card-category]') : null;
+
+                    cards.forEach(c => c.classList.remove('drag-over'));
+
+                    if (targetCard && targetCard !== activeTouchCard && grid.contains(targetCard)) {
+                        targetCard.classList.add('drag-over');
+                        const rect = targetCard.getBoundingClientRect();
+                        const insertAfter = touch.clientY > rect.top + rect.height / 2;
+                        if (insertAfter) {
+                            grid.insertBefore(activeTouchCard, targetCard.nextSibling);
+                        } else {
+                            grid.insertBefore(activeTouchCard, targetCard);
+                        }
+                    }
+                }, { passive: false });
+
+                handle.addEventListener('touchend', () => {
+                    if (!activeTouchCard) return;
+                    activeTouchCard.classList.remove('is-dragging');
+                    cards.forEach(c => c.classList.remove('drag-over'));
+                    activeTouchCard = null;
+                    persistCurrentGridOrder();
+                });
+            });
+        }
+
+        // Új tétel felvétele
+        function addItem(category, name, amount) {
+            const cleanName = String(name || '').trim();
+            const numAmount = Math.abs(Math.round(Number(amount)));
+
+            if (!cleanName || !Number.isFinite(numAmount) || numAmount <= 0) {
+                return false;
+            }
+
+            appState.items.push({
+                id: 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6),
+                category,
+                name: cleanName,
+                amount: numAmount
+            });
+
+            saveState(true);
+            renderAll();
+            showToast(`${cleanName} mentve (${formatHUF(numAmount)})`);
+            return true;
+        }
+
+        // Törlés megerősítő ablak megnyitása
+        function openDeleteModal(id) {
+            const item = appState.items.find(i => i.id === id);
+            if (!item) return;
+
+            pendingDeleteId = id;
+            document.getElementById('delete-modal-category').textContent = CATEGORY_LABELS[item.category] || item.category;
+            document.getElementById('delete-modal-summary').textContent = `${item.name} — ${formatHUF(item.amount)}`;
+
+            const modal = document.getElementById('modal-delete');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Törlés megerősítő ablak bezárása
+        function closeDeleteModal() {
+            pendingDeleteId = null;
+            const modal = document.getElementById('modal-delete');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Szerkesztés modális ablak megnyitása
+        function openEditModal(id) {
+            const item = appState.items.find(i => i.id === id);
+            if (!item) return;
+
+            pendingEditId = id;
+            document.getElementById('edit-modal-subtitle').textContent = CATEGORY_LABELS[item.category] || item.category;
+
+            const nameInput = document.getElementById('edit-item-name');
+            const amountInput = document.getElementById('edit-item-amount');
+
+            nameInput.value = item.name;
+            amountInput.value = item.amount;
+            nameInput.disabled = false;
+
+            const modal = document.getElementById('modal-edit');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            setTimeout(() => {
+                nameInput.focus();
+            }, 30);
+        }
+
+        // Szerkesztés modális ablak bezárása
+        function closeEditModal() {
+            pendingEditId = null;
+            const modal = document.getElementById('modal-edit');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Biztonsági mentés (.json) exportálása (alapértelmezetten adatok.json néven a GitHub szinkronhoz)
+        function exportBackupJSON() {
+            const nowIso = new Date().toISOString();
+            const payload = {
+                app: 'MONO',
+                version: 1,
+                exportedAt: nowIso,
+                cardOrder: sanitizeCardOrder(appState.cardOrder),
+                items: appState.items
+            };
+
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'adatok.json';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+
+            appState.hasUnsavedExport = false;
+            appState.lastExportedAt = nowIso;
+            saveState(false);
+            showToast('adatok.json letöltve (feltölthető a GitHub mappába)');
+        }
+
+        // JSON adatok tisztítása és érvényesítése
+        function parseAndSanitizeItems(parsed) {
+            const rawItems = Array.isArray(parsed) ? parsed : (parsed && parsed.items);
+            if (!Array.isArray(rawItems)) {
+                return null;
+            }
+            const validCategories = Object.keys(CATEGORY_LABELS);
+            return rawItems
+                .filter(item =>
+                    item &&
+                    validCategories.includes(item.category) &&
+                    typeof item.name === 'string' &&
+                    item.name.trim().length > 0 &&
+                    Number.isFinite(Number(item.amount)) &&
+                    Number(item.amount) > 0
+                )
+                .map((item, idx) => ({
+                    id: typeof item.id === 'string' ? item.id : `imp-${Date.now()}-${idx}`,
+                    category: item.category,
+                    name: item.name.trim().slice(0, 50),
+                    amount: Math.abs(Math.round(Number(item.amount)))
+                }));
+        }
+
+        // Automatikus betöltés a mellette lévő adatok.json fájlból (GitHub Pages / szerver esetén)
+        async function tryLoadRemoteAdatokJSON() {
+            // Helyi file:// megnyitásnál a böngésző CORS miatt tiltja a fetch-et
+            if (window.location.protocol === 'file:') return;
+
+            try {
+                const response = await fetch(`./adatok.json?t=${Date.now()}`, { cache: 'no-store' });
+                if (!response.ok) return;
+
+                const parsed = await response.json();
+                const cleaned = parseAndSanitizeItems(parsed);
+                if (!cleaned) return;
+
+                const remoteExportedAt = (parsed && parsed.exportedAt) ? String(parsed.exportedAt) : null;
+                const localExportedAt = appState.lastExportedAt ? String(appState.lastExportedAt) : null;
+
+                // Betöltjük, ha még nincs helyi adatunk, vagy ha a GitHubon lévő adatok.json frissebb
+                const shouldApplyRemote =
+                    appState.items.length === 0 ||
+                    (remoteExportedAt && (!localExportedAt || remoteExportedAt > localExportedAt));
+
+                if (shouldApplyRemote && cleaned.length > 0) {
+                    appState.items = cleaned;
+                    if (parsed && Array.isArray(parsed.cardOrder)) {
+                        appState.cardOrder = sanitizeCardOrder(parsed.cardOrder);
+                        applyCardOrder();
+                    }
+                    appState.hasUnsavedExport = false;
+                    appState.lastExportedAt = remoteExportedAt || new Date().toISOString();
+                    saveState(false);
+                    renderAll();
+                    showToast(`Automatikusan betöltve az adatok.json fájlból (${cleaned.length} tétel)`);
+                }
+            } catch (err) {
+                // Ha még nincs feltöltve adatok.json a mappába, csendben a helyi tárhelyet használjuk
+            }
+        }
+
+        // Biztonsági mentés (.json) visszatöltése
+        function importBackupJSON(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const parsed = JSON.parse(event.target.result);
+                    const cleaned = parseAndSanitizeItems(parsed);
+                    if (!cleaned) {
+                        throw new Error('Érvénytelen fájlformátum');
+                    }
+
+                    appState.items = cleaned;
+                    if (parsed && Array.isArray(parsed.cardOrder)) {
+                        appState.cardOrder = sanitizeCardOrder(parsed.cardOrder);
+                        applyCardOrder();
+                    }
+                    appState.hasUnsavedExport = false;
+                    appState.lastExportedAt = new Date().toISOString();
+                    saveState(false);
+                    renderAll();
+                    showToast(`${cleaned.length} tétel sikeresen betöltve`);
+                } catch (err) {
+                    console.error('Importálási hiba:', err);
+                    showToast('Hibás vagy sérült .json mentési fájl', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // PWA mobilapp ikon (PNG) és manifest dinamikus generálása
+        function initMobileAppAssets() {
+            try {
+                function createMonolithIconDataURL(size) {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = size;
+                    canvas.height = size;
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) return '';
+
+                    // Sötét háttér finom átmenettel
+                    const bgGrad = ctx.createLinearGradient(0, 0, size, size);
+                    bgGrad.addColorStop(0, '#181a20');
+                    bgGrad.addColorStop(1, '#090a0d');
+                    ctx.fillStyle = bgGrad;
+                    ctx.fillRect(0, 0, size, size);
+
+                    const s = size / 28;
+
+                    // Bal monolit oszlop
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.moveTo(5 * s, 21 * s);
+                    ctx.lineTo(5 * s, 7 * s);
+                    ctx.lineTo(11.5 * s, 14 * s);
+                    ctx.lineTo(11.5 * s, 21 * s);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Jobb monolit oszlop
+                    ctx.fillStyle = '#a1a1aa';
+                    ctx.beginPath();
+                    ctx.moveTo(23 * s, 21 * s);
+                    ctx.lineTo(23 * s, 7 * s);
+                    ctx.lineTo(16.5 * s, 14 * s);
+                    ctx.lineTo(16.5 * s, 21 * s);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Középső ciánkék ék
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.beginPath();
+                    ctx.moveTo(14 * s, 11.2 * s);
+                    ctx.lineTo(17.2 * s, 7.8 * s);
+                    ctx.lineTo(14 * s, 15.2 * s);
+                    ctx.lineTo(10.8 * s, 7.8 * s);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    return canvas.toDataURL('image/png');
+                }
+
+                const icon180 = createMonolithIconDataURL(180);
+                const icon512 = createMonolithIconDataURL(512);
+
+                const appleLink = document.getElementById('apple-touch-icon-link');
+                if (appleLink && icon180) {
+                    appleLink.href = icon180;
+                }
+
+                const manifest = {
+                    name: 'MONO',
+                    short_name: 'MONO',
+                    start_url: '.',
+                    display: 'standalone',
+                    background_color: '#090a0d',
+                    theme_color: '#090a0d',
+                    icons: icon512 ? [{
+                        src: icon512,
+                        sizes: '512x512',
+                        type: 'image/png'
+                    }] : []
+                };
+
+                const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+                const manifestLink = document.getElementById('web-manifest-link');
+                if (manifestLink) {
+                    manifestLink.href = URL.createObjectURL(manifestBlob);
+                }
+            } catch (err) {
+                console.warn('Mobilapp ikon inicializálási figyelmeztetés:', err);
+            }
+        }
+
+        // Eseménykezelők bekötése betöltéskor
+        document.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            applyCardOrder();
+            initCardDragAndDrop();
+            renderAll();
+            updateBackupStatusUI();
+            initMobileAppAssets();
+            tryLoadRemoteAdatokJSON();
+
+            document.getElementById('form-streaming').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const nameEl = document.getElementById('input-streaming-name');
+                const amountEl = document.getElementById('input-streaming-amount');
+                if (addItem('streaming', nameEl.value, amountEl.value)) {
+                    nameEl.value = '';
+                    amountEl.value = '';
+                    nameEl.focus();
+                }
+            });
+
+            document.getElementById('form-housing').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const nameEl = document.getElementById('input-housing-name');
+                const amountEl = document.getElementById('input-housing-amount');
+                if (addItem('housing', nameEl.value, amountEl.value)) {
+                    nameEl.value = '';
+                    amountEl.value = '';
+                    nameEl.focus();
+                }
+            });
+
+            document.getElementById('form-loans').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const nameEl = document.getElementById('input-loans-name');
+                const amountEl = document.getElementById('input-loans-amount');
+                if (addItem('loans', nameEl.value, amountEl.value)) {
+                    nameEl.value = '';
+                    amountEl.value = '';
+                    nameEl.focus();
+                }
+            });
+
+            document.getElementById('form-telecom').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const nameEl = document.getElementById('input-telecom-name');
+                const amountEl = document.getElementById('input-telecom-amount');
+                if (addItem('telecom', nameEl.value, amountEl.value)) {
+                    nameEl.value = '';
+                    amountEl.value = '';
+                    nameEl.focus();
+                }
+            });
+
+            document.getElementById('form-business').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const nameEl = document.getElementById('input-business-name');
+                const amountEl = document.getElementById('input-business-amount');
+                if (addItem('business', nameEl.value, amountEl.value)) {
+                    nameEl.value = '';
+                    amountEl.value = '';
+                    nameEl.focus();
+                }
+            });
+
+            // Lista gombok (szerkesztés / törlés) delegált kezelése
+            document.querySelector('main').addEventListener('click', (e) => {
+                const btn = e.target.closest('button[data-action]');
+                if (!btn) return;
+                const action = btn.dataset.action;
+                const id = btn.dataset.id;
+                if (action === 'delete') openDeleteModal(id);
+                if (action === 'edit') openEditModal(id);
+            });
+
+            // Törlés modális gombok
+            document.getElementById('btn-cancel-delete').addEventListener('click', closeDeleteModal);
+            document.getElementById('btn-confirm-delete').addEventListener('click', () => {
+                if (!pendingDeleteId) return;
+                const target = appState.items.find(i => i.id === pendingDeleteId);
+                appState.items = appState.items.filter(i => i.id !== pendingDeleteId);
+                closeDeleteModal();
+                saveState(true);
+                renderAll();
+                if (target) {
+                    showToast(`${target.name} törölve`);
+                }
+            });
+
+            // Szerkesztés modális gombok és űrlap
+            document.getElementById('btn-cancel-edit').addEventListener('click', closeEditModal);
+            document.getElementById('form-edit-item').addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!pendingEditId) return;
+                const item = appState.items.find(i => i.id === pendingEditId);
+                if (!item) return;
+
+                const newName = document.getElementById('edit-item-name').value.trim();
+                const newAmount = Math.abs(Math.round(Number(document.getElementById('edit-item-amount').value)));
+
+                if (!newName || !Number.isFinite(newAmount) || newAmount <= 0) return;
+
+                item.name = newName;
+                item.amount = newAmount;
+                closeEditModal();
+                saveState(true);
+                renderAll();
+                showToast(`${newName} frissítve (${formatHUF(newAmount)})`);
+            });
+
+            // Modális ablakok bezárása háttérre kattintással vagy Escape gombbal
+            document.getElementById('modal-delete').addEventListener('click', (e) => {
+                if (e.target.id === 'modal-delete') closeDeleteModal();
+            });
+            document.getElementById('modal-edit').addEventListener('click', (e) => {
+                if (e.target.id === 'modal-edit') closeEditModal();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeDeleteModal();
+                    closeEditModal();
+                }
+            });
+
+            // Export, Import és állapotjelző gombok
+            document.getElementById('btn-export').addEventListener('click', exportBackupJSON);
+            document.getElementById('btn-backup-status').addEventListener('click', exportBackupJSON);
+            document.getElementById('input-import').addEventListener('change', (e) => {
+                const file = e.target.files && e.target.files[0];
+                if (file) {
+                    importBackupJSON(file);
+                    e.target.value = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
