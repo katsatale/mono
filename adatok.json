@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T20:04:24.530Z",
+  "exportedAt": "2026-11-20T20:04:26.181Z",
   "cardOrder": [
     "streaming",
     "loans",
@@ -15,12 +15,6 @@
       "category": "housing",
       "name": "FF",
       "amount": 454
-    },
-    {
-      "id": "id-mwpauweu-mbt9",
-      "category": "streaming",
-      "name": "www",
-      "amount": 2
     },
     {
       "id": "id-mwpav1ar-f3bo",
