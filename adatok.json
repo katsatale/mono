@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T23:16:53.580Z",
+  "exportedAt": "2026-11-20T23:18:08.056Z",
   "cardOrder": [
     "income",
     "streaming",
@@ -34,6 +34,12 @@
       "category": "streaming",
       "name": "Prime Video",
       "amount": 1900
+    },
+    {
+      "id": "id-mwplnwx3-flec",
+      "category": "streaming",
+      "name": "YouTube Premium",
+      "amount": 3490
     }
   ]
 }
