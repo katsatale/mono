@@ -1,9 +1,10 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T20:07:17.667Z",
+  "exportedAt": "2026-11-20T23:01:43.285Z",
   "cardOrder": [
     "streaming",
+    "income",
     "loans",
     "business",
     "housing",
