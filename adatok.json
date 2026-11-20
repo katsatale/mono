@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T23:20:46.830Z",
+  "exportedAt": "2026-11-20T23:21:18.184Z",
   "cardOrder": [
     "income",
     "streaming",
@@ -58,6 +58,12 @@
       "category": "telecom",
       "name": "Telekom VEZETÉKES INTERNET",
       "amount": 7440
+    },
+    {
+      "id": "id-mwplrzpf-3l1y",
+      "category": "telecom",
+      "name": "Telekom Vezetékes Telefon",
+      "amount": 920
     }
   ]
 }
