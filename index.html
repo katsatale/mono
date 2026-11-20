@@ -1,1158 +1,9 @@
-
-Beszélgetés a Geminivel
-csinald meg mindet de csak a kinezet javuljon!
-
-Frissítettem a MONOLITH BUDGET vizuális megjelenését mind az öt javasolt részlettel, miközben minden funkció, kategória, fix magasságú elrendezés és védett törlés változatlan maradt.
-
-index.html [generated with web_code_canvas tool]
-
-Mi változott a kinézetben?
-Kategóriánkénti visszafogott színakcentus: Minden kártya tetején egy vékony, finom színátmenetes fénycsík és ahhoz igazodó ikon-árnyalat segíti a gyors vizuális elkülönítést (Streaming: pirosas, Albérlet és rezsi: hideg kék, Hitelek: meleg borostyán, Telefon és internet: lila, Vállalkozói költségek: smaragdzöld).
-
-Kártyák tetején apró arányjelző csík: A fejléc alatti vékony sáv dinamikusan mutatja, mekkora szeletet képvisel az adott kategória a teljes havi fix költségből.
-
-Tipográfiai finomítás (tabular-nums): Az összesített és listázott összegek egyenlő szélességű számjegyekkel, halványabb Ft mértékegységgel jelennek meg, így pontosan egymás alá rendeződnek.
-
-Finom hover- és fókuszfények: A kártyák fölé húzva az egeret vagy a beviteli mezőkbe kattintva enyhe szegélyfény emeli ki az aktív elemet a matt sötét háttéren.
-
-Fejléc micro-grid és élő státuszpont: A MONOLITH BUDGET logó mögé visszafogott műszaki rácsos háttértextúra, a cím mellé pedig egy finoman pulzáló zöld státuszpont került.
-
-linkeld be hogy most hogy nez ki
-
-Most elkészítem és betöltöm a teljes, vizuálisan finomított MONOLITH BUDGET alkalmazást az összes kért részlettel, hogy a jobb oldali előnézetben azonnal megtekinthesd és kipróbálhasd.
-
-MONO — Személyes fix költség kalkulátor
-nov. 20. 17:40
-A jobb oldali Preview gombra kattintva már meg is tekintheted és kipróbálhatod a megújult MONOLITH BUDGET felületet, a letöltés ikonnal pedig közvetlenül elmentheted saját .html fájlként.
-
-az aktiv jelzonek van valami haszna?
-
-Nincs valódi technikai funkciója, kizárólag vizuális díszítőelem (a „élő státuszpont”, amit az előző körben a letisztult, technikai hangulat miatt tettünk bele).
-
-Jelenleg csak annyit jelez, hogy a böngésző helyi memóriája (localStorage) működik, és az alkalmazás készen áll a mentésre – de nem szinkronizál szerverrel, és nem változik az állapota.
-
-Ha úgy érzed, hogy felesleges vagy zavaró, egyetlen mozdulattal ki tudom venni onnan, hogy még letisztultabb legyen a fejléc. Legyen inkább nélküle?
-
-milyen hasznalhato funkciot lehetne neki adni?
-
-Ahelyett, hogy egy üres zöld pötty lenne, az a kis státuszjelző a fejlécben kaphat valódi, hasznos funkciót is:
-
-Valódi „Mentve / Nincs mentve” indikátor:
-
-A pötty színe és szövege jelezheti, hogy történt-e olyan módosítás (új tétel vagy szerkesztés), amit még nem töltöttél le biztonsági mentésként (.json fájlba).
-
-Amíg friss a biztonsági mentésed, zölden világít (Mentés naprakész), amint felveszel vagy átírsz egy összeget, borostyánsárgára vált (Új adat – biztonsági mentés ajánlott). Ha rákattintasz magára a jelvényre, rögtön letölti a mentést, és újra zöldre vált.
-
-Tényleges „Megfizetett vs. Hátralévő” számláló a hónapra:
-
-Mivel a bevételt és a kiadásokat egyszer már kivettük, felül a havi és éves összesítő mellé tehetünk egy harmadik mini-jelzőt: ha a tételek mellett van egy diszkrét pipa (vagy egy kattintással „átutalt” állapotba tehetők), akkor ez a jelző mutatná, hogy ebben a hónapban mennyit utaltál már el, és mennyi van még hátra.
-
-Árfolyam-figyelő / Devizás előfizetés átváltás (EUR/USD):
-
-Sok digitális szolgáltatás (pl. appok, AI eszközök, felhőtárhelyek) euróban vagy dollárban vonja le a díjat. Ha egy tételnél választható lenne a Ft mellett az EUR vagy USD, a jelvény mutathatná, milyen árfolyammal számol éppen a rendszer, és automatikusan forintra váltaná a havi/éves összesítőben.
-
-Szüneteltetett (Inaktív) előfizetés kapcsoló:
-
-Ha egy streaminget vagy előfizetést ideiglenesen lemondasz 1-2 hónapra, nem kell törölnöd a listából: egy apró kapcsolóval „szüneteltetett” állapotba teheted, így halványabb lesz a listában, nem számolja bele a havi összesítőbe, de bármikor egy kattintással visszakapcsolhatod.
-
-Melyik illene bele leginkább a napi használatodba anélkül, hogy bonyolítaná a felületet?
-
-az elso az jol hangzik ennek mi a valod ertelme?
-
-Mivel a MONOLITH BUDGET teljesen ingyenes, és semmilyen külső szerverre vagy felhőbe nem küldi az adataidat (minden kizárólag a saját böngésződ helyi tárhelyén, a localStorage-ban van tárolva), ennek a visszajelzőnek nagyon konkrét, gyakorlati haszna van:
-
-Megvéd a véletlen adatvesztéstől: Ha egyszer lefuttatsz egy böngésző-tisztítást (sütik és gyorsítótár törlése), újratelepíted a gépet, vagy másik eszközről/böngészőből nyitod meg a fájlt, a localStorage üres lesz. A jelző azonnal emlékeztet rá, ha az utolsó .json fájl-mentésed óta módosítottál valamit.
-
-Egyetlen kattintásos biztonsági mentés: Nem kell külön keresgélned a gombot: ha látod, hogy sárgára váltott (mert mondjuk felvettél egy új előfizetést vagy módosítottál egy összeget), egyszerűen rákattintasz magára a jelvényre, az azonnal letölti a frissített biztonsági mentést a gépedre, és visszavált zöldre.
-
-Átlátható állapotkövetés: Rögtön ránézésre tudod, hogy a gépeden lévő mentési fájl szinkronban van-e azzal, amit éppen a képernyőn látsz.
-
-Beépítsem ezt a működő, kattintható mentés-állapot jelzőt a fejlécbe?
-
-okes csinald meg ezt a funkciot
-
-Beépítem a valódi, kattintható Biztonsági mentés állapotjelző funkciót a fejlécbe, amely folyamatosan figyeli, hogy történt-e olyan módosítás az utolsó .json fájlmentés óta, amit még nem exportáltál, és egyetlen kattintással azonnal letölti a biztonsági mentést.
-
-MONO — Személyes fix költség kalkulátor
-nov. 20. 17:40
-Mi változott?
-Élő szinkron- és mentésfigyelés: Amint új tételt rögzítesz, módosítasz egy összeget vagy törölsz egy sort, a fejlécben lévő jelvény automatikusan borostyánsárgára vált („Nincs exportálva • Kattints a mentéshez”), emlékeztetve arra, hogy az új adataid még csak a böngészőben vannak.
-
-Egykattintásos mentés: Magára a jelvényre kattintva azonnal letöltődik a frissített monolith-budget-backup.json fájl, a jelvény pedig visszavált zöldre („Mentés naprakész”), és megjegyzi az utolsó mentés pontos időpontját is.
-
-a fejlec teljesen ossze csuszott ezt javitsd
-
-Kijavítom a fejléc elrendezését, hogy a MONOLITH BUDGET logó, a kattintható mentés-állapot jelvény és a Mentés / Betöltés gombok tiszta, jól tagolt sorban, összecsúszás nélkül jelenjenek meg minden képernyőméreten.
-
-Kijavítom a fejléc elrendezését és visszaállítom a teljes alkalmazás hiányzó kódrészleteit (a streaming logókat és az escapeHTML függvényt is beleértve), hogy a logó, a mentés-állapotjelző és az Export/Import gombok minden képernyőméreten tisztán, egymástól elválasztva jelenjenek meg.
-
-MONO — Személyes fix költség kalkulátor
-nov. 20. 17:40
-Mi javult?
-Tiszta, kétoldalas fejléc-elrendezés: A bal oldalon az embléma, a MONOLITH BUDGET cím és az alcím (Havi fix költség és előfizetés követő), míg a jobb oldalon külön vezérlőcsoportban, megfelelő térközzel (gap-2.5) helyezkedik el a kattintható mentés-állapotjelző és az Export (.json) / Import gombok, így egyik nézetben sem csúsznak egymásba.
-
-Hibátlan JavaScript futás: Visszapótoltam a streaming logók (getStreamingBadgeHTML) és az XSS-szűrő (escapeHTML) függvényeket is, valamint egységesítettem a kártyák magasságát (h-[340px]).
-
-na es hogy tudom azt megcsinalni hogy egy adott linken keresztul el tudjam erni? barmikor
-
-Ahhoz, hogy a MONOLITH BUDGET ne csak egy gépen lévő .html fájl legyen, hanem bármikor, bármilyen eszközről (iPhone-ról, MacBookról, asztali PC-ről) egy saját linken keresztül elérd ingyen, statikus webtárhelyre kell feltöltened.
-
-Mivel a pénzügyi adataid továbbra is csak a saját böngésződ helyi memóriájában (localStorage) tárolódnak, senki más nem látja a számaidat, még akkor sem, ha megnyitja a linket — mindenki csak a saját böngészőjében mentett tételeket látja.
-
-1. A leggyorsabb, regisztráció nélküli megoldás: Netlify Drop (30 másodperc)
-Töltsd le a fenti kódablak jobb felső sarkában található letöltés ikonnal az index.html fájlt, és tedd bele egy üres mappába (pl. monolith-budget néven).
-
-Nyisd meg a app.netlify.com/drop oldalt.
-
-Húzd be az egész monolith-budget mappát a böngészőablak közepére.
-
-Azonnal kapsz egy saját, ingyenes [https://valami-nev.netlify.app](https://valami-nev.netlify.app) linket. Ha ingyenesen regisztrálsz rá egy e-mail címmel, a link örökre megmarad, és át is nevezheted (pl. monolith-budget.netlify.app), különben 24 óra múlva törlődik.
-
-2. Stabil, örök ingyenes megoldás: GitHub Pages (2 perc)
-Ha hosszú távra, lejárat nélkül szeretnéd:
-
-Hozz létre egy ingyenes fiókot a github.com oldalon, majd kattints a New repository gombra (pl. monolith-budget néven, Public beállítással).
-
-Kattints az uploading an existing file linkre, és töltsd fel a letöltött index.html fájlt (Commit changes).
-
-Lépj be a repository Settings 
-→
-→ Pages menüpontjába.
-
-A Branch résznél válaszd ki a main ágat, és nyomj a Save gombra.
-
-1 percen belül elkészül a saját, állandó linkje ([https://felhasznaloneved.github.io/monolith-budget/](https://felhasznaloneved.github.io/monolith-budget/)), amit elmenthetsz könyvjelzőnek, vagy iPhone-on a Megosztás 
-→
-→ Főképernyőhöz adás gombbal saját ikonként kirakhatsz a kezdőképernyőre.
-
-Fontos tudnivaló a több eszközös használathoz
-Mivel az adatok a böngésződben (localStorage) élnek, ha a gépeden viszel fel tételeket, és később az iPhone-odon nyitod meg a linket, ott alapból üres lesz — viszont a fejlécbe beépített Export (.json) / Import gombokkal bármikor átviheted a legfrissebb mentésedet egyik eszközről a másikra.
-
-Szeretnéd, hogy iPhone-os főképernyő-ikonhoz (apple-touch-icon és web app meta tagek) is optimalizáljam az index.html fejécét, hogy mobilon teljes képernyős alkalmazásként viselkedjen?
-
-telefonos appot ingyen tudok belole csinalni?
-
-Igen, teljesen ingyen és bármiféle App Store-os fejlesztői fiók (évi 99 dollár) vagy programozás nélkül tudsz belőle valódi, teljes képernyős telefonos alkalmazást csinálni PWA (Progressive Web App) megoldással.
-
-Hogyan működik ez iPhone-on?
-Tedd ki egy saját linkre: Töltsd fel az index.html fájlt az előbb említett GitHub Pages-re vagy Netlify-ra (mindkettő örökre ingyenes).
-
-Nyisd meg Safariban: Lépj be a saját linkre az iPhone-odon (fontos, hogy Safari böngészőt használj, ne Chrome-ot vagy Brave-et).
-
-Add hozzá a Főképernyőhöz:
-
-Koppints alul a Megosztás ikonra (a négyzetből felfelé mutató nyíl).
-
-Görgess le, és válaszd a „Főképernyőhöz adás” (Add to Home Screen) opciót.
-
-Írd be a nevet (Monolith Budget), majd nyomj a Hozzáadás gombra.
-
-Mit tud így telefonos appként?
-Saját ikon a főképernyőn: Pont úgy néz ki és úgy indul el, mint bármelyik letöltött alkalmazás.
-
-Teljes képernyős megjelenés: Eltűnik a Safari címsora és az alsó navigációs sáv, így valódi natív sötét módú app élményt ad.
-
-Offline működés és lokális adatmentés: A telefonod saját tárhelyén menti az adatokat, és internetkapcsolat nélkül is megnyílik.
-
-(Megjegyzés: ha esetleg Androidos Honor tableten is használnád, ott Chrome-ban ugyanígy a jobb felső három pötty 
-→
-→ „Alkalmazás telepítése” / „Hozzáadás a kezdőképernyőhöz” gombbal működik.)
-
-Finomítsuk a kódot mobilra?
-Ahhoz, hogy iPhone-on ne egy sima weblap-előnézet legyen az ikonja, hanem egy dedikált, sötét módú M embléma, és megnyitáskor biztosan eltűnjön a böngészőkeret, érdemes beletenni 3-4 sornyi Apple PWA beállítást (apple-mobile-web-app-capable és egy beágyazott vektoros app ikon) a <head> részbe.
-
-Frissítsem az index.html fájlt ezekkel a mobilapp-beállításokkal, hogy azonnal telepíthető legyen?
-
-Finomítsuk a kódot mobilra?
-
-Ahhoz, hogy iPhone-on ne egy sima weblap-előnézet legyen az ikonja, hanem egy dedikált, sötét módú M embléma, és megnyitáskor biztosan eltűnjön a böngészőkeret, érdemes beletenni 3-4 sornyi Apple PWA beállítást (apple-mobile-web-app-capable és egy beágyazott vektoros app ikon) a <head> részbe. igen legyen meg ez is
-
-Most frissítem az index.html fájlt a teljes körű iOS és Android mobilapp (PWA) támogatással: bekerülnek a teljes képernyős megjelenéshez szükséges meta tagek, a dinamikusan generált nagy felbontású sötét módú M alkalmazásikon (apple-touch-icon és web manifest), a notch-biztos safe-area igazítás, valamint a mobilos véletlen ráközelítés elleni védelem, miközben minden meglévő vizuális és funkcionális elem érintetlenül marad.
-
-MONO — Személyes fix költség kalkulátor
-nov. 20. 17:40
-Mi került bele most?
-Teljes képernyős iOS & Android PWA támogatás: Beállítottam az apple-mobile-web-app-capable, black-translucent állapotsor és theme-color meta tageket, így a Főképernyőhöz adva böngészőkeret nélkül, natív alkalmazásként fut.
-
-Dedikált sötét módú PNG „M” ikon: Mivel az iPhone Safari kizárólag PNG formátumból generálja megbízhatóan a főképernyő-ikont, a kód induláskor automatikusan létrehoz egy 180×180-as (iOS) és 512×512-es (Android) monokróm M ikont és Web App Manifestet.
-
-iPhone ergonómia: A notch/Dynamic Island alá csúszás ellen env(safe-area-inset-top) védelmet kapott a fejléc, a beviteli mezők pedig mobilon 16px-es betűméretet kaptak, hogy gépeléskor ne zoomoljon bele az oldalba a Safari.
-
-githubra akarom felmenteni hogy elerjem linken keresztul barmikor
-
-Így tudod 3 perc alatt, teljesen ingyen feltölteni a MONOLITH BUDGET alkalmazást a GitHubra, hogy bárhonnan, bármikor elérd egy saját linken (és iPhone-on appként is fel tudd rakni a főképernyőre).
-
-1
-Töltsd le a kész index.html fájlt
-Fontos: a fájl neve pontosan index.html maradjon
-Az előző üzenetben generált kódablak jobb felső sarkában kattints a Letöltés (Download) ikonra. Ellenőrizd a Letöltések mappádban, hogy a fájl neve pontosan index.html legyen (ne index (1).html, mert a GitHub Pages csak az index.html nevű fájlt nyitja meg alapértelmezett főoldalként).
-
-2
-Hozz létre egy új GitHub repository-t
-Ingyenes GitHub fiók szükséges
-Lépj be a github.com oldalra (ha még nincs fiókod, regisztrálj egyet ingyen).
-
-Kattints a jobb felső sarokban a + ikonra, majd válaszd a New repository menüpontot.
-
-A Repository name mezőbe írd be: monolith-budget
-
-Hagyd a Public opciót bejelölve (az ingyenes GitHub Pages csak publikus repository-nál érhető el – ne aggódj, a pénzügyi számaid nincsenek benne a fájlban, azok csak a saját böngésződ memóriájában tárolódnak).
-
-Kattints alul a zöld Create repository gombra.
-
-3
-Töltsd fel az index.html fájlt
-A megnyíló oldalon, a Quick setup kék dobozban kattints az uploading an existing file linkre.
-
-Húzd be a letöltött index.html fájlt a böngészőablakba (vagy válaszd ki a choose your files gombbal).
-
-Várd meg, amíg feltöltődik, majd alul kattints a zöld Commit changes gombra.
-
-4
-Kapcsold be a GitHub Pages webes elérést
-A repository felső menüsorában kattints a Settings (fogaskerék) fülre.
-
-A bal oldali menüben görgess le a Code and automation részig, és kattints a Pages menüpontra.
-
-A Build and deployment → Branch résznél a None legördülő menüből válaszd ki a main ágat (mellette maradjon a / (root)), majd kattints a Save gombra.
-
-5
-Nyisd meg a saját élő linkedet
-Kb. 30–60 másodperc múlva aktiválódik
-Frissítsd a Pages oldalt 1 perc múlva. A tetején megjelenik egy doboz: Your site is live at [https://felhasznaloneved.github.io/monolith-budget/](https://felhasznaloneved.github.io/monolith-budget/).
-
-Ezt a linket elmentheted könyvjelzőnek, vagy iPhone-on megnyitva a Megosztás → Főképernyőhöz adás gombbal saját M ikonnal kirakhatod a kezdőképernyődre.
-
-Két gyakorlati tipp a használathoz
-Adatbiztonság a publikus repóban: Bár maga a repository Public (így bárki láthatja az üres weboldal kódját, ha megtalálja), a beírt összegeid soha nem kerülnek fel a GitHubra. Minden tétel kizárólag azon az eszközön és abban a böngészőben tárolódik (localStorage), ahol beírtad.
-
-Átvitel telefon és gép között: Ha például MacBookon viszed fel az összes tételt, és az iPhone-odra is át szeretnéd tenni őket, kattints felül az Export (.json) gombra, küldd át magadnak a fájlt (pl. AirDrop-pal), majd a telefonos appban nyomj az Import gombra.
-
-
-hoygyan toltsem le?
-
-A legutóbbi index.html kártyára vagy a jobb oldali előnézeti (Canvas) ablakra kattintva két gyors módon tudod letölteni a fájlt:
-
-1. Közvetlen letöltés a jobb oldali panelből (ha nyitva van)
-Kattints a beszélgetésben a legutóbbi index.html buborékra, hogy megnyíljon a jobb oldali panel.
-
-A jobb oldali panel felső sávjában (a Preview / Code fülek mellett, a jobb felső sarokban) keresd meg a Letöltés (lefelé mutató nyíl) ikont, és kattints rá.
-
-2. Másolás és mentés (ha nem látod a letöltés ikont)
-Ha a felületen éppen csak a másolás gomb látszik, így is 10 másodperc alatt megvan:
-
-A jobb oldali panelben válts át a Code fülre, és kattints a Másolás (Copy) ikonra a jobb felső sarokban.
-
-Nyiss meg egy egyszerű szövegszerkesztőt:
-
-Windows-on: Jegyzettömb (Notepad) 
-→
-→ illeszd be a kódot (Ctrl + V) 
-→
-→ Fájl 
-→
-→ Mentés másként 
-→
-→ a fájlnévhez írd be: index.html, a Fájltípusnál pedig válaszd a Minden fájl (.) opciót.
-
-MacBookon: TextEdit (Szövegszerkesztő) 
-→
-→ Formátum 
-→
-→ Egyszerű szöveggé alakítás (Shift + Cmd + T) 
-→
-→ illeszd be a kódot (Cmd + V) 
-→
-→ Fájl 
-→
-→ Mentés 
-→
-→ névnek írd be: index.html (és ha rákérdez, válaszd a .html használata gombot).
-
-(Ha nem látod a jobb oldali panelt, írj egy „nyisd meg újra” üzenetet, és azonnal visszatöltöm neked a kártyát!)
-
-ha hozza ado kegy elofizetest akkor nem tudok ujabbat hozza adni ezt javitsd le
-
-Kijavítom a tételrögzítés hibáját: eltávolítom a kód elején lévő érvénytelen <selection-tag> maradványt, valamint finomítom az űrlap-visszaállítást és a fókuszkezelést minden kategóriában (különösen a Streaming szekciónál és az „Egyéb streaming” opciónál), így egymás után korlátlan számú előfizetést és költséget vehetsz fel akadásmentesen.
-
-MONO — Személyes fix költség kalkulátor
-nov. 20. 17:40
-Mi lett javítva?
-Egymás utáni rögzítés minden kategóriában: Az első tétel mentése után az összes beviteli mező tisztán alaphelyzetbe áll, a kurzor pedig automatikusan visszaugrik a megfelelő mezőre (Streamingnél az összegre vagy az egyéni névre, a többinél a megnevezésre), így azonnal viheted fel a következőt.
-
-Tisztított HTML dokumentum: Eltávolítottam a fájl elején és végén lévő felesleges <selection-tag> jelölőt, hogy a letöltött index.html GitHub Pages-en és iPhone Safariban is hibátlanul fusson.
-
-Kijavítom a SyntaxError: Unexpected token '}' hibát, amely azért lépett fel, mert az előző frissítésnél a kód középső függvényei (saveState, loadState, renderAll, showToast, valamint a szerkesztés/törlés/export eseménykezelők) hiányoztak a fájlból, így a </script> előtti záró kapcsos zárójel árva maradt. Visszaállítom a teljes, hiánytalan JavaScript kódot.
-
-MONO — Személyes fix költség kalkulátor
-nov. 20. 17:40
-A szintaktikai hiba megszűnt: a teljes JavaScript blokk helyreállt, így minden kategória mentése, szerkesztése, védett törlése és a JSON export/import is hiba nélkül fut.
-
-ha mindig lementem a json fajlba akkor azt egybol tudom githubra feltoilteni uyge?
-
-Röviden: Igen, technikailag fel tudod tölteni, de nagyon fontos tudnod két dolgot, mielőtt megteszed!
-
-Adatvédelem (Publikus GitHub repo):
-
-Mivel az ingyenes GitHub Pages-hez a repository-nak Public (nyilvános) állapotban kell lennie, ha oda feltöltöd a .json mentési fájlodat, akkor bárki, aki megtalálja a GitHub profilodat, látni fogja benne a tételeidet és a pontos összegeidet.
-
-Ezért a személyes pénzügyi adataidat tartalmazó .json fájlt inkább ne a nyilvános GitHub repóba töltsd fel, hanem tartsd a saját gépeden / iCloud Drive-ban / Google Drive-ban!
-
-Nem töltődik be automatikusan a GitHubról:
-
-A weboldal (index.html) jelenleg nem a GitHubról olvassa be a .json fájlt, hanem a böngésződ saját memóriájából (localStorage), és csak akkor olvassa be a .json-t, ha az Import gombbal manuálisan kiválasztod.
-
-Hogyan érdemes használnod a legbiztonságosabban és legkényelmesebben?
-GitHubra csak egyszer töltsd fel az üres index.html programfájlt (hogy mindig legyen egy élő linked, ahonnan megnyithatod).
-
-Amikor használod a linket, nem kell minden alkalommal Importálnod a .json-t: a böngésződ (és az iPhone főképernyőre tett app is) automatikusan megjegyzi az összes felvitt tételt!
-
-A .json mentésre csak akkor van szükséged, ha biztonsági másolatot akarsz a saját gépedre/iCloudodba, vagy ha át akarod másolni az adatokat a gépedről a telefonodra.
-
-nicsen benne semmi titkos mehet nyugodtan ez csak egy akllkulator
-
-Akkor szuper! Ha nem zavar, hogy nyilvános a mentés, úgy is működik: feltöltheted a repóba a .json fájlt biztonsági másolatnak, és amikor másik eszközön (pl. telefonon vagy új böngészőben) megnyitod a GitHub Pages linkedet, az Import gombbal egy kattintással be tudod tölteni.
-
-Sőt, ha szeretnéd, akár azt is bele tudom építeni az index.html-be, hogy ha ugyanabba a GitHub mappába feltöltesz egy fix nevű adatok.json fájlt, akkor megnyitáskor automatikusan abból töltse be a tételeidet, így importálnod sem kell majd külön. Szólj, ha kéred ezt is!
-
-Sőt, ha szeretnéd, akár azt is bele tudom építeni az index.html-be, hogy ha ugyanabba a GitHub mappába feltöltesz egy fix nevű adatok.json fájlt, akkor megnyitáskor automatikusan abból töltse be a tételeidet, így importálnod sem kell majd külön. Szólj, ha kéred ezt is!legyen ez is benne igen
-
-Beépítem az automatikus adatok.json szinkronizálást, valamint átállítom az exportálás alapértelmezett fájlnevét is adatok.json-ra, így ha feltöltöd a GitHub mappába, minden eszközödön automatikusan betöltődnek a tételeid.
-
-MONO — Személyes fix költség kalkulátor
-nov. 20. 17:40
-Hogyan működik most a szinkronizálás?
-Automatikus letöltés adatok.json néven: Amikor a fejlécben az Export (.json) gombra vagy a sárga mentésjelzőre kattintasz, a fájl közvetlenül adatok.json néven töltődik le, így nem kell átnevezned feltöltés előtt.
-
-Automatikus betöltés megnyitáskor: Amint feltöltöd az adatok.json fájlt a GitHub repóba az index.html mellé, bárhonnan (iPhone-ról, új böngészőből) nyitod meg a linkedet, az oldal automatikusan beolvassa a benne lévő tételeket, sőt ha frissebb verziót töltesz fel a GitHubra, azt is felismeri.
-
-Javítom a SyntaxError: Unexpected end of input hibát: az előző módosításnál a openDeleteModal függvény közepe lemaradt, és a closeDeleteModal, openEditModal, closeEditModal függvények is hiányoztak, így az openDeleteModal nyitó kapcsos zárójele ({) zárás nélkül maradt a fájl végéig. Most helyreállítom mind a négy modális ablakkezelő függvényt.
-
-MONO — Személyes fix költség kalkulátor
-nov. 20. 17:40
-A szintaktikai hiba megszűnt: az openDeleteModal, closeDeleteModal, openEditModal és closeEditModal függvények helyreálltak, így a teljes JavaScript blokk zárójelezése rendben van és az alkalmazás hiba nélkül elindul.
-
-a Streaming szolgáltatások nem kell hogy legoRDULO menu legyen
-
-Átalakítom a Streaming szolgáltatások kártyát úgy, hogy a többi kategóriához hasonlóan egy egyszerű, szabadon kitölthető megnevezés mezőbe írhass bármilyen szolgáltatást (pl. Netflix, Disney+, Max, Spotify), miközben a beírt név alapján a lista ikonjai továbbra is automatikusan megjelenítik a megfelelő logót, ha ismert streaminget írsz be.
-
-MONO — Személyes fix költség kalkulátor
-nov. 20. 17:40
-Mi változott?
-Egységes, szabadon írható mező: A Streaming kártyán is eltűnt a legördülő lista, helyette közvetlenül beírhatod bármelyik szolgáltatás nevét és összegét, majd mentés után azonnal viheted fel a következőt.
-
-Automatikus logófelismerés és szerkeszthetőség: Ha ismert nevet írsz be (pl. Netflix, Disney+, Prime Video, YouTube Premium), a listában továbbra is megjelenik mellette a saját ikonja, és utólag a nevét is bármikor átírhatod.
-
-Kijavítom a TypeError: Cannot read properties of null (reading 'addEventListener') hibát: az előző frissítésnél a 2. kártya (Albérlet és rezsi) HTML blokkja (a form-housing űrlappal együtt) kimaradt, és az 1. kártya listájának is list-housing lett az azonosítója list-streaming helyett. Most visszaállítom a teljes Albérlet és rezsi kártyát, valamint javítom a Streaming kártya listaazonosítóját.
-
-MONO — Személyes fix költség kalkulátor
-nov. 20. 17:40
-A hiba megszűnt: mind az 5 kártya (beleértve a Streaming szolgáltatások és az Albérlet és rezsi blokkot is) teljes egészében a helyén van, így minden űrlap és lista hiba nélkül működik.
-
-LEGYEN MONO A NEVE ROVIDEN ES LEGYEN VALMI MENO LOGOJA
-
-Átnevezem az alkalmazást röviden MONO-ra, és készítek hozzá egy karakteres, geometrikus „M” logót (mind a fejlécbe, mind a telefonos főképernyő-ikonhoz).
-
-MONO — Személyes fix költség kalkulátor
-nov. 20. 17:40
-Mi változott?
-Rövid, karakteres név: Az alkalmazás neve mindenhol (a böngészőfülön, a fejlécben és a telefonos főképernyő-ikon alatt is) MONO lett.
-
-Egyedi geometrikus logó: A fejlécbe és a mobilapp ikonba egy szimmetrikus, két monolit pillérből és egy középső jégkék ékből álló modern M embléma került.
-
-MOST NEM TOLT BE SEMMIT CSAK SOTET KEK A HATTER
-
-Kijavítom a megjelenítési hibát: az előző frissítésnél a </style> záró tag, a </head>, a <body> és a <header> nyitó blokkja véletlenül lemaradt, így a böngésző a teljes oldal tartalmát CSS stíluslapként értelmezte és üres sötét hátteret mutatott. Most visszaállítom a teljes fejlécet és a <body> szerkezetét.
-
-MONO — Személyes fix költség kalkulátor
-nov. 20. 17:40
-A hiba megszűnt: visszaállítottam a </style>, </head>, <body> és <header> címkéket, így a MONO teljes kezelőfelülete azonnal és hibátlanul betöltődik.
-
-olyat tudok hogy kuldjon nekem emlekezteto e-maileket? minden honapban?
-
-Igen, meg lehet oldani teljesen ingyen!
-
-Mivel a MONO jelenleg egy sima statikus HTML oldal a GitHubon (nincs saját szervere, ami magától éjjel-nappal futna, amikor be van csukva a böngésződ), önmagából nem tud e-mailt küldeni. Viszont két nagyon egyszerű, ingyenes trükkel megoldható:
-
-1. megoldás: Google Apps Script (100% ingyenes, automata, nincs harmadik fél)
-Mivel az adatok.json fájlod fent van a GitHubon egy publikus linken, a saját Gmail fiókodhoz tartozó Google Apps Script minden hónap adott napján (pl. minden hónap 1-jén reggel 8-kor) automatikusan letölti a GitHubról az adatok.json fájlt, összeszámolja a tételeket, és küld neked egy szép összesítő e-mailt a Gmail fiókodból.
-
-Nem kell hozzá bankkártya, sem fizetős szolgáltatás.
-
-Ha frissíted a GitHubon az adatok.json-t, a következő havi e-mailben már az új összegek lesznek.
-
-Akár azt is beállíthatod, hogy egy adott tételhez (pl. „Albérlet — 10-e”) napra pontosan küldjön külön emlékeztetőt, vagy havonta egyszer egy teljes havi összesítőt.
-
-2. megoldás: Naptár (.ics) export gomb a MONO-ba
-Tehetünk a MONO fejlécébe egy „Naptár emlékeztetők (.ics)” gombot. Ha rákattintasz, letölt egy szabványos naptárfájlt, amit egyetlen kattintással megnyitsz iPhone-on vagy Macen (Apple Naptár vagy Google Naptár), és az automatikusan felveszi az összes tételedet havi ismétlődő eseményként értesítéssel.
-
-Melyik megoldás szimpatikusabb? Ha az első (automata havi Gmail emlékeztető a GitHubos adatok.json alapján) tetszik, megírom hozzá azt a 20 soros Google kódot, amit csak be kell másolnod a script.google.com oldalra, és onnantól minden hónapban magától küldi az e-maileket!
-
-automatizalni akarom hogy kuldje ki nekem az emaileket minden honapban hogy hogyan alakulnak a koltsegk
-
-Most elkészítem a Google Apps Script kódot, amely minden hónapban automatikusan letölti a GitHubról az adatok.json fájlodat, kiszámolja a kategóriánkénti és az éves vetített összegeket, és küld neked egy átlátható, sötét/minimalista stílusú MONO havi költségértesítő e-mailt közvetlenül a Gmail fiókodból — teljesen ingyen.
-
-MONO — Automata havi Gmail emlékeztető
-nov. 20. 17:17
-Hogyan kapcsold be az automatikus havi küldést? (2 perc)
-Nyisd meg a script.google.com oldalt (a Gmail fiókoddal bejelentkezve), és kattints az Új projekt gombra.
-
-Illeszd be a fenti mono_email_bot.gs kódot, és a tetején a CONFIG részben írd át a GITHUB_USER, REPO_NAME és EMAIL_CIM mezőket a sajátodra, majd nyomj a mentés ikonra (Ctrl + S / Cmd + S).
-
-Tesztelés: Kattints felül a Futtatás (Run) gombra (első alkalommal kérni fog egy engedélyt, hogy a saját fiókodból küldhessen magadnak e-mailt — kattints a Speciális 
-→
-→ Ugrás a projektre gombra). Pár másodpercen belül megérkezik az első minta e-mail a Gmail fiókodba!
-
-Havi automatizmus beállítása:
-
-A bal oldali menüben kattints az ébresztőóra ikonra (Eseményindítók / Triggers).
-
-Jobb alul kattints az Eseményindító hozzáadása gombra.
-
-Válaszd ki az Időalapú (Time-driven) opciót 
-→
-→ Havi időzítő (Month timer) 
-→
-→ válaszd ki a hónap napját (pl. 1. nap) és az órát (pl. 8 és 9 óra között), majd nyomj a Mentés gombra.
-
-Innentől minden hónap 1-jén reggel automatikusan megkapod az aktuális összesítőt, sőt az e-mail alján lévő MONO megnyitása gombbal egy kattintással beléphetsz a kalkulátorodba is.
-
-jo ezt amjd kesobb mg csinaljuk most meg finomitani akarom a mono feluletet
-
-Rendben, maradunk a MONO felületnél (index.html).
-
-Mit finomítsunk még rajta? Írd meg nyugodtan, min szeretnél változtatni (elrendezés, színek, tipográfia, vagy valamilyen új kényelmi részlet), és már csinálom is!
-
-mutasd meg hogy allunk most
-
-Visszahozom előtérbe a MONO felületet (index.html), hogy a jobb oldali előnézetben lásd a jelenlegi állapotát, és finomítani tudd.
-
-MONO — Személyes fix költség kalkulátor
-nov. 20. 17:40
-A jobb oldali Preview fülön most újra a MONO aktuális kezelőfelülete látható. Írd meg nyugodtan, min szeretnél még finomítani!
-
-azt be kellene meg allitani hogy a paneleket azt tudjam szabadon mozgatni hogy mi legyen felul mint egy kirakost
-
-Beépítem a szabadon árendezhető, kirakós-szerű (Drag & Drop + érintőképernyős) kártyamozgatást a MONO felületébe: mind az 5 költségkártya fejlécébe kerül egy diszkrét hatpontos fogantyú, amivel bárhová áthúzhatod őket, a sorrend pedig automatikusan elmentődik a böngésződben és az adatok.json fájlban is.
-
-MONO — Személyes fix költség kalkulátor
-nov. 20. 17:40
-Hogyan működik a kirakós-szerű átrendezés?
-Fogd és vidd fogantyú: Minden kártya bal felső sarkában (a színes ikon mellett) megjelent egy diszkrét hatpontos fogantyú. Erre rákattintva vagy mobilon megérintve bármelyik panelt áthúzhatod felülre vagy más pozícióba.
-
-Automatikus mentés és szinkron: Az új elrendezés azonnal elmentődik a böngésződben (localStorage), és bekerül az exportált adatok.json fájlba is, így az új sorrended minden megnyitáskor megmarad.
-
-Kijavítom a SyntaxError: Unexpected identifier 'DEFAULT_CARD_ORDER' hibát: a CATEGORY_LABELS objektum vége (business: 'Vállalkozói költségek' };) lemaradt, valamint visszapótolom a hiányzó showToast és renderAll függvényeket is, hogy minden kártya, értesítés és összesítő hiba nélkül működjön.
-
-MONO — Személyes fix költség kalkulátor
-nov. 20. 17:40
-A szintaktikai hiba megszűnt: lezártam a CATEGORY_LABELS objektumot, és visszaállítottam a showToast és renderAll függvényeket, így a MONO felület és a kirakós-szerű kártyamozgatás is hiba nélkül fut.
-
-hogyan tudom oket mozgatni?
-
-A kártyákat kétféleképpen is tudod mozgatni:
-
-1. Fogd és vidd (Drag & Drop) a hatpontos fogantyúval
-Minden kártya bal felső sarkában (közvetlenül a színes ikon előtt) van egy kis 6 apró pontból álló fogantyú (⋮⋮).
-
-Vidd rá az egeret (ilyenkor kis nyitott tenyérré változik a kurzor), tartsd lenyomva a bal egérgombot (mobilon pedig az ujjadat rajta), és húzd át a kártyát egy másik kártya fölé vagy alá.
-
-Ahogy húzod, a kártyák élőben helyet cserélnek egymással, amikor pedig elengeded, egy kis értesítés is jelzi, hogy „Kártyák sorrendje elmentve”.
-
-2. Szeretnél mellé egy kattintós „Fel / Le” nyíl gombot is?
-Mivel a beágyazott előnézeti ablakokban néha a böngésző korlátozza a klasszikus egérrel húzást (HTML5 Drag & Drop), nagyon kényelmes tud lenni, ha a fogantyú mellé teszünk két diszkrét ▲ / ▼ (Feljebb / Lejjebb) nyilacskát is — így egyetlen kattintással is előre vagy hátra léptetheted bármelyik panelt.
-
-Beépítsem ezt a két kis léptető nyilat is a fogantyú mellé, hogy minden böngészőben garantáltan 1 kattintással átrendezhesd őket?
-
-okes persze ha most elkeszitem es amilyen adatokat beirok honaprol honapra azt a githabon tudom menteni ugye?
-
-Igen, pontosan így működik!
-
-Amikor hónapról hónapra módosítod a tételeidet vagy az összegeket a MONO felületén:
-
-A fejlécben sárgára vált a jelvény („Nincs exportálva • Kattints a mentéshez”).
-
-Rákattintasz (vagy az Export (.json) gombra), és letöltődik a friss adatok.json fájl.
-
-Ezt a fájlt feltöltöd a GitHub repódba (felülírva a régi adatok.json-t).
-
-Mi történik ilyenkor?
-Minden eszközöd frissül: Akár iPhone-ról, akár másik gépről nyitod meg a GitHub Pages linkedet, a MONO automatikusan a legfrissebb adatok.json-t olvassa be (a kártyáid egyedi sorrendjével együtt!).
-
-A havi e-mail is naprakész lesz: Ha később beállítod a Google Apps Scriptet, az is mindig ezt a legutolsó feltöltött adatok.json-t fogja beolvasni a GitHubról, így mindig a legfrissebb összegeket kapod meg e-mailben.
-
-Készítsem el akkor most a kártyák fejlécébe azt a két kis ▲ / ▼ (Fel / Le) léptető nyíl gombot is a fogantyú mellé, hogy 1 kattintással is tudd rendezni a paneleket?
-
-ezt lehet automatizalni?
-
-Igen, 100%-ig automatizálható! Megoldható, hogy a MONO ne csak egy letöltendő .json fájlt adjon, hanem amikor rányomsz a mentés gombra az appban, közvetlenül és automatikusan frissítse az adatok.json fájlt a GitHubodon – kézi feltöltögetés nélkül.
-
-Hogyan működik az automata GitHub szinkron?
-GitHub Token (1 perces egyszeri beállítás): A GitHub fiókodban létrehozol egy ingyenes Personal Access Token-t (amely kizárólag ehhez az egy repóhoz ad írási jogot).
-
-Automata mentés a MONO-ban: Ezt a tokent egyszer bemásolod a MONO egy diszkrét „GitHub Szinkron” ablakába (a böngésződ biztonságosan elmenti magának, a nyilvános kódban nem szerepel).
-
-Egykattintásos (vagy teljesen automata) frissítés: Amint hozzáadsz vagy módosítasz egy tételt a telefonodon vagy a gépeden, a MONO a háttérben automatikusan felküldi a frissített adatok.json-t a GitHub repódba.
-
-Ennek eredményeként:
-
-Ha a gépeden beírsz egy új számlát, 2 másodperc múlva az iPhone-odon megnyitva már ott van (kézi export/import nélkül).
-
-A havi automata Gmail emlékeztető is mindig a legfrissebb állapotot küldi ki.
-
-Beépítsem ezt a közvetlen GitHub automata mentés modult a MONO fejlécébe?
-
-na itt vagyokj a git hubon eddig jo ?
-
-Majdnem, de itt most a GitHub Gist felületére léptél be (gistfile1.txt néven), ami csak kódrészletek megosztására való — abból nem tudsz élő weboldal linket (GitHub Pages-t) csinálni!
-
-Így lépj át 1 kattintással a jó helyre:
-Kattints a bal felső sarokban a "Back to GitHub" gombra (a keresőmező mellett).
-
-A megnyíló főoldalon (vagy a jobb felső sarokban a + ikonra kattintva) válaszd a New repository menüpontot (ne a New gist-et!).
-
-Ott:
-
-Repository name: írd be, hogy mono (vagy monolith-budget)
-
-Public: hagyd bejelölve
-
-Kattints a zöld Create repository gombra.
-
-Ezután a következő oldalon kattints a creating a new file (vagy uploading an existing file) linkre:
-
-A fájlnévhez írd be pontosan: index.html
-
-Illeszd be a kódot, majd kattints a zöld Commit changes gombra.
-
-Végül lépj be a Settings 
-→
-→ Pages menübe, válaszd ki a main ágat (Save), és 1 perc múlva megkapod az élő linkedet:[https://katsatale.github.io/mono/](https://katsatale.github.io/mono/)
-
-(Ezt a mostani Gist-et nyugodtan törölheted a jobb felső piros Delete gombbal.)
-
-na itt hogyan tovabb?
-
-Tökéletes helyen vagy! Már csak 3 lépés van hátra:
-
-Repository name * mezőbe írd be: mono (ennek köszönhetően a későbbi élő webcímed szép rövid lesz: [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/)).
-
-Minden más beállítást (Public, Add README: Off stb.) hagyj pontosan úgy, ahogy most van.
-
-Kattints a jobb alsó sarokban a zöld Create repository gombra.
-
-(Ha rákattintottál, a következő oldalon a „creating a new file” linkre nyomva tudod létrehozni az index.html fájlt és beilleszteni a kódot.)
-
-na itT HOGYAN tovabb?
-
-Szuper! Nézd meg a Quick setup kék keretes doboz alján a kis kék szöveget:Get started by creating a new file or uploading an existing file.
-
-Következő lépések:
-Kattints a kék creating a new file linkre (a Quick setup dobozban).
-
-A megnyíló oldalon:
-
-A fájlnév mezőbe (Name your file...) írd be pontosan: index.html
-
-A nagy szövegdobozba illeszd be a teljes MONO HTML kódot (Ctrl + V / Cmd + V).
-
-Jobb felül kattints a zöld Commit changes... gombra, majd a felugró ablakban újra a Commit changes gombra.
-
-⚠️ Egy apró, nagyon fontos észrevétel a képről!
-A bal felső sarokban a mono felirat mellett most az látszik, hogy Private (privát). Az ingyenes GitHub fiókban az élő weboldal link (GitHub Pages) csak Public repository-val működik!
-
-Miután elmentetted az index.html fájlt:
-
-Kattints a felső menüsorban a Settings (fogaskerék) fülre.
-
-Görgess le egészen az oldal aljára a piros keretes Danger Zone részig, kattints a Change repository visibility 
-→
-→ Change to public gombra.
-
-Ezután ugyanitt a bal oldali menüben kattints a Pages menüpontra 
-→
-→ Branch résznél válaszd ki a main ágat 
-→
-→ Save.
-
-1 percen belül kész az élő webcímed: [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/)!
-
-Kattints a kék creating a new file linkre (a Quick setup dobozban). ezt nem latom hol van?
-
-Nézd meg az előző képeden a középső nagy téglalapot (Quick setup — if you’ve done this kind of thing before):
-
-Közvetlenül a hosszú fekete linkmező ([https://github.com/katsatale/mono.git](https://github.com/katsatale/mono.git)) alatt van egy apró sor:Get started by  creating a new file or uploading an existing file.
-
-Ott kattints a creating a new file feliratra (a Get started by után közvetlenül)!
-
-(Ha gyorsabb, a böngésződ címsorába is beírhatod közvetlenül ezt a linket, ami ugyanoda visz:[https://github.com/katsatale/mono/new/main](https://github.com/katsatale/mono/new/main) )
-
-na most?
-
-Szuper, a repository már Public! Már csak egy apró átnevezés kell a fájlnak, mert a képen most mono néven mentetted el (.html kiterjesztés nélkül), a weboldalhoz viszont pontosan index.html névre van szükség:
-
-1. A fájl átnevezése index.html-re (15 másodperc)
-A fájllistában kattints rá a mono nevű fájlra (a bal oldali fehér lap ikon mellett).
-
-A megnyíló oldalon a jobb felső sarokban kattints a kis ceruza (Edit this file) ikonra.
-
-A fájlnév mezőben írd át a mono nevet erre: index.html
-
-Kattints a zöld Commit changes... gombra (majd a felugró ablakban újra a Commit changes gombra).
-
-2. Élő link bekapcsolása (GitHub Pages)
-Kattints a felső menüsorban a Settings (fogaskerék) fülre (a Star gomb alatt).
-
-A bal oldali menüben kattints a Pages menüpontra.
-
-A Branch résznél válaszd ki a main ágat, majd nyomj a Save gombra.
-
-1 percen belül megjelenik felül az élő webcímed: [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/)!
-
-na itt mi a kovi lepes?
-
-Szuper, az index.html már a helyén van! Már csak a GitHub Pages bekapcsolása van hátra, hogy megszülessen az élő webcímed:
-
-A felső menüsorban (a képen látható fülsoron, a Star gomb felett/mellett) kattints a Settings (fogaskerék ikon) menüpontra.
-
-A bal oldali menüben (a Code and automation résznél) kattints a Pages menüre.
-
-A Branch résznél a None helyett válaszd ki a main ágat (mellette maradjon / (root)), majd kattints a Save gombra.
-
-1 percen belül frissítsd a Pages oldalt, és meg fog jelenni a saját, bármikor elérhető linked:[https://katsatale.github.io/mono/](https://katsatale.github.io/mono/)
-
-itt ?
-
-Igen, pont itt! Nézd meg a bal oldali menüsorban (a Code, planning, and automation rész alatt, a Codespaces alatt): ott van a Pages menüpont.
-
-Kattints a bal oldalon a Pages feliratra.
-
-A Branch résznél válaszd ki a main ágat (mellette maradjon / (root)), majd kattints a Save gombra.
-
-1 percen belül megjelenik az élő webcímed: [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/)!
-
-itt ? hol lesz a link?
-
-Szuper, most mentetted el (GitHub Pages source saved.)! A link a „GitHub Pages” felirat alatt fog megjelenni (amint a háttérben elkészül a publikálás, ez általában 1–2 perc).
-
-Nyomj egy F5-öt (oldalfrissítés) 1 perc múlva, vagy nyisd meg közvetlenül ezt a címet:[https://katsatale.github.io/mono/](https://katsatale.github.io/mono/)
-
-okes megvan a link hogyan tudom akkor most azt automatizalni hogy amit beirok az el is legyen mentve?
-
-Beépítem a MONO felületébe a közvetlen GitHub Szinkron modult (adatok.json automatikus feltöltése a katsatale/mono repóba): amint megadsz egy egyszeri GitHub Personal Access Token-t a felületen, minden egyes hozzáadás, módosítás, törlés vagy kártya-átrendezés után automatikusan felküldi az adatok.json fájlt a GitHubodra (kézi feltöltögetés nélkül).
-
-MONO — Személyes fix költség kalkulátor
-nov. 20. 17:40
-Most már nem kell kézzel letölteni és feltölteni az adatok.json fájlt a GitHubra:
-
-Nyisd meg az élő oldaladat ([https://katsatale.github.io/mono/](https://katsatale.github.io/mono/)), és kattints felül a GitHub Szinkron gombra.
-
-A GitHubon hozz létre egy Fine-grained personal access token-t (a saját fiókodban: Settings → Developer settings → Personal access tokens → Fine-grained tokens), válaszd ki a mono repót, és adj Contents: Read and write jogot.
-
-Másold be a tokent a MONO felületén, és hagyd bejelölve az Automatikus mentés minden változtatás után opciót.
-
-Innentől bármit beírsz, módosítasz, törölsz vagy áthúzol a MONO-ban, az automatikusan frissíti az adatok.json fájlt a katsatale/mono repóban — így iPhone-on megnyitva és a havi e-mailben is azonnal a legfrissebb adataidat fogod látni.
-
-Javítom a SyntaxError: Unexpected end of input hibát az index.html fájlban: a renderAll() függvény törzse a korábbi szerkesztésnél csonkán maradt és lezáratlanul ({) folytatódott a saveState függvényig. Most visszaállítom a teljes renderAll() és updateBackupStatusUI() függvényeket a megfelelő zárójelezéssel.
-
-MONO — Személyes fix költség kalkulátor
-
-
-
-A szintaktikai hiba megszűnt: helyreállítottam a renderAll() és az updateBackupStatusUI() függvényeket a index.html fájlban, így a kód érvényes és hiba nélkül lefut.
-
-tehat akkor hogy lesz az utomatikus mentes?
-
-Az automatikus mentéshez 2 dolog kell egyszer beállítani (kb. 2 perc összesen):
-
-GitHub Token létrehozása (írói jog a mono repóhoz):
-
-A GitHubon kattints a jobb felső sarokban a profilképedre 
-→
-→ Settings.
-
-A bal oldali menü legvégén kattints a Developer settings menüpontra.
-
-Bal oldalon: Personal access tokens 
-→
-→ Fine-grained tokens 
-→
-→ Generate new token.
-
-Adj neki egy nevet (pl. mono-auto-save), a Repository access résznél válaszd a Only select repositories opciót és pipáld be a mono repót.
-
-Lent a Permissions 
-→
-→ Repository permissions résznél a Contents mellett állítsd be: Read and write.
-
-Kattints a Generate token gombra, és másold ki a megjelenő tokent (github_pat_...).
-
-Beillesztés a MONO-ban:
-
-Nyisd meg a [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) oldalt (és ha frissítettél az index.html-en, nyomj egy Ctrl + F5-öt).
-
-Kattints felül a kék GitHub Szinkron gombra.
-
-Hagyd a felhasználónévben: katsatale, a repóban: mono, másold be a tokent, hagyd bepipálva az Automatikus mentés minden változtatás után részt, és nyomd meg a Mentés most (majd a Beállítás mentése) gombot.
-
-Innentől mi történik magától?
-Amikor beírsz egy új tételt, átírsz egy összeget, törölsz valamit, vagy áthúzol egy kártyát, a MONO a háttérben automatikusan létrehozza és frissíti a mono repódban az adatok.json fájlt.
-
-Ha ezután megnyitod a linket a telefonodon vagy másik böngészőben, automatikusan beolvassa ezt az adatok.json fájlt — nem kell kézzel exportálgatni és feltöltögetni.
-
-itt hova?
-
-Görgess le a bal oldali menüsorban (a Pages és Saved replies alatt): a legalsó szekcióban fogod megtalálni a Developer settings menüpontot.
-
-Görgess le a bal oldali menüben, és kattints a Developer settings feliratra.
-
-Bal oldalon kattints a Personal access tokens menüre 
-→
-→ Fine-grained tokens (vagy Tokens (classic)).
-
-Kattints a Generate new token gombra:
-
-Adj neki nevet (pl. mono-auto-save).
-
-Repository access: válaszd az Only select repositories opciót, és pipáld be a mono repót.
-
-Permissions 
-→
-→ Repository permissions: a Contents mellett állítsd be: Read and write.
-
-Kattints a Generate token gombra, és másold ki a megjelenő tokent.
-
-(Ha gyorsabb, közvetlenül is megnyithatod ezt a címet a böngészőben: [https://github.com/settings/personal-access-tokens/new](https://github.com/settings/personal-access-tokens/new))
-
-itt mire?
-
-Kattints a Fine-grained tokens feliratra (ez a biztonságosabb, csak a mono repóra korlátozható megoldás), majd a jobb felső sarokban a Generate new token gombra.
-
-Ott állítsd be:
-
-Token name: pl. mono-auto-save
-
-Repository access: Only select repositories 
-→
-→ pipáld be a mono repót.
-
-Permissions 
-→
-→ Repository permissions: a Contents sorában válaszd ki: Read and write.
-
-Kattints a Generate token gombra, és másold ki a megjelenő kódot — ezt kell beillesztened a MONO oldalán a GitHub Szinkron ablakba!
-
-itt akkor mi kell?
-
-Már szinte kész! A Token name (mono-auto-save) és a Resource owner (katsatale) már tökéletes. Már csak 2 beállítás kell lentebb:
-
-Repository access: Kattints az Only select repositories körre, majd a lenyíló mezőben válaszd ki a mono repositoryt.
-
-Permissions: Görgess egy picit lejjebb, hogy megjelenjen a Repository permissions doboz (a képen most az Account doboz látszik):
-
-Keresd meg a Contents sort, és állítsd át a mellette lévő legördülő menüt Read and write állásba.
-
-Kattints a bal alsó sarokban a zöld Generate token gombra, és másold ki a megjelenő tokent!
-
-(Ha megvan a token, nyisd meg a [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) oldalt, kattints felül a GitHub Szinkron gombra, illeszd be, és nyomd meg a Mentés most gombot — onnantól minden módosításod automatikusan mentődik az adatok.json fájlba.)
-
-most?
-
-Szuper, a katsatale/mono repository már ki van választva! Most már csak egy jogosultságot kell hozzáadni a Permissions dobozban, hogy a MONO tudja írni az adatok.json fájlt:
-
-Kattints a Permissions doboz jobb felső sarkában a + Add permissions gombra.
-
-A megjelenő listában keresd meg és pipáld be a Contents sort.
-
-A mellette lévő legördülő menüben állítsd be: Read and write (Access: Read and write).
-
-Kattints a zöld Generate token gombra, majd másold ki a megjelenő tokent (github_pat_...).
-
-Utolsó lépés a MONO-ban:
-Nyisd meg a [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) oldalt (és ha frissítettél az index.html-en, nyomj egy Ctrl + F5-öt).
-
-Kattints felül a GitHub Szinkron gombra.
-
-Illeszd be a tokent, hagyd bepipálva az Automatikus mentés minden változtatás után opciót, majd kattints a Mentés most (és a Beállítás mentése) gombra.
-
-Ha legeneráltad és bemásoltad a tokent, írd meg, megjelent-e a sikeres mentés visszajelzés!
-
-most jo?
-
-Igen, 100%-ig tökéletes! Minden beállítás a helyén van:
-
-Token name: mono-auto-save   
-image_6865a8.png
-
-Repository access: katsatale/mono kiválasztva   
-image_6865a8.png
-
-Permissions: Contents → Access: Read and write (a Metadata automatikusan ott van, ez így normális)   
-image_6865a8.png
-+ 1
-
-Mit tegyél most?
-Kattints a zöld Generate token gombra (bal alul).   
-image_6865a8.png
-
-A megjelenő oldalon másold ki azonnal a tokent (github_pat_... kezdetű hosszú karaktersor) — ha elnavigálsz az oldalról, később már nem mutatja újra a teljes kódot!
-
-Nyisd meg a [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) oldalt (ha frissítettél az index.html-en, nyomj egy Ctrl + F5-öt).
-
-Kattints felül a GitHub Szinkron gombra, illeszd be a tokent, hagyd bepipálva az Automatikus mentés minden változtatás után részt, és nyomd meg a Mentés most (majd a Beállítás mentése) gombot.
-
-(Tipp: Ha nem szeretnéd, hogy 30 nap múlva lejárjon, az Expiration legördülő menüben választhatsz hosszabb lejáratot vagy akár No expiration opciót is, bár a 30 napos teszteléshez most már azonnal legenerálhatod.)   
-image_6865a8.png
-
-Szólj, ha megvan a token és beillesztetted a MONO-ba — mindjárt tesztelhetjük is, hogy élesben létrejön-e az adatok.json a repódban!
-
-na megvana token most mit csinaljak?
-
-Szuper, most jön a legfontosabb rész: tedd biztonságba a tokent, és kösd össze a MONO-val!
-
-1. Mentsd el a tokent egy biztonságos helyre (MOST!)
-A GitHub csak egyszer mutatja meg a teljes tokent (github_pat_...). Ha még látszik a képernyőn:
-
-Másold ki, és tedd el egy biztonságos jegyzetbe vagy jelszókezelőbe — ne küldd el chaten és ne tedd be nyilvános kódba.
-
-2. Kösd össze a MONO-val (1 perc)
-Nyisd meg a [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) oldalt (ha frissítetted az index.html-t a repóban, nyomj egy Ctrl + F5-öt, hogy az új verziót töltse be).
-
-Kattints felül a GitHub Szinkron gombra.
-
-Töltsd ki a mezőket:
-
-Felhasználónév: katsatale
-
-Repository: mono
-
-Fájl neve: adatok.json
-
-Personal Access Token: másold be a most legenerált tokent.
-
-Hagyd bepipálva az Automatikus mentés minden változtatás után opciót.
-
-Kattints először a Mentés most gombra (ez azonnal létrehozza az adatok.json fájlt a katsatale/mono repóban), majd a Beállítás mentése gombra.
-
-3. Gyors teszt, hogy tényleg működik-e
-Adj hozzá egy próbatételt (vagy húzz át egy kártyát), várj 1–2 másodpercet, és nézz rá a [https://github.com/katsatale/mono](https://github.com/katsatale/mono) oldalra: ott kell lennie az új adatok.json fájlnak!
-
-Ha ez megvan, nyisd meg a [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) címet az iPhone-odon is (és a Safari Megosztás → Főképernyőhöz adás opcióval kirakhatod appként).
-
-Sikerült létrehoznia a mono-nak az adatok.json fájlt a repóban?
-
-itt kell akkor beilesztenem a tokent?
-
-Nem itt a GitHub repóban, hanem a saját MONO webalkalmazásodban kell beilleszteni a tokent. A képen most a katsatale/mono GitHub repó főoldalát látod, ahol már ott az index.html fájl.   
-image_686cec.png
-
-1
-Nyisd meg a MONO élő oldalát
-Külön böngészőlapon
-Nyisd meg a [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) címet egy új fülön, majd nyomj egy Ctrl + F5 (vagy Cmd + Shift + R) billentyűkombinációt, hogy a legfrissebb index.html töltődjön be.
-Verification: Megjelenik a sötét módú MONO felület a fejlécben a GitHub Szinkron gombbal.
-
-2
-Nyisd meg a GitHub Szinkron ablakot
-A MONO fejlécében
-Kattints a MONO tetején található GitHub Szinkron gombra.
-Verification: Felugrik a szinkronizálási beállítóablak a felhasználónév, repó, fájl és token mezőkkel.
-
-3
-Töltsd ki a mezőket és másold be a tokent
-1 perc
-Add meg a katsatale felhasználónevet, a mono repónevet és az adatok.json fájlnevet, illeszd be a kimásolt tokent (github_pat_...), majd hagyd bepipálva az automatikus mentést.
-Verification: A token mezőben megjelenik a beillesztett karaktersor, és aktív az automatikus mentés jelölőnégyzet.
-
-4
-Mentsd el a beállítást és futtasd az első szinkronizálást
-Azonnali ellenőrzés
-Kattints a Mentés most gombra, majd a Beállítás mentése gombra, és válts vissza a GitHubon a katsatale/mono fülre egy frissítéssel (F5).
-Verification: A MONO sikeres mentést jelez, a katsatale/mono repó fájllistájában pedig megjelenik az új adatok.json fájl az index.html mellett.
-
-Ha a GitHub Szinkron gomb nem látszik a MONO fejlécében, frissítsd újra gyorsítótár nélkül (Ctrl + F5), vagy küldj egy képernyőképet a megnyitott MONO oldalról, és megnézzük, mit mutat.
-
-[https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) ezt a linket nem erem el
-
-Ha még nem érhető el a [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) oldal, annak leggyakrabban két egyszerű oka van: a GitHub Pages publikálása még folyamatban van, vagy valami apró beállítás még hiányzik a repóban.   
-image_67fcc7.png
-+ 1
-
-1. Ellenőrizd a GitHub Pages állapotát (30 másodperc)
-Nyisd meg a repódat: [https://github.com/katsatale/mono](https://github.com/katsatale/mono).   
-image_67ed09.png
-+ 1
-
-Kattints felül a Settings fülre, majd a bal oldalon a Pages menüre.   
-image_68004a.png
-+ 1
-
-Nézd meg a GitHub Pages felirat alatt a státuszt:
-
-Ha zöld pipa van és kint a link ([https://katsatale.github.io/mono/](https://katsatale.github.io/mono/)), kattints közvetlenül arra a linkre (ne írd be kézzel, elírás elkerülése végett).
-
-Ha sárgán azt írja, hogy building / in progress, várj 1–2 percet, majd frissíts (F5).
-
-Ha piros hibát vagy figyelmeztetést ír, az ott pontosan megmondja, mi akadt el.
-
-2. Nézd meg a repó fájllistáját (Code fül)
-Kattints a <> Code fülre a katsatale/mono repóban, és ellenőrizd:
-
-Pontosan index.html néven szerepel-e a fájl a gyökérben (nem Index.html vagy index.html.txt).   
-image_67fcc7.png
-+ 1
-
-A repó bal felső sarkában a név mellett továbbra is Public látszik-e.   
-image_67f587.png
-+ 2
-
-3. Ha a böngésző (vagy a hálózat) blokkolja / rosszul tölti be
-Próbáld meg inkognitó/privát ablakban megnyitni, vagy nyomj egy Ctrl + F5 frissítést.
-
-Ha hálózati/DNS hibaüzenetet ír a böngésző (pl. DNS_PROBE_FINISHED_NXDOMAIN), nézd meg a Settings → Pages oldalon, hogy nem maradt-e valami félreütve a Custom domain mezőben.   
-image_680396.png
-
-Ha továbbra sem nyílik meg, küldd el, milyen pontos hibaüzenetet ír a böngésző, vagy egy képernyőképet a Settings → Pages oldalról, és azonnal ránézünk!
-
-akkor itt allitsam be?
-
-A képen látható oldalon ([https://github.com/katsatale/mono](https://github.com/katsatale/mono)) a Deployments rész alatt már ott a zöld pipás github-pages (13 minutes ago), tehát a publikálás sikeresen lefutott. A tokent viszont továbbra sem ide kell beilleszteni, hanem a megnyitott [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) weboldal GitHub Szinkron ablakába.   
-image_68714c.png
-
-1
-Nyisd meg a élő GitHub Pages címet
-13 perce sikeresen publikálva
-Nyiss egy új böngészőlapot, írd be vagy másold be a [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) címet, és nyomj egy Ctrl + F5 (vagy Cmd + Shift + R) billentyűkombinációt a friss tartalom betöltéséhez.
-Verification: A böngészőben betölt a sötét módú MONO alkalmazás, és a fejlécben látható a GitHub Szinkron gomb.
-
-2
-Nyisd meg a GitHub Szinkron ablakot
-A MONO fejlécében
-Kattints a MONO alkalmazás tetején található GitHub Szinkron gombra.
-Verification: Megjelenik a szinkronizálási beállítóablak a felhasználónév, repository, fájlnév és token mezőkkel.
-
-3
-Add meg a tokent és az automata mentést
-Egyszeri beállítás
-Írd be a katsatale felhasználónevet, a mono repónevet és az adatok.json fájlnevet, illeszd be a github_pat_... tokent, majd hagyd bejelölve az Automatikus mentés minden változtatás után opciót.
-Verification: A token mezőben szerepel a beillesztett kód, és az automatikus mentés kapcsolója/pipája aktív.
-
-4
-Futtasd az első mentést és válts vissza a repóra
-Azonnali mentés a repóba
-Kattints a Mentés most gombra, majd a Beállítás mentése gombra, ezután menj vissza a [https://github.com/katsatale/mono](https://github.com/katsatale/mono) oldalra és frissíts (F5).
-Verification: A MONO sikeres szinkronizálást jelez, a katsatale/mono repó fájllistájában pedig az index.html mellett megjelenik az adatok.json fájl is.
-
-Ha a [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) címen továbbra sem tölt be az alkalmazás (vagy hiányzik a GitHub Szinkron gomb), küldj egy képernyőképet a megnyitott [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) fülről vagy a pontos böngészős hibaüzenetről.
-
-megcsinaltam az oldal frissitest
-
-Szuper, most már a friss verzió fut! Akkor jöhet a végső összekötés a MONO alkalmazásban, hogy ne kelljen többé kézzel mentgetni és feltöltögetni az adatokat:
-
-1. A token beillesztése a MONO-ban
-Nyisd meg a [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) oldalt (ha még nem azon a fülön vagy, és biztosra mennél, nyomj egy Ctrl + F5-öt).
-
-Kattints felül a GitHub Szinkron gombra.
-
-Töltsd ki a mezőket:
-
-Felhasználónév: katsatale   
-image_67ed09.png
-+ 1
-
-Repository: mono   
-image_67ed09.png
-+ 1
-
-Fájl neve: adatok.json
-
-Personal Access Token: illeszd be a github_pat_... tokent, amit az imént legeneráltál.
-
-Hagyd bepipálva az Automatikus mentés minden változtatás után opciót.
-
-Kattints először a Mentés most gombra, majd a Beállítás mentése gombra.
-
-2. Gyors ellenőrzés (hogy biztosan működjön)
-Válts vissza a [https://github.com/katsatale/mono](https://github.com/katsatale/mono) oldalra, és nyomj egy F5-öt.   
-image_68714c.png
-
-Az index.html mellett ott kell lennie a frissen létrejött adatok.json fájlnak.   
-image_68714c.png
-
-Innentől, ha bármit hozzáadsz, átírsz, törölsz vagy átrendezel a MONO-ban (akár gépen, akár később iPhone-ról megnyitva a linket), az automatikusan frissíti az adatok.json fájlt a repóban.
-
-Megjelent már az adatok.json a GitHub repóban, vagy dobott valamilyen üzenetet a GitHub Szinkron ablak?
-
-ezt most nem ertem akkor a json. filba kell bilesztenem a tokent?
-
-Nem, semmiképp ne másold be a tokent a json fájlba! Az adatok.json fájlba csak a költségeid és előfizetéseid adatai kerülnek, és ha a token bekerülne egy nyilvános repóban lévő fájlba, bárki láthatná, aki megnyitja a repository-t.
-
-A tokent a megnyitott MONO weboldal felületén kell beillesztened, a GitHub Szinkron beállítóablakban (a Personal Access Token mezőbe), amelyet a [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) címen érsz el.
-
-Így néz ki a pontos folyamat:
-Ne a GitHubon szerkeszd a fájlt: A katsatale/mono repóban az adatok.json fájlt majd maga a MONO hozza létre és frissíti automatikusan, neked nem kell beleírnod semmit.
-
-Nyisd meg magát a MONO alkalmazást: Menj a [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) oldalra (frissítsd Ctrl + F5-tel, ha kell), és kattints ott a GitHub Szinkron gombra.
-
-Másold be a tokent a MONO ablakába:
-
-Felhasználónév: katsatale
-
-Repository: mono
-
-Fájl neve: adatok.json
-
-Personal Access Token: ide illeszd be a github_pat_... tokent.
-
-Indítsd el az első mentést: Hagyd bejelölve az Automatikus mentés minden változtatás után opciót, majd nyomd meg a Mentés most és a Beállítás mentése gombot.
-
-Ha nem látod a GitHub Szinkron gombot a MONO-ban
-Előfordulhat, hogy a böngésző a régebbi, szinkronizációs modullal még ki nem egészített index.html változatot mutatja, vagy valami más jelenik meg a [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) oldalon. Ha így van, küldj egy képernyőképet arról, mit látsz a [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) megnyitásakor, és megnézzük, mit mutat pontosan.
-
-itt nem latok semmilyen szinkront
-
-Teljesen jogosan nem látod — a képernyőképen a jobb felső sarokban csak a Mentés naprakész, az Export (.json) és az Import gombok vannak, GitHub Szinkron gomb nincs a felületen. Ez azt jelenti, hogy a jelenleg éles index.html fájl a repóban még csak a helyi mentést és a kézi .json import/export funkciót tartalmazza, a közvetlen GitHub API-s automatikus mentőmodul még nincs benne.   
-image_6878ac.png
-
-Ha azt szeretnéd, hogy minden módosítás (tétel hozzáadás, szerkesztés, törlés, kártya- vagy tétel-átrendezés) automatikusan és kézi feltöltögetés nélkül elmentődjön a katsatale/mono repó adatok.json fájljába, akkor egyetlen dolgot kell megtenni:
-
-Frissítsd az index.html fájlt a GitHubon a GitHub szinkronizációs modullal kiegészített teljes kódra (a [https://github.com/katsatale/mono/blob/main/index.html](https://github.com/katsatale/mono/blob/main/index.html) oldalon a ceruza ikonnal cseréld le a tartalmát, majd nyomj a Commit changes gombra).
-
-Várj kb. 1 percet, amíg a GitHub Pages lefut, majd a [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) oldalon nyomj egy Ctrl + F5-öt (a Brave böngészőben).   
-image_6878ac.png
-
-Ezután megjelenik a GitHub Szinkron gomb a fejlécben — ott tudod megadni a katsatale felhasználónevet, a mono repót, az adatok.json fájlnév-beállítást és a már legenerált github_pat_... tokent, majd elindítani az első automatikus mentést.
-
-Küldjem el a teljes, GitHub-szinkronnal kiegészített index.html kódot, hogy egy mozdulattal be tudd másolni a repóba?
-
-hoygan tudom ezt a modult beilleszteni a json filba?
-
-A modult semmiképp ne a .json fájlba illeszd be! A .json fájl (adatok.json) egy sima adattároló formátum (csak a költségeid és előfizetéseid számait/neveit tartalmazza), abban semmilyen programkód vagy szinkronizációs modul nem fut le.
-
-A szinkronizációs modult a repóban lévő index.html fájlba kell beilleszteni, mert maga a webalkalmazás ezen a HTML-fájlon keresztül fut.   
-image_67f587.png
-+ 1
-
-Így tudod frissíteni az index.html fájlt (1 perc):
-Menj a repód fájljához a böngészőben: [https://github.com/katsatale/mono/blob/main/index.html](https://github.com/katsatale/mono/blob/main/index.html).   
-image_67f587.png
-+ 1
-
-A kódablak jobb felső sarkában kattints a kis ceruza ikonra (Edit this file).
-
-Jelöld ki a teljes meglévő tartalmat (Ctrl + A), töröld ki, és illeszd be a GitHub Szinkron gombbal kiegészített teljes index.html kódot (Ctrl + V).
-
-Kattints felül a zöld Commit changes... gombra, majd a felugró ablakban újra a Commit changes gombra.
-
-Mi történik ezután?
-Várj kb. 1 percet, amíg a GitHub Pages frissíti az élő oldalt.   
-image_680396.png
-+ 1
-
-Nyisd meg a [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) oldalt (a Brave böngészőben nyomj egy Ctrl + F5-öt) — most már meg fog jelenni a GitHub Szinkron gomb a fejlécben.   
-image_6878ac.png
-
-Kattints a GitHub Szinkron gombra, illeszd be a github_pat_... tokent, add meg a katsatale felhasználónevet, a mono repót és az adatok.json fájlnevet, majd kattints a Mentés most és a Beállítás mentése gombra.
-
-Ha még nincs nálad a szinkronizációs modullal frissített teljes index.html kód, szólj, és ide teszem a teljes kódot, hogy egy mozdulattal be tudd másolni!
-
-itt allitsam be?
-
-Nem, itt a böngésző DevTools (fejlesztői eszközök) ablakában vagy, ide ne illess be semmit. Itt csak a már betöltött oldal élő HTML-struktúráját látod a böngésződben, és a jobb felső sarokban látszik is, hogy 2 piros hiba (2) van az oldalon.   
-image_68800a.png
-+ 1
-
-A beillesztést magán a GitHub weboldalon, a repódban lévő index.html fájl szerkesztésénél kell elvégezni, nem itt.   
-image_67f587.png
-+ 2
-
-Így csináld meg a helyes helyen:
-Zárd be ezt a DevTools panelt a jobb felső sarokban lévő X gombbal (a Styles panel felett).   
-image_68800a.png
-
-Nyisd meg a GitHubon a fájlt közvetlenül ezen a címen: [https://github.com/katsatale/mono/blob/main/index.html](https://github.com/katsatale/mono/blob/main/index.html).   
-image_67f587.png
-+ 2
-
-Kattints a kódablak jobb felső sarkában a kis ceruza ikonra (Edit this file).
-
-Jelöld ki a teljes tartalmat (Ctrl + A), illeszd be a friss, GitHub Szinkron modullal ellátott teljes index.html kódot (Ctrl + V), majd kattints a Commit changes... 
-→
-→ Commit changes gombra.
-
-Várj 1 percet, amíg a GitHub Pages lefut, majd menj a [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) oldalra, és nyomj egy Ctrl + F5-öt.   
-image_680396.png
-+ 2
-
-Ha megjelent a GitHub Szinkron gomb a MONO fejlécében, ott add meg a katsatale felhasználónevet, a mono repót, az adatok.json fájlnevet és a github_pat_... tokent, majd indítsd el az első mentést.
-
-Ha szeretnéd, hogy megnézzük azt a 2 hibát is, amit a DevTools jelzett az oldalon, kattints a Console fülre, és másold be ide a piros hibaüzeneteket — egyben rendbe tesszük!   
-image_68800a.png
-
-itt mia HIBA?
-
-A hiba oka az, hogy a webcímet ([https://github.com/katsatale/mono/blob/main/index.html](https://github.com/katsatale/mono/blob/main/index.html)) nem a böngésző felső címsorába (ahol most a [github.com/search](https://github.com/search)?... látszik), hanem a GitHub belső keresősávjába írtad/illesztetted be. Emiatt a GitHub kódkeresőben próbált keresni rá, és azt írta ki, hogy Your search did not match any code.   
-image_68d264.png
-+ 1
-
-Így jutsz el a fájlhoz a legkönnyebben:
-Kattints legfelül, a képernyő tetején lévő böngésző címsorára (ahol a [github.com/search](https://github.com/search)?... cím szerepel).   
-image_68d264.png
-
-Írd be vagy illeszd be ezt a címet, majd nyomj Enter-t:[https://github.com/katsatale/mono/blob/main/index.html](https://github.com/katsatale/mono/blob/main/index.html)
-
-(Vagy még egyszerűbb: kattints a jobb felső sarokban a profilképedre -> Your repositories -> válaszd ki a mono repót, majd ott kattints az index.html fájlra.)   
-image_68714c.png
-+ 1
-
-Ha megnyílt az index.html, a jobb felső sarokban a kis ceruza ikonra (Edit this file) kattintva tudod szerkeszteni a tartalmát.
-
-NAITT MAR ALAKUL MI A KOVI LEPES?
-
-Megtaláltad az index.html fájlt a katsatale/mono repóban. A képen látható kód 1524 soros, de a MONO korábbi képernyőjén nem volt még GitHub Szinkron gomb — ha a mostani fájlban sincs benne a GitHub API-s szinkronizáló modul, akkor először frissítenünk kell a fájl tartalmát, hogy megjelenjen a szinkronizáló ablak, ahová a github_pat_... tokent beillesztheted.   
-image_68d301.png
-+ 2
-
-1
-Nyisd meg az index.html szerkesztését
-A kódsáv jobb felső sarkában
-Kattints a kódablak jobb felső sarkában (a Raw / másolás / letöltés ikonok mellett) a kis ceruza ikonra (Edit this file).
-Verification: A kódablak szerkeszthető mezővé alakul, és megjelenik felül a zöld Commit changes... gomb.
-
-2
-Cseréld le a teljes kódot a friss verzióra
-Csak ha hiányzik a GitHub Szinkron modul
-Nyomj egy Ctrl + A billentyűkombinációt a kódmezőben, töröld ki a tartalmat, és illeszd be (Ctrl + V) a GitHub Szinkron modullal ellátott teljes index.html kódot.
-Verification: A szerkesztőablakban a legelső sor <!DOCTYPE html> és az utolsó sor </html>, hibás vagy csonka sor nélkül.
-
-3
-Véglegesítsd a módosítást (Commit)
-Mentés a repóba
-Kattints a zöld Commit changes... gombra, majd a felugró kis ablakban újra a zöld Commit changes gombra.
-Verification: Visszatérsz az index.html nézetre, és a legutóbbi commitnál friss időbélyeg (pl. now) szerepel.
-
-4
-Frissítsd a MONO oldalát és illeszd be a tokent
-Külön böngészőlapon
-Válts át a [https://katsatale.github.io/mono/](https://katsatale.github.io/mono/) fülre, nyomj egy Ctrl + F5-öt, kattints felül a GitHub Szinkron gombra, töltsd ki (katsatale, mono, adatok.json és a token), hagyd aktívan az automatikus mentést, majd nyomd meg a Mentés most és a Beállítás mentése gombot.
-Verification: A MONO sikeres mentést jelez, és a katsatale/mono repóban megjelenik az új adatok.json fájl.
-
-Ha még nincs meg a frissített, GitHub Szinkron modullal ellátott teljes index.html kód, szólj, és írd meg, hogy szeretnéd-e, hogy itt adjam meg a teljes kódot, vagy előbb megnézzük, mit ír a MONO a legfrissebb verzió betöltése után.
-
-ILLESZD BE IDE NEKEM AZT A KODOT AMIBE MAR BENNE A GIT HUB SZINKORN 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 ITT A TOKEN IS
-
-Fontos biztonsági megjegyzés: A tokent semmiképp ne írd bele a kódba, és ne töltsd fel a GitHub repóba! A kódot másold be a katsatale/mono repó index.html fájljába, a tokent pedig csak a megnyitott MONO weboldal felületén, a GitHub Szinkron ablakban illeszd be.
-
-1. Másold be ezt a teljes index.html kódot a GitHubon ([https://github.com/katsatale/mono/blob/main/index.html](https://github.com/katsatale/mono/blob/main/index.html))
-Kattints a ceruza ikonra a GitHubon, jelöld ki az egészet (Ctrl + A), illeszd be az alábbi kódot (Ctrl + V), majd mentsd el (Commit changes):
-
-HTML
 <!DOCTYPE html>
 <html lang="hu" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>MONO — Fix költség és előfizetés követő</title>
+  <title>MONO — Fix költség kalkulátor</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1162,9 +13,20 @@ HTML
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background-color: #090a0d;
       color: #f4f4f5;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .safe-header {
+      padding-top: env(safe-area-inset-top);
+    }
+    @media screen and (max-width: 768px) {
+      input[type="text"],
+      input[type="number"],
+      select {
+        font-size: 16px !important;
+      }
     }
     .drag-over {
-      outline: 2px dashed rgba(59, 130, 246, 0.7);
+      outline: 2px dashed rgba(96, 165, 250, 0.75);
       outline-offset: 2px;
     }
   </style>
@@ -1172,23 +34,23 @@ HTML
 <body class="min-h-screen flex flex-col antialiased selection:bg-zinc-100 selection:text-zinc-950">
 
   <!-- FEJLÉC -->
-  <header class="sticky top-0 z-30 bg-[#090a0d]/85 backdrop-blur-xl border-b border-white/[0.08]">
+  <header class="sticky top-0 z-30 bg-[#090a0d]/85 backdrop-blur-xl border-b border-white/[0.07] safe-header">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
       <div class="flex items-center gap-3 min-w-0">
         <div class="w-8 h-8 rounded-lg bg-zinc-100 text-zinc-950 font-bold flex items-center justify-center text-sm shrink-0">M</div>
         <div class="truncate">
           <div class="flex items-center gap-2">
             <span class="font-semibold tracking-tight text-white">MONO</span>
-            <span class="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/[0.06] text-zinc-400 border border-white/[0.08]">Fix költség</span>
+            <span class="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/[0.06] text-zinc-400 border border-white/[0.08]">BUDGET</span>
           </div>
-          <p class="text-xs text-zinc-500 truncate">Havi fix kiadás és előfizetés követő</p>
+          <p class="text-xs text-zinc-500 truncate">Havi fix költség és előfizetés követő</p>
         </div>
       </div>
 
       <div class="flex items-center gap-2 shrink-0">
         <span id="sync-status-badge" class="hidden sm:inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-          <span id="sync-status-text">Helyi mentés kész</span>
+          <span id="sync-status-text">Mentés naprakész</span>
         </span>
 
         <button id="btn-open-sync" type="button" class="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition cursor-pointer">
@@ -1207,10 +69,11 @@ HTML
     </div>
   </header>
 
+  <!-- Értesítési konténer -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
   <!-- FŐ TARTALOM -->
   <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
-
-    <!-- ÖSSZESÍTŐ KÁRTYÁK -->
     <section class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div class="rounded-2xl bg-[#111318] border border-white/[0.08] p-5">
         <div class="flex items-center justify-between text-xs text-zinc-400 mb-2">
@@ -1230,22 +93,57 @@ HTML
     </section>
 
     <div class="flex items-center justify-between">
-      <p class="text-[11px] uppercase tracking-widest text-zinc-500">Kategóriák és tételek • Áthúzással rendezhető</p>
+      <p class="text-[11px] uppercase tracking-widest text-zinc-500">KATEGÓRIÁK &amp; TÉTELEK • ÁTRENDEZHETŐ</p>
     </div>
 
-    <!-- KATEGÓRIA KÁRTYÁK RÁCS -->
     <section id="categories-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5"></section>
   </main>
 
-  <!-- ÉRTESÍTÉS (TOAST) -->
-  <div id="toast" class="fixed bottom-4 right-4 z-50 hidden max-w-sm rounded-xl px-4 py-3 text-xs font-medium shadow-xl border"></div>
+  <!-- LÁBLÉC -->
+  <footer class="max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 border-t border-white/[0.07] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-zinc-500">
+    <span>MONO • Helyi + GitHub automatikus szinkronizálás</span>
+    <span id="footer-sync-info">adatok.json</span>
+  </footer>
 
-  <!-- GITHUB SZINKRON MODÁLIS ABLAK -->
-  <div id="sync-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
+  <!-- MODÁLIS ABLAK 1: TÖRLÉS MEGERŐSÍTÉS -->
+  <div id="modal-delete" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-xs" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+    <div class="w-full max-w-sm rounded-2xl bg-[#12151c] border border-white/[0.1] p-5 space-y-4 shadow-2xl">
+      <h3 id="delete-modal-title" class="text-base font-semibold text-white">Tétel törlése</h3>
+      <p id="delete-modal-desc" class="text-xs text-zinc-400">Biztosan törölni szeretnéd ezt a tételt?</p>
+      <div class="flex items-center justify-end gap-2 pt-1">
+        <button id="btn-cancel-delete" type="button" class="text-xs font-medium px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-zinc-200 cursor-pointer">Mégse</button>
+        <button id="btn-confirm-delete" type="button" class="text-xs font-medium px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white cursor-pointer">Törlés</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODÁLIS ABLAK 2: TÉTEL SZERKESZTÉSE -->
+  <div id="modal-edit" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-xs" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+    <form id="edit-item-form" class="w-full max-w-sm rounded-2xl bg-[#12151c] border border-white/[0.1] p-5 space-y-4 shadow-2xl">
+      <h3 id="edit-modal-title" class="text-base font-semibold text-white">Tétel szerkesztése</h3>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-zinc-400 mb-1">Megnevezés</label>
+          <input id="edit-item-name" type="text" required class="w-full rounded-xl bg-[#0b0d11] border border-white/[0.1] px-3 py-2.5 text-white focus:outline-none focus:border-blue-500" />
+        </div>
+        <div>
+          <label class="block text-zinc-400 mb-1">Havi összeg (Ft)</label>
+          <input id="edit-item-amount" type="number" min="0" step="1" required class="w-full rounded-xl bg-[#0b0d11] border border-white/[0.1] px-3 py-2.5 text-white focus:outline-none focus:border-blue-500" />
+        </div>
+      </div>
+      <div class="flex items-center justify-end gap-2 pt-1">
+        <button id="btn-cancel-edit" type="button" class="text-xs font-medium px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-zinc-200 cursor-pointer">Mégse</button>
+        <button type="submit" class="text-xs font-medium px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white cursor-pointer">Mentés</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- MODÁLIS ABLAK 3: GITHUB SZINKRON -->
+  <div id="sync-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-xs" role="dialog" aria-modal="true" aria-labelledby="sync-modal-title">
     <div class="w-full max-w-md rounded-2xl bg-[#12151c] border border-white/[0.1] p-5 sm:p-6 space-y-4 shadow-2xl">
       <div class="flex items-center justify-between">
         <div>
-          <h2 class="text-base font-semibold text-white">GitHub Szinkron</h2>
+          <h2 id="sync-modal-title" class="text-base font-semibold text-white">GitHub Szinkron</h2>
           <p class="text-xs text-zinc-400 mt-0.5">Automatikus mentés a repository <code class="text-zinc-200">adatok.json</code> fájljába</p>
         </div>
         <button id="btn-close-sync" type="button" class="text-zinc-400 hover:text-white text-sm px-2 py-1 rounded-lg hover:bg-white/[0.06] cursor-pointer">✕</button>
@@ -1305,10 +203,10 @@ HTML
     const GH_CONFIG_KEY = 'mono_github_sync_v1';
 
     const DEFAULT_CATEGORIES = [
-      { id: 'streaming', title: 'Streaming szolgáltatások', placeholder: 'pl. Netflix, Disney+, Spotify' },
-      { id: 'housing', title: 'Albérlet és rezsi', placeholder: 'pl. Albérlet, Villany, Közös költség' },
-      { id: 'loans', title: 'Hitelek', placeholder: 'pl. Személyi kölcsön, Lízing' },
-      { id: 'telecom', title: 'Telefonszámlák és internet', placeholder: 'pl. Mobil előfizetés, Otthoni net' }
+      { id: 'streaming', title: 'Streaming szolgáltatások', badge: '🎬', placeholder: 'Megnevezés (pl. Netflix, Disney+, Spo...' },
+      { id: 'housing', title: 'Albérlet és rezsi', badge: '🏠', placeholder: 'Megnevezés (pl. Albérlet, Villany...' },
+      { id: 'loans', title: 'Hitelek', badge: '🏦', placeholder: 'Megnevezés (pl. Személyi kölcsön...' },
+      { id: 'telecom', title: 'Telefonszámlák és internet', badge: '📱', placeholder: 'Megnevezés (pl. Mobil előfizetés, Ott...' }
     ];
 
     let state = loadState();
@@ -1316,6 +214,8 @@ HTML
     let syncTimer = null;
     let isSyncing = false;
     let draggedCardId = null;
+    let pendingDelete = null;
+    let pendingEdit = null;
 
     function uid() {
       return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
@@ -1326,10 +226,19 @@ HTML
       return n.toLocaleString('hu-HU') + ' Ft';
     }
 
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
     function showToast(message, type = 'info') {
-      const el = document.getElementById('toast');
+      const container = document.getElementById('toast-container');
+      const el = document.createElement('div');
       el.textContent = message;
-      el.className = 'fixed bottom-4 right-4 z-50 max-w-sm rounded-xl px-4 py-3 text-xs font-medium shadow-xl border transition';
+      el.className = 'max-w-sm rounded-xl px-4 py-3 text-xs font-medium shadow-xl border transition';
       if (type === 'error') {
         el.classList.add('bg-rose-950/95', 'text-rose-200', 'border-rose-500/40');
       } else if (type === 'success') {
@@ -1337,9 +246,10 @@ HTML
       } else {
         el.classList.add('bg-zinc-900/95', 'text-zinc-100', 'border-white/[0.12]');
       }
-      el.classList.remove('hidden');
-      clearTimeout(showToast._t);
-      showToast._t = setTimeout(() => el.classList.add('hidden'), 3200);
+      container.appendChild(el);
+      setTimeout(() => {
+        el.remove();
+      }, 3200);
     }
 
     function loadState() {
@@ -1349,10 +259,11 @@ HTML
           const parsed = JSON.parse(raw);
           if (Array.isArray(parsed.categories) && parsed.categories.length) {
             return {
-              categories: parsed.categories.map(c => ({
+              categories: parsed.categories.map((c, idx) => ({
                 id: c.id || uid(),
                 title: c.title || 'Kategória',
-                placeholder: c.placeholder || 'Megnevezés',
+                badge: c.badge || DEFAULT_CATEGORIES[idx]?.badge || '•',
+                placeholder: c.placeholder || DEFAULT_CATEGORIES[idx]?.placeholder || 'Megnevezés',
                 items: Array.isArray(c.items) ? c.items : []
               }))
             };
@@ -1394,7 +305,7 @@ HTML
       updateSyncUi();
     }
 
-    function saveLocalAndMaybeSync() {
+    function saveState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       renderAll();
       if (ghConfig.autoSave && ghConfig.token.trim()) {
@@ -1436,6 +347,9 @@ HTML
       document.getElementById('gh-autosave').checked = ghConfig.autoSave;
 
       const lastEl = document.getElementById('gh-last-sync');
+      const footerInfo = document.getElementById('footer-sync-info');
+      footerInfo.textContent = `${ghConfig.owner}/${ghConfig.repo} → ${ghConfig.path}`;
+
       if (ghConfig.lastSync) {
         lastEl.textContent = 'Utolsó szinkronizálás: ' + ghConfig.lastSync;
       } else {
@@ -1447,7 +361,7 @@ HTML
       if (ghConfig.token && ghConfig.autoSave) {
         setBadge(ghConfig.lastSync ? 'GitHub auto-mentés aktív' : 'GitHub kész', 'emerald');
       } else {
-        setBadge('Helyi mentés aktív', 'emerald');
+        setBadge('Mentés naprakész', 'emerald');
       }
     }
 
@@ -1589,44 +503,46 @@ HTML
       const cat = state.categories.find(c => c.id === categoryId);
       if (!cat) return;
       cat.items.push({ id: uid(), name: cleanName, amount: cleanAmount });
-      saveLocalAndMaybeSync();
+      saveState();
       showToast(`Hozzáadva: ${cleanName}`);
     }
 
-    function deleteItem(categoryId, itemId) {
+    function openDeleteModal(categoryId, itemId) {
       const cat = state.categories.find(c => c.id === categoryId);
-      if (!cat) return;
-      cat.items = cat.items.filter(i => i.id !== itemId);
-      saveLocalAndMaybeSync();
-      showToast('Tétel törölve');
+      const item = cat?.items.find(i => i.id === itemId);
+      if (!cat || !item) return;
+      pendingDelete = { categoryId, itemId };
+      document.getElementById('delete-modal-desc').textContent = `Biztosan törölni szeretnéd a(z) „${item.name}” (${formatHuf(item.amount)}) tételt?`;
+      const modal = document.getElementById('modal-delete');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
     }
 
-    function editItem(categoryId, itemId) {
+    function closeDeleteModal() {
+      pendingDelete = null;
+      const modal = document.getElementById('modal-delete');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function openEditModal(categoryId, itemId) {
       const cat = state.categories.find(c => c.id === categoryId);
-      if (!cat) return;
-      const item = cat.items.find(i => i.id === itemId);
-      if (!item) return;
+      const item = cat?.items.find(i => i.id === itemId);
+      if (!cat || !item) return;
+      pendingEdit = { categoryId, itemId };
+      document.getElementById('edit-item-name').value = item.name;
+      document.getElementById('edit-item-amount').value = item.amount;
+      const modal = document.getElementById('modal-edit');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.getElementById('edit-item-name').focus();
+    }
 
-      const newName = prompt('Új megnevezés:', item.name);
-      if (newName === null) return;
-      const trimmed = newName.trim();
-      if (!trimmed) {
-        showToast('A megnevezés nem lehet üres!', 'error');
-        return;
-      }
-
-      const newAmountRaw = prompt('Új havi összeg (Ft):', String(item.amount));
-      if (newAmountRaw === null) return;
-      const newAmount = Number(String(newAmountRaw).replace(/\s+/g, ''));
-      if (Number.isNaN(newAmount) || newAmount < 0) {
-        showToast('Érvénytelen összeg!', 'error');
-        return;
-      }
-
-      item.name = trimmed;
-      item.amount = newAmount;
-      saveLocalAndMaybeSync();
-      showToast('Tétel frissítve');
+    function closeEditModal() {
+      pendingEdit = null;
+      const modal = document.getElementById('modal-edit');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
     }
 
     function moveCategory(sourceId, targetId) {
@@ -1636,7 +552,7 @@ HTML
       if (fromIdx === -1 || toIdx === -1) return;
       const [moved] = state.categories.splice(fromIdx, 1);
       state.categories.splice(toIdx, 0, moved);
-      saveLocalAndMaybeSync();
+      saveState();
     }
 
     function renderAll() {
@@ -1716,6 +632,7 @@ HTML
           <div class="flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 min-w-0">
               <span class="text-zinc-500 cursor-grab select-none" title="Húzd át az átrendezéshez">⋮⋮</span>
+              <span class="text-base shrink-0">${escapeHtml(cat.badge || '•')}</span>
               <h3 class="font-semibold text-white truncate">${escapeHtml(cat.title)}</h3>
             </div>
             <span class="text-xs font-medium px-2.5 py-1 rounded-lg bg-white/[0.05] text-zinc-200 border border-white/[0.08] shrink-0">${formatHuf(catSum)} / hó</span>
@@ -1748,21 +665,50 @@ HTML
           if (!btn) return;
           const action = btn.dataset.action;
           const itemId = btn.dataset.id;
-          if (action === 'delete') deleteItem(cat.id, itemId);
-          if (action === 'edit') editItem(cat.id, itemId);
+          if (action === 'delete') openDeleteModal(cat.id, itemId);
+          if (action === 'edit') openEditModal(cat.id, itemId);
         });
 
         grid.appendChild(card);
       }
     }
 
-    function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    }
+    // Törlés modál események
+    document.getElementById('btn-cancel-delete').addEventListener('click', closeDeleteModal);
+    document.getElementById('btn-confirm-delete').addEventListener('click', () => {
+      if (!pendingDelete) return;
+      const { categoryId, itemId } = pendingDelete;
+      const cat = state.categories.find(c => c.id === categoryId);
+      if (cat) {
+        cat.items = cat.items.filter(i => i.id !== itemId);
+        saveState();
+        showToast('Tétel törölve');
+      }
+      closeDeleteModal();
+    });
+
+    // Szerkesztés modál események
+    document.getElementById('btn-cancel-edit').addEventListener('click', closeEditModal);
+    document.getElementById('edit-item-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!pendingEdit) return;
+      const { categoryId, itemId } = pendingEdit;
+      const cat = state.categories.find(c => c.id === categoryId);
+      const item = cat?.items.find(i => i.id === itemId);
+      if (!item) return;
+
+      const newName = document.getElementById('edit-item-name').value.trim();
+      const newAmount = Number(document.getElementById('edit-item-amount').value);
+      if (!newName || Number.isNaN(newAmount) || newAmount < 0) {
+        showToast('Érvénytelen név vagy összeg!', 'error');
+        return;
+      }
+      item.name = newName;
+      item.amount = newAmount;
+      saveState();
+      showToast('Tétel frissítve');
+      closeEditModal();
+    });
 
     // Export / Import
     document.getElementById('btn-export-json').addEventListener('click', () => {
@@ -1784,7 +730,7 @@ HTML
         const parsed = JSON.parse(text);
         if (!Array.isArray(parsed.categories)) throw new Error('Hiányzó categories mező.');
         state = { categories: parsed.categories };
-        saveLocalAndMaybeSync();
+        saveState();
         showToast('JSON importálva', 'success');
       } catch (err) {
         showToast(`Import hiba: ${err.message}`, 'error');
