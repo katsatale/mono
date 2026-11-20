@@ -1,789 +1,1750 @@
 <!DOCTYPE html>
 <html lang="hu" class="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>MONO — Fix költség kalkulátor</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: #090a0d;
-      color: #f4f4f5;
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-    .safe-header {
-      padding-top: env(safe-area-inset-top);
-    }
-    @media screen and (max-width: 768px) {
-      input[type="text"],
-      input[type="number"],
-      select {
-        font-size: 16px !important;
-      }
-    }
-    .drag-over {
-      outline: 2px dashed rgba(96, 165, 250, 0.75);
-      outline-offset: 2px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>MONO — Fix költség kalkulátor</title>
+    <!-- iOS és Android PWA teljes képernyős mobilapp beállítások -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MONO">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#09090b">
+    <link id="apple-touch-icon-link" rel="apple-touch-icon" sizes="180x180">
+    <link id="web-manifest-link" rel="manifest">
+    <!-- Tailwind CSS betöltése -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #090a0d;
+            color: #f4f4f5;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* iOS notch / Dynamic Island safe-area támogatás a ragadós fejlécben */
+        .safe-header {
+            padding-top: env(safe-area-inset-top);
+        }
+
+        /* iOS Safari automatikus ráközelítés (auto-zoom) megakadályozása gépeléskor */
+        @media screen and (max-width: 768px) {
+            input[type="text"],
+            input[type="number"],
+            select {
+                font-size: 16px !important;
+            }
+        }
+
+        /* Tabuláris számok a pontos Ft igazításhoz */
+        .tabular-nums {
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Műszaki micro-grid háttértextúra a fejléchez */
+        .header-micro-grid {
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        /* Szám mező nyilainak elrejtése a letisztult megjelenésért */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* Finom hover és fókuszfények a kártyákhoz és mezőkhöz */
+        .monolith-card {
+            background: linear-gradient(180deg, rgba(24, 26, 32, 0.92) 0%, rgba(17, 19, 24, 0.96) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+            transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+        }
+        .monolith-card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 14px 36px -10px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .monolith-input {
+            background-color: rgba(9, 10, 13, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+        }
+        .monolith-input:hover {
+            border-color: rgba(255, 255, 255, 0.16);
+        }
+        .monolith-input:focus {
+            outline: none;
+            background-color: #090a0d;
+            border-color: rgba(255, 255, 255, 0.32);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
+        }
+
+        /* Finom, sötét módú görgetősáv a kártyákon belüli listákhoz */
+        .custom-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background-color: rgba(161, 161, 170, 0.22);
+            border-radius: 9999px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(161, 161, 170, 0.4);
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.97) translateY(4px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-modal {
+            animation: modalFadeIn 0.16s ease-out forwards;
+        }
+
+        /* Drag & Drop kártya mozgatás stílusai */
+        .drag-handle {
+            cursor: grab;
+            touch-action: none;
+        }
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+        .monolith-card.is-dragging {
+            opacity: 0.45;
+            transform: scale(0.985);
+            border-color: rgba(56, 189, 248, 0.5);
+        }
+        .monolith-card.drag-over {
+            border-color: rgba(56, 189, 248, 0.75);
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.28), 0 18px 40px -10px rgba(0, 0, 0, 0.85);
+        }
+    </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-zinc-100 selection:text-zinc-950">
 
-  <!-- FEJLÉC -->
-  <header class="sticky top-0 z-30 bg-[#090a0d]/85 backdrop-blur-xl border-b border-white/[0.07] safe-header">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
-      <div class="flex items-center gap-3 min-w-0">
-        <div class="w-8 h-8 rounded-lg bg-zinc-100 text-zinc-950 font-bold flex items-center justify-center text-sm shrink-0">M</div>
-        <div class="truncate">
-          <div class="flex items-center gap-2">
-            <span class="font-semibold tracking-tight text-white">MONO</span>
-            <span class="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/[0.06] text-zinc-400 border border-white/[0.08]">BUDGET</span>
-          </div>
-          <p class="text-xs text-zinc-500 truncate">Havi fix költség és előfizetés követő</p>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2 shrink-0">
-        <span id="sync-status-badge" class="hidden sm:inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-          <span id="sync-status-text">Mentés naprakész</span>
-        </span>
-
-        <button id="btn-open-sync" type="button" class="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition cursor-pointer">
-          GitHub Szinkron
-        </button>
-
-        <button id="btn-export-json" type="button" class="text-xs font-medium px-3 py-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-zinc-200 border border-white/[0.08] transition cursor-pointer">
-          Export (.json)
-        </button>
-
-        <label class="text-xs font-medium px-3 py-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-zinc-200 border border-white/[0.08] transition cursor-pointer">
-          Import
-          <input id="input-import-json" type="file" accept=".json,application/json" class="hidden" />
-        </label>
-      </div>
-    </div>
-  </header>
-
-  <!-- Értesítési konténer -->
-  <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
-
-  <!-- FŐ TARTALOM -->
-  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
-    <section class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div class="rounded-2xl bg-[#111318] border border-white/[0.08] p-5">
-        <div class="flex items-center justify-between text-xs text-zinc-400 mb-2">
-          <span>ÖSSZES FIX KIADÁS / HÓ</span>
-          <span id="total-items-count" class="px-2 py-0.5 rounded-full bg-white/[0.06] text-zinc-300">0 tétel</span>
-        </div>
-        <div id="monthly-total" class="text-2xl sm:text-3xl font-bold tracking-tight text-white">0 Ft</div>
-      </div>
-
-      <div class="rounded-2xl bg-[#111318] border border-white/[0.08] p-5">
-        <div class="flex items-center justify-between text-xs text-zinc-400 mb-2">
-          <span>ÉVES VETÍTETT KIADÁS</span>
-          <span>12 hónapra vetítve</span>
-        </div>
-        <div id="yearly-total" class="text-2xl sm:text-3xl font-bold tracking-tight text-white">0 Ft</div>
-      </div>
-    </section>
-
-    <div class="flex items-center justify-between">
-      <p class="text-[11px] uppercase tracking-widest text-zinc-500">KATEGÓRIÁK &amp; TÉTELEK • ÁTRENDEZHETŐ</p>
-    </div>
-
-    <section id="categories-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5"></section>
-  </main>
-
-  <!-- LÁBLÉC -->
-  <footer class="max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 border-t border-white/[0.07] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-zinc-500">
-    <span>MONO • Helyi + GitHub automatikus szinkronizálás</span>
-    <span id="footer-sync-info">adatok.json</span>
-  </footer>
-
-  <!-- MODÁLIS ABLAK 1: TÖRLÉS MEGERŐSÍTÉS -->
-  <div id="modal-delete" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-xs" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
-    <div class="w-full max-w-sm rounded-2xl bg-[#12151c] border border-white/[0.1] p-5 space-y-4 shadow-2xl">
-      <h3 id="delete-modal-title" class="text-base font-semibold text-white">Tétel törlése</h3>
-      <p id="delete-modal-desc" class="text-xs text-zinc-400">Biztosan törölni szeretnéd ezt a tételt?</p>
-      <div class="flex items-center justify-end gap-2 pt-1">
-        <button id="btn-cancel-delete" type="button" class="text-xs font-medium px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-zinc-200 cursor-pointer">Mégse</button>
-        <button id="btn-confirm-delete" type="button" class="text-xs font-medium px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white cursor-pointer">Törlés</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODÁLIS ABLAK 2: TÉTEL SZERKESZTÉSE -->
-  <div id="modal-edit" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-xs" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
-    <form id="edit-item-form" class="w-full max-w-sm rounded-2xl bg-[#12151c] border border-white/[0.1] p-5 space-y-4 shadow-2xl">
-      <h3 id="edit-modal-title" class="text-base font-semibold text-white">Tétel szerkesztése</h3>
-      <div class="space-y-3 text-xs">
-        <div>
-          <label class="block text-zinc-400 mb-1">Megnevezés</label>
-          <input id="edit-item-name" type="text" required class="w-full rounded-xl bg-[#0b0d11] border border-white/[0.1] px-3 py-2.5 text-white focus:outline-none focus:border-blue-500" />
-        </div>
-        <div>
-          <label class="block text-zinc-400 mb-1">Havi összeg (Ft)</label>
-          <input id="edit-item-amount" type="number" min="0" step="1" required class="w-full rounded-xl bg-[#0b0d11] border border-white/[0.1] px-3 py-2.5 text-white focus:outline-none focus:border-blue-500" />
-        </div>
-      </div>
-      <div class="flex items-center justify-end gap-2 pt-1">
-        <button id="btn-cancel-edit" type="button" class="text-xs font-medium px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-zinc-200 cursor-pointer">Mégse</button>
-        <button type="submit" class="text-xs font-medium px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white cursor-pointer">Mentés</button>
-      </div>
-    </form>
-  </div>
-
-  <!-- MODÁLIS ABLAK 3: GITHUB SZINKRON -->
-  <div id="sync-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-xs" role="dialog" aria-modal="true" aria-labelledby="sync-modal-title">
-    <div class="w-full max-w-md rounded-2xl bg-[#12151c] border border-white/[0.1] p-5 sm:p-6 space-y-4 shadow-2xl">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 id="sync-modal-title" class="text-base font-semibold text-white">GitHub Szinkron</h2>
-          <p class="text-xs text-zinc-400 mt-0.5">Automatikus mentés a repository <code class="text-zinc-200">adatok.json</code> fájljába</p>
-        </div>
-        <button id="btn-close-sync" type="button" class="text-zinc-400 hover:text-white text-sm px-2 py-1 rounded-lg hover:bg-white/[0.06] cursor-pointer">✕</button>
-      </div>
-
-      <div class="space-y-3 text-xs">
-        <div>
-          <label class="block text-zinc-400 mb-1">Felhasználónév</label>
-          <input id="gh-owner" type="text" placeholder="katsatale" class="w-full rounded-xl bg-[#0b0d11] border border-white/[0.1] px-3 py-2.5 text-white focus:outline-none focus:border-blue-500" />
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-zinc-400 mb-1">Repository</label>
-            <input id="gh-repo" type="text" placeholder="mono" class="w-full rounded-xl bg-[#0b0d11] border border-white/[0.1] px-3 py-2.5 text-white focus:outline-none focus:border-blue-500" />
-          </div>
-          <div>
-            <label class="block text-zinc-400 mb-1">Fájl neve</label>
-            <input id="gh-path" type="text" placeholder="adatok.json" class="w-full rounded-xl bg-[#0b0d11] border border-white/[0.1] px-3 py-2.5 text-white focus:outline-none focus:border-blue-500" />
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-zinc-400 mb-1">Fine-grained Personal Access Token</label>
-          <input id="gh-token" type="password" placeholder="github_pat_..." autocomplete="off" class="w-full rounded-xl bg-[#0b0d11] border border-white/[0.1] px-3 py-2.5 text-white focus:outline-none focus:border-blue-500" />
-          <p class="text-[11px] text-zinc-500 mt-1">Csak ebben a böngészőben (localStorage) tárolódik, a kódba nem kerül be.</p>
-        </div>
-
-        <label class="flex items-center gap-2.5 pt-1 text-zinc-300 cursor-pointer select-none">
-          <input id="gh-autosave" type="checkbox" class="rounded border-zinc-600 bg-zinc-900 text-blue-500 focus:ring-0" />
-          <span>Automatikus mentés minden változtatás után</span>
-        </label>
-      </div>
-
-      <div id="gh-last-sync" class="text-[11px] text-zinc-400 bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-2">
-        Még nem történt GitHub szinkronizálás.
-      </div>
-
-      <div class="flex flex-wrap items-center justify-between gap-2 pt-2">
-        <button id="btn-pull-github" type="button" class="text-xs font-medium px-3 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-zinc-200 border border-white/[0.08] transition cursor-pointer">
-          Betöltés GitHubról
-        </button>
-        <div class="flex items-center gap-2">
-          <button id="btn-save-sync-config" type="button" class="text-xs font-medium px-3.5 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-white transition cursor-pointer">
-            Beállítás mentése
-          </button>
-          <button id="btn-push-now" type="button" class="text-xs font-medium px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white transition cursor-pointer">
-            Mentés most
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const STORAGE_KEY = 'mono_fixed_costs_v1';
-    const GH_CONFIG_KEY = 'mono_github_sync_v1';
-
-    const DEFAULT_CATEGORIES = [
-      { id: 'streaming', title: 'Streaming szolgáltatások', badge: '🎬', placeholder: 'Megnevezés (pl. Netflix, Disney+, Spo...' },
-      { id: 'housing', title: 'Albérlet és rezsi', badge: '🏠', placeholder: 'Megnevezés (pl. Albérlet, Villany...' },
-      { id: 'loans', title: 'Hitelek', badge: '🏦', placeholder: 'Megnevezés (pl. Személyi kölcsön...' },
-      { id: 'telecom', title: 'Telefonszámlák és internet', badge: '📱', placeholder: 'Megnevezés (pl. Mobil előfizetés, Ott...' }
-    ];
-
-    let state = loadState();
-    let ghConfig = loadGhConfig();
-    let syncTimer = null;
-    let isSyncing = false;
-    let draggedCardId = null;
-    let pendingDelete = null;
-    let pendingEdit = null;
-
-    function uid() {
-      return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
-    }
-
-    function formatHuf(num) {
-      const n = Number(num) || 0;
-      return n.toLocaleString('hu-HU') + ' Ft';
-    }
-
-    function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    }
-
-    function showToast(message, type = 'info') {
-      const container = document.getElementById('toast-container');
-      const el = document.createElement('div');
-      el.textContent = message;
-      el.className = 'max-w-sm rounded-xl px-4 py-3 text-xs font-medium shadow-xl border transition';
-      if (type === 'error') {
-        el.classList.add('bg-rose-950/95', 'text-rose-200', 'border-rose-500/40');
-      } else if (type === 'success') {
-        el.classList.add('bg-emerald-950/95', 'text-emerald-200', 'border-emerald-500/40');
-      } else {
-        el.classList.add('bg-zinc-900/95', 'text-zinc-100', 'border-white/[0.12]');
-      }
-      container.appendChild(el);
-      setTimeout(() => {
-        el.remove();
-      }, 3200);
-    }
-
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed.categories) && parsed.categories.length) {
-            return {
-              categories: parsed.categories.map((c, idx) => ({
-                id: c.id || uid(),
-                title: c.title || 'Kategória',
-                badge: c.badge || DEFAULT_CATEGORIES[idx]?.badge || '•',
-                placeholder: c.placeholder || DEFAULT_CATEGORIES[idx]?.placeholder || 'Megnevezés',
-                items: Array.isArray(c.items) ? c.items : []
-              }))
-            };
-          }
-        }
-      } catch (e) {}
-      return {
-        categories: DEFAULT_CATEGORIES.map(c => ({ ...c, items: [] }))
-      };
-    }
-
-    function loadGhConfig() {
-      try {
-        const raw = localStorage.getItem(GH_CONFIG_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          return {
-            owner: parsed.owner || 'katsatale',
-            repo: parsed.repo || 'mono',
-            path: parsed.path || 'adatok.json',
-            token: parsed.token || '',
-            autoSave: parsed.autoSave !== undefined ? Boolean(parsed.autoSave) : true,
-            lastSync: parsed.lastSync || ''
-          };
-        }
-      } catch (e) {}
-      return {
-        owner: 'katsatale',
-        repo: 'mono',
-        path: 'adatok.json',
-        token: '',
-        autoSave: true,
-        lastSync: ''
-      };
-    }
-
-    function saveGhConfig() {
-      localStorage.setItem(GH_CONFIG_KEY, JSON.stringify(ghConfig));
-      updateSyncUi();
-    }
-
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      renderAll();
-      if (ghConfig.autoSave && ghConfig.token.trim()) {
-        clearTimeout(syncTimer);
-        setBadge('Mentés várakozik...', 'amber');
-        syncTimer = setTimeout(() => {
-          pushToGitHub(true);
-        }, 700);
-      }
-    }
-
-    function setBadge(text, tone = 'emerald') {
-      const badge = document.getElementById('sync-status-badge');
-      const label = document.getElementById('sync-status-text');
-      const dot = badge.querySelector('span');
-      badge.classList.remove('hidden');
-      label.textContent = text;
-
-      badge.className = 'hidden sm:inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border';
-      dot.className = 'w-1.5 h-1.5 rounded-full';
-
-      if (tone === 'rose') {
-        badge.classList.add('bg-rose-500/10', 'text-rose-300', 'border-rose-500/20');
-        dot.classList.add('bg-rose-400');
-      } else if (tone === 'amber') {
-        badge.classList.add('bg-amber-500/10', 'text-amber-300', 'border-amber-500/20');
-        dot.classList.add('bg-amber-400');
-      } else {
-        badge.classList.add('bg-emerald-500/10', 'text-emerald-300', 'border-emerald-500/20');
-        dot.classList.add('bg-emerald-400');
-      }
-    }
-
-    function updateSyncUi() {
-      document.getElementById('gh-owner').value = ghConfig.owner;
-      document.getElementById('gh-repo').value = ghConfig.repo;
-      document.getElementById('gh-path').value = ghConfig.path;
-      document.getElementById('gh-token').value = ghConfig.token;
-      document.getElementById('gh-autosave').checked = ghConfig.autoSave;
-
-      const lastEl = document.getElementById('gh-last-sync');
-      const footerInfo = document.getElementById('footer-sync-info');
-      footerInfo.textContent = `${ghConfig.owner}/${ghConfig.repo} → ${ghConfig.path}`;
-
-      if (ghConfig.lastSync) {
-        lastEl.textContent = 'Utolsó szinkronizálás: ' + ghConfig.lastSync;
-      } else {
-        lastEl.textContent = ghConfig.token
-          ? 'Token beállítva — nyomd meg a „Mentés most” gombot az adatok.json létrehozásához.'
-          : 'Még nincs megadva Personal Access Token.';
-      }
-
-      if (ghConfig.token && ghConfig.autoSave) {
-        setBadge(ghConfig.lastSync ? 'GitHub auto-mentés aktív' : 'GitHub kész', 'emerald');
-      } else {
-        setBadge('Mentés naprakész', 'emerald');
-      }
-    }
-
-    function encodeBase64Utf8(str) {
-      const bytes = new TextEncoder().encode(str);
-      let bin = '';
-      for (let i = 0; i < bytes.length; i++) {
-        bin += String.fromCharCode(bytes[i]);
-      }
-      return btoa(bin);
-    }
-
-    function decodeBase64Utf8(b64) {
-      const clean = b64.replace(/\n/g, '');
-      const bin = atob(clean);
-      const bytes = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) {
-        bytes[i] = bin.charCodeAt(i);
-      }
-      return new TextDecoder().decode(bytes);
-    }
-
-    async function getExistingFileSha(owner, repo, filePath, token) {
-      const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${encodeURIComponent(filePath)}`;
-      const res = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/vnd.github+json'
-        }
-      });
-      if (res.status === 404) return null;
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || `GitHub API hiba (${res.status})`);
-      }
-      const data = await res.json();
-      return data.sha || null;
-    }
-
-    async function pushToGitHub(silent = false) {
-      const owner = ghConfig.owner.trim();
-      const repo = ghConfig.repo.trim();
-      const filePath = (ghConfig.path || 'adatok.json').trim();
-      const token = ghConfig.token.trim();
-
-      if (!owner || !repo || !filePath || !token) {
-        if (!silent) showToast('Töltsd ki a felhasználónevet, repót, fájlt és a tokent!', 'error');
-        return;
-      }
-      if (isSyncing) return;
-      isSyncing = true;
-      setBadge('Mentés GitHubra...', 'amber');
-
-      try {
-        const sha = await getExistingFileSha(owner, repo, filePath, token);
-        const payloadObj = {
-          updatedAt: new Date().toISOString(),
-          categories: state.categories
-        };
-        const contentB64 = encodeBase64Utf8(JSON.stringify(payloadObj, null, 2));
-        const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${encodeURIComponent(filePath)}`;
-
-        const body = {
-          message: `MONO auto-sync: ${new Date().toLocaleString('hu-HU')}`,
-          content: contentB64
-        };
-        if (sha) body.sha = sha;
-
-        const res = await fetch(url, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/vnd.github+json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(body)
-        });
-
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.message || `Mentési hiba (${res.status})`);
-        }
-
-        ghConfig.lastSync = new Date().toLocaleString('hu-HU');
-        saveGhConfig();
-        setBadge('Mentve GitHubra', 'emerald');
-        if (!silent) showToast(`Sikeresen mentve: ${filePath}`, 'success');
-      } catch (err) {
-        setBadge('GitHub hiba', 'rose');
-        showToast(`GitHub szinkron hiba: ${err.message}`, 'error');
-      } finally {
-        isSyncing = false;
-      }
-    }
-
-    async function pullFromGitHub() {
-      const owner = ghConfig.owner.trim();
-      const repo = ghConfig.repo.trim();
-      const filePath = (ghConfig.path || 'adatok.json').trim();
-      const token = ghConfig.token.trim();
-
-      if (!owner || !repo || !filePath) {
-        showToast('Add meg a felhasználónevet, repót és a fájlnevet!', 'error');
-        return;
-      }
-
-      try {
-        const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${encodeURIComponent(filePath)}`;
-        const headers = { 'Accept': 'application/vnd.github+json' };
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-
-        const res = await fetch(url, { headers });
-        if (!res.ok) {
-          throw new Error(res.status === 404 ? `A(z) ${filePath} még nem létezik a repóban.` : `Betöltési hiba (${res.status})`);
-        }
-        const data = await res.json();
-        const decoded = JSON.parse(decodeBase64Utf8(data.content || ''));
-        if (!Array.isArray(decoded.categories)) {
-          throw new Error('Érvénytelen JSON szerkezet.');
-        }
-        state = { categories: decoded.categories };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        ghConfig.lastSync = new Date().toLocaleString('hu-HU');
-        saveGhConfig();
-        renderAll();
-        showToast('Adatok betöltve a GitHubról!', 'success');
-      } catch (err) {
-        showToast(err.message, 'error');
-      }
-    }
-
-    function addItem(categoryId, name, amount) {
-      const cleanName = (name || '').trim();
-      const cleanAmount = Number(amount);
-      if (!cleanName || Number.isNaN(cleanAmount) || cleanAmount < 0) {
-        showToast('Add meg a tétel nevét és egy érvényes összeget!', 'error');
-        return;
-      }
-      const cat = state.categories.find(c => c.id === categoryId);
-      if (!cat) return;
-      cat.items.push({ id: uid(), name: cleanName, amount: cleanAmount });
-      saveState();
-      showToast(`Hozzáadva: ${cleanName}`);
-    }
-
-    function openDeleteModal(categoryId, itemId) {
-      const cat = state.categories.find(c => c.id === categoryId);
-      const item = cat?.items.find(i => i.id === itemId);
-      if (!cat || !item) return;
-      pendingDelete = { categoryId, itemId };
-      document.getElementById('delete-modal-desc').textContent = `Biztosan törölni szeretnéd a(z) „${item.name}” (${formatHuf(item.amount)}) tételt?`;
-      const modal = document.getElementById('modal-delete');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-
-    function closeDeleteModal() {
-      pendingDelete = null;
-      const modal = document.getElementById('modal-delete');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-
-    function openEditModal(categoryId, itemId) {
-      const cat = state.categories.find(c => c.id === categoryId);
-      const item = cat?.items.find(i => i.id === itemId);
-      if (!cat || !item) return;
-      pendingEdit = { categoryId, itemId };
-      document.getElementById('edit-item-name').value = item.name;
-      document.getElementById('edit-item-amount').value = item.amount;
-      const modal = document.getElementById('modal-edit');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-      document.getElementById('edit-item-name').focus();
-    }
-
-    function closeEditModal() {
-      pendingEdit = null;
-      const modal = document.getElementById('modal-edit');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-
-    function moveCategory(sourceId, targetId) {
-      if (!sourceId || !targetId || sourceId === targetId) return;
-      const fromIdx = state.categories.findIndex(c => c.id === sourceId);
-      const toIdx = state.categories.findIndex(c => c.id === targetId);
-      if (fromIdx === -1 || toIdx === -1) return;
-      const [moved] = state.categories.splice(fromIdx, 1);
-      state.categories.splice(toIdx, 0, moved);
-      saveState();
-    }
-
-    function renderAll() {
-      let monthlySum = 0;
-      let itemCount = 0;
-
-      for (const cat of state.categories) {
-        for (const item of cat.items) {
-          monthlySum += Number(item.amount) || 0;
-          itemCount += 1;
-        }
-      }
-
-      document.getElementById('monthly-total').textContent = formatHuf(monthlySum);
-      document.getElementById('yearly-total').textContent = formatHuf(monthlySum * 12);
-      document.getElementById('total-items-count').textContent = `${itemCount} tétel`;
-
-      const grid = document.getElementById('categories-grid');
-      grid.innerHTML = '';
-
-      for (const cat of state.categories) {
-        const catSum = cat.items.reduce((acc, it) => acc + (Number(it.amount) || 0), 0);
-
-        const card = document.createElement('div');
-        card.className = 'rounded-2xl bg-[#111318] border border-white/[0.08] p-5 flex flex-col gap-4 transition';
-        card.draggable = true;
-        card.dataset.catId = cat.id;
-
-        card.addEventListener('dragstart', (e) => {
-          if (e.target.closest('input, button')) {
-            e.preventDefault();
-            return;
-          }
-          draggedCardId = cat.id;
-          card.classList.add('opacity-70');
-        });
-
-        card.addEventListener('dragend', () => {
-          draggedCardId = null;
-          card.classList.remove('opacity-70');
-          document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-        });
-
-        card.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          if (draggedCardId && draggedCardId !== cat.id) {
-            card.classList.add('drag-over');
-          }
-        });
-
-        card.addEventListener('dragleave', () => {
-          card.classList.remove('drag-over');
-        });
-
-        card.addEventListener('drop', (e) => {
-          e.preventDefault();
-          card.classList.remove('drag-over');
-          if (draggedCardId && draggedCardId !== cat.id) {
-            moveCategory(draggedCardId, cat.id);
-          }
-        });
-
-        const itemsHtml = cat.items.length
-          ? `<ul class="divide-y divide-white/[0.06]">${cat.items.map(it => `
-              <li class="py-2.5 flex items-center justify-between gap-3 text-sm">
-                <span class="text-zinc-200 truncate">${escapeHtml(it.name)}</span>
-                <div class="flex items-center gap-2 shrink-0">
-                  <span class="font-medium text-white">${formatHuf(it.amount)}</span>
-                  <button type="button" data-action="edit" data-cat="${cat.id}" data-id="${it.id}" class="text-xs px-2 py-1 rounded bg-white/[0.05] hover:bg-white/[0.12] text-zinc-300 cursor-pointer">Szerk.</button>
-                  <button type="button" data-action="delete" data-cat="${cat.id}" data-id="${it.id}" class="text-xs px-2 py-1 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 cursor-pointer">Töröl</button>
+    <!-- FEJLÉC -->
+    <header class="sticky top-0 z-30 bg-[#090a0d]/85 backdrop-blur-xl border-b border-white/[0.07] header-micro-grid safe-header">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+            <!-- Bal oldali blokk: Geometrikus MONO embléma, főcím és alcím -->
+            <div class="flex items-center gap-3.5 min-w-0">
+                <div class="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-[#1f222b] via-[#12141a] to-[#090a0d] text-white flex items-center justify-center shrink-0 shadow-lg shadow-black/60 ring-1 ring-white/15 overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-white/[0.02] via-transparent to-white/[0.12]"></div>
+                    <svg class="w-6 h-6 relative z-10" viewBox="0 0 28 28" fill="none">
+                        <!-- Bal monolit oszlop -->
+                        <path d="M5 21V7L11.5 14V21H5Z" fill="url(#mono-grad-1)"/>
+                        <!-- Jobb monolit oszlop -->
+                        <path d="M23 21V7L16.5 14V21H23Z" fill="url(#mono-grad-2)"/>
+                        <!-- Középső ék / csúcs -->
+                        <path d="M14 11.2L17.2 7.8L14 15.2L10.8 7.8L14 11.2Z" fill="#38bdf8"/>
+                        <defs>
+                            <linearGradient id="mono-grad-1" x1="5" y1="7" x2="11.5" y2="21" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#FFFFFF"/>
+                                <stop offset="1" stop-color="#A1A1AA"/>
+                            </linearGradient>
+                            <linearGradient id="mono-grad-2" x1="23" y1="7" x2="16.5" y2="21" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#E4E4E7"/>
+                                <stop offset="1" stop-color="#71717A"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
                 </div>
-              </li>
-            `).join('')}</ul>`
-          : `<p class="text-xs text-zinc-500 py-2 text-center">Még nincs rögzített tétel ebben a kategóriában</p>`;
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl sm:text-2xl font-black tracking-[0.14em] text-white leading-none">
+                            MONO
+                        </h1>
+            <!-- Jobb oldali blokk: Állapotjelző jelvény + GitHub Szinkron + Export / Import gombok -->
+            <div class="flex flex-wrap items-center md:justify-end gap-2.5 shrink-0">
+                <!-- Kattintható biztonsági mentés állapotjelző -->
+                <button id="btn-backup-status" type="button"
+                    class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/20 transition cursor-pointer whitespace-nowrap"
+                    title="Minden adatod szinkronban van az utolsó mentéssel.">
+                    <span class="relative flex h-2 w-2 shrink-0">
+                        <span id="backup-status-ping" class="hidden animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                        <span id="backup-status-dot" class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                    </span>
+                    <span id="backup-status-text">Mentés naprakész</span>
+                </button>
 
-        card.innerHTML = `
-          <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2 min-w-0">
-              <span class="text-zinc-500 cursor-grab select-none" title="Húzd át az átrendezéshez">⋮⋮</span>
-              <span class="text-base shrink-0">${escapeHtml(cat.badge || '•')}</span>
-              <h3 class="font-semibold text-white truncate">${escapeHtml(cat.title)}</h3>
+                <!-- GitHub automata szinkron beállító gomb -->
+                <button id="btn-github-sync" type="button"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-sky-500/10 text-sky-300 border border-sky-500/25 hover:bg-sky-500/20 transition cursor-pointer whitespace-nowrap"
+                    title="Automatikus mentés beállítása az adatok.json fájlba a GitHubon">
+                    <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                    </svg>
+                    <span id="github-sync-label">GitHub Szinkron</span>
+                </button>
+
+                <!-- Export gomb -->
+                <button id="btn-export" type="button"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-zinc-100 text-zinc-950 hover:bg-white transition cursor-pointer shadow-sm whitespace-nowrap">
+                    <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3"/>
+                    </svg>
+                    Export (.json)
+                </button>
+
+                <!-- Import gomb -->
+                <label for="input-import"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/[0.04] text-zinc-200 border border-white/10 hover:bg-white/[0.08] hover:border-white/20 transition cursor-pointer whitespace-nowrap">
+                    <svg class="w-3.5 h-3.5 text-zinc-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M16 8l-4-4m0 0L8 8m4-4v12"/>
+                    </svg>
+                    Import
+                </label>
+                <input id="input-import" type="file" accept=".json,application/json" class="hidden">
             </div>
-            <span class="text-xs font-medium px-2.5 py-1 rounded-lg bg-white/[0.05] text-zinc-200 border border-white/[0.08] shrink-0">${formatHuf(catSum)} / hó</span>
-          </div>
 
-          <form class="grid grid-cols-1 sm:grid-cols-12 gap-2" data-cat-form="${cat.id}">
-            <input type="text" name="name" placeholder="${escapeHtml(cat.placeholder || 'Megnevezés')}" class="sm:col-span-7 rounded-xl bg-[#0b0d11] border border-white/[0.1] px-3 py-2 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-blue-500" />
-            <input type="number" name="amount" min="0" step="1" placeholder="Összeg (Ft)" class="sm:col-span-5 rounded-xl bg-[#0b0d11] border border-white/[0.1] px-3 py-2 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-blue-500" />
-            <button type="submit" class="sm:col-span-12 w-full rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs py-2.5 transition cursor-pointer">
-              ✓ Összeg mentése
-            </button>
-          </form>
+        </div>
+    </header>
 
-          <div class="border-t border-white/[0.06] pt-1">${itemsHtml}</div>
-        `;
+    <!-- Értesítési konténer (alert() helyett) -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-        const form = card.querySelector('form');
-        form.addEventListener('submit', (e) => {
-          e.preventDefault();
-          const nameInput = form.elements.name;
-          const amountInput = form.elements.amount;
-          addItem(cat.id, nameInput.value, amountInput.value);
-          nameInput.value = '';
-          amountInput.value = '';
-          nameInput.focus();
+    <!-- FŐ TARTALOM -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+        <!-- FELSŐ ÖSSZESÍTŐ SÁV: KÉT KÁRTYA -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <!-- 1. Összesítő kártya: Havi fix kiadás -->
+            <div class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
+                <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent"></div>
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                        Összes fix kiadás / hó
+                    </span>
+                    <span id="badge-total-items" class="text-xs font-medium text-zinc-300 bg-white/[0.05] border border-white/10 px-2.5 py-0.5 rounded-full tabular-nums whitespace-nowrap">
+                        0 tétel
+                    </span>
+                </div>
+                <div id="display-total-fixed" class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white tabular-nums mt-3">
+                    0 <span class="text-lg sm:text-xl font-semibold text-zinc-500">Ft</span>
+                </div>
+            </div>
+
+            <!-- 2. Összesítő kártya: Éves vetített összeg -->
+            <div class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
+                <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/15 to-transparent"></div>
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                        Éves vetített kiadás
+                    </span>
+                    <span class="text-xs font-medium text-zinc-500">
+                        12 hónapra vetítve
+                    </span>
+                </div>
+                <div id="display-annual-fixed" class="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-200 tabular-nums mt-3">
+                    0 <span class="text-lg sm:text-xl font-semibold text-zinc-500">Ft</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ESZTÉTIKUS ELVÁLASZTÓ SÁV -->
+        <div class="my-6 sm:my-7 flex items-center gap-4" aria-hidden="true">
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/[0.08] to-white/[0.08]"></div>
+            <span class="text-[11px] font-semibold uppercase tracking-widest text-zinc-500">
+                Kategóriák &amp; Tételek • Átrendezhető
+            </span>
+            <div class="h-px flex-1 bg-gradient-to-l from-transparent via-white/[0.08] to-white/[0.08]"></div>
+        </div>
+
+        <!-- FŐ KÖLTSÉG BLOKKOK RÁCSA (RÖGZÍTETT h-[340px] MAGASSÁGÚ, SZABADON ÁTRENDEZHETŐ KÁRTYÁK) -->
+        <section id="cards-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- 1. KÁRTYA: STREAMING SZOLGÁLTATÁSOK (PIROSAS AKCENTUS) -->
+            <div data-card-category="streaming" class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6 h-[340px] flex flex-col">
+                <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-rose-500/75 to-transparent"></div>
+
+                <div class="flex items-center justify-between gap-2.5 pb-2.5 shrink-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <div class="drag-handle p-1 -ml-1 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.06] transition shrink-0" title="Húzd a kártyát az átrendezéshez" aria-label="Kártya mozgatása">
+                            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                                <circle cx="5.5" cy="3.5" r="1.25"/><circle cx="10.5" cy="3.5" r="1.25"/>
+                                <circle cx="5.5" cy="8" r="1.25"/><circle cx="10.5" cy="8" r="1.25"/>
+                                <circle cx="5.5" cy="12.5" r="1.25"/><circle cx="10.5" cy="12.5" r="1.25"/>
+                            </svg>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-rose-500/10 border border-rose-500/25 text-rose-400 flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="4" width="20" height="14" rx="2"/>
+                                <path d="M8 21h8M12 18v3M10 9l5 3-5 3V9z" fill="currentColor" stroke="none"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-base font-bold tracking-tight text-white truncate">
+                            Streaming szolgáltatások
+                        </h2>
+                    </div>
+                    <span id="subtotal-streaming" class="text-sm font-bold text-zinc-100 tabular-nums whitespace-nowrap shrink-0 bg-white/[0.04] border border-white/10 px-3 py-1 rounded-lg">
+                        0 <span class="text-xs font-medium text-zinc-400">Ft / hó</span>
+                    </span>
+                </div>
+
+                <div class="w-full h-[3px] bg-white/[0.05] rounded-full overflow-hidden mb-3 shrink-0" title="Arány az összes fix kiadáson belül">
+                    <div id="bar-streaming" class="h-full bg-rose-500/80 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+
+                <form id="form-streaming" class="space-y-2 shrink-0">
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                        <div class="sm:col-span-7">
+                            <label class="sr-only" for="input-streaming-name">Szolgáltatás neve</label>
+                            <input id="input-streaming-name" type="text" required maxlength="50"
+                                placeholder="Megnevezés (pl. Netflix, Disney+, Spotify)"
+                                class="monolith-input w-full rounded-xl px-3.5 py-2 text-sm text-zinc-100 placeholder-zinc-500">
+                        </div>
+
+                        <div class="sm:col-span-5 relative">
+                            <label class="sr-only" for="input-streaming-amount">Összeg (Ft)</label>
+                            <input id="input-streaming-amount" type="number" required min="1" step="1" placeholder="Összeg"
+                                class="monolith-input w-full rounded-xl pl-3.5 pr-8 py-2 text-sm font-medium text-zinc-100 placeholder-zinc-500 tabular-nums">
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500 pointer-events-none">Ft</span>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-bold py-2 px-4 rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 shadow-xs">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Összeg mentése
+                    </button>
+                </form>
+
+                <div class="border-t border-white/[0.07] my-2.5 shrink-0"></div>
+
+                <ul id="list-streaming" class="flex-1 overflow-y-auto pr-1 divide-y divide-white/[0.06] custom-scroll"></ul>
+            </div>
+
+            <!-- 2. KÁRTYA: ALBÉRLET ÉS REZSI (HIDEG KÉK AKCENTUS) -->
+            <div data-card-category="housing" class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6 h-[340px] flex flex-col">
+                <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-sky-500/75 to-transparent"></div>
+
+                <div class="flex items-center justify-between gap-2.5 pb-2.5 shrink-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <div class="drag-handle p-1 -ml-1 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.06] transition shrink-0" title="Húzd a kártyát az átrendezéshez" aria-label="Kártya mozgatása">
+                            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                                <circle cx="5.5" cy="3.5" r="1.25"/><circle cx="10.5" cy="3.5" r="1.25"/>
+                                <circle cx="5.5" cy="8" r="1.25"/><circle cx="10.5" cy="8" r="1.25"/>
+                                <circle cx="5.5" cy="12.5" r="1.25"/><circle cx="10.5" cy="12.5" r="1.25"/>
+                            </svg>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/25 text-sky-400 flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1v-9.5z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-base font-bold tracking-tight text-white truncate">
+                            Albérlet és rezsi
+                        </h2>
+                    </div>
+                    <span id="subtotal-housing" class="text-sm font-bold text-zinc-100 tabular-nums whitespace-nowrap shrink-0 bg-white/[0.04] border border-white/10 px-3 py-1 rounded-lg">
+                        0 <span class="text-xs font-medium text-zinc-400">Ft / hó</span>
+                    </span>
+                </div>
+
+                <div class="w-full h-[3px] bg-white/[0.05] rounded-full overflow-hidden mb-3 shrink-0" title="Arány az összes fix kiadáson belül">
+                    <div id="bar-housing" class="h-full bg-sky-500/80 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+
+                <form id="form-housing" class="space-y-2 shrink-0">
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                        <div class="sm:col-span-7">
+                            <input id="input-housing-name" type="text" required maxlength="50"
+                                placeholder="Megnevezés (pl. Albérlet, Villanyszámla)"
+                                class="monolith-input w-full rounded-xl px-3.5 py-2 text-sm text-zinc-100 placeholder-zinc-500">
+                        </div>
+                        <div class="sm:col-span-5 relative">
+                            <input id="input-housing-amount" type="number" required min="1" step="1" placeholder="Összeg"
+                                class="monolith-input w-full rounded-xl pl-3.5 pr-8 py-2 text-sm font-medium text-zinc-100 placeholder-zinc-500 tabular-nums">
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500 pointer-events-none">Ft</span>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-bold py-2 px-4 rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 shadow-xs">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Összeg mentése
+                    </button>
+                </form>
+
+                <div class="border-t border-white/[0.07] my-2.5 shrink-0"></div>
+
+                <ul id="list-housing" class="flex-1 overflow-y-auto pr-1 divide-y divide-white/[0.06] custom-scroll"></ul>
+            </div>
+
+            <!-- 3. KÁRTYA: HITELEK (MELEG BOROSTYÁN AKCENTUS) -->
+            <div data-card-category="loans" class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6 h-[340px] flex flex-col">
+                <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-amber-500/75 to-transparent"></div>
+
+                <div class="flex items-center justify-between gap-2.5 pb-2.5 shrink-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <div class="drag-handle p-1 -ml-1 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.06] transition shrink-0" title="Húzd a kártyát az átrendezéshez" aria-label="Kártya mozgatása">
+                            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                                <circle cx="5.5" cy="3.5" r="1.25"/><circle cx="10.5" cy="3.5" r="1.25"/>
+                                <circle cx="5.5" cy="8" r="1.25"/><circle cx="10.5" cy="8" r="1.25"/>
+                                <circle cx="5.5" cy="12.5" r="1.25"/><circle cx="10.5" cy="12.5" r="1.25"/>
+                            </svg>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-400 flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M4 10h16M6 10v8M10 10v8M14 10v8M18 10v8M12 3l9 7H3l9-7z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-base font-bold tracking-tight text-white truncate">
+                            Hitelek
+                        </h2>
+                    </div>
+                    <span id="subtotal-loans" class="text-sm font-bold text-zinc-100 tabular-nums whitespace-nowrap shrink-0 bg-white/[0.04] border border-white/10 px-3 py-1 rounded-lg">
+                        0 <span class="text-xs font-medium text-zinc-400">Ft / hó</span>
+                    </span>
+                </div>
+
+                <div class="w-full h-[3px] bg-white/[0.05] rounded-full overflow-hidden mb-3 shrink-0" title="Arány az összes fix kiadáson belül">
+                    <div id="bar-loans" class="h-full bg-amber-500/80 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+
+                <form id="form-loans" class="space-y-2 shrink-0">
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                        <div class="sm:col-span-7">
+                            <input id="input-loans-name" type="text" required maxlength="50"
+                                placeholder="Megnevezés (pl. Személyi kölcsön)"
+                                class="monolith-input w-full rounded-xl px-3.5 py-2 text-sm text-zinc-100 placeholder-zinc-500">
+                        </div>
+                        <div class="sm:col-span-5 relative">
+                            <input id="input-loans-amount" type="number" required min="1" step="1" placeholder="Összeg"
+                                class="monolith-input w-full rounded-xl pl-3.5 pr-8 py-2 text-sm font-medium text-zinc-100 placeholder-zinc-500 tabular-nums">
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500 pointer-events-none">Ft</span>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-bold py-2 px-4 rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 shadow-xs">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Összeg mentése
+                    </button>
+                </form>
+
+                <div class="border-t border-white/[0.07] my-2.5 shrink-0"></div>
+
+                <ul id="list-loans" class="flex-1 overflow-y-auto pr-1 divide-y divide-white/[0.06] custom-scroll"></ul>
+            </div>
+
+            <!-- 4. KÁRTYA: TELEFONSZÁMLÁK ÉS INTERNET (LILA AKCENTUS) -->
+            <div data-card-category="telecom" class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6 h-[340px] flex flex-col">
+                <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-violet-500/75 to-transparent"></div>
+
+                <div class="flex items-center justify-between gap-2.5 pb-2.5 shrink-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <div class="drag-handle p-1 -ml-1 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.06] transition shrink-0" title="Húzd a kártyát az átrendezéshez" aria-label="Kártya mozgatása">
+                            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                                <circle cx="5.5" cy="3.5" r="1.25"/><circle cx="10.5" cy="3.5" r="1.25"/>
+                                <circle cx="5.5" cy="8" r="1.25"/><circle cx="10.5" cy="8" r="1.25"/>
+                                <circle cx="5.5" cy="12.5" r="1.25"/><circle cx="10.5" cy="12.5" r="1.25"/>
+                            </svg>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/25 text-violet-400 flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="7" y="2" width="10" height="20" rx="2"/>
+                                <line x1="12" y1="18" x2="12.01" y2="18" stroke-width="2.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-base font-bold tracking-tight text-white truncate">
+                            Telefonszámlák és internet
+                        </h2>
+                    </div>
+                    <span id="subtotal-telecom" class="text-sm font-bold text-zinc-100 tabular-nums whitespace-nowrap shrink-0 bg-white/[0.04] border border-white/10 px-3 py-1 rounded-lg">
+                        0 <span class="text-xs font-medium text-zinc-400">Ft / hó</span>
+                    </span>
+                </div>
+
+                <div class="w-full h-[3px] bg-white/[0.05] rounded-full overflow-hidden mb-3 shrink-0" title="Arány az összes fix kiadáson belül">
+                    <div id="bar-telecom" class="h-full bg-violet-500/80 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+
+                <form id="form-telecom" class="space-y-2 shrink-0">
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                        <div class="sm:col-span-7">
+                            <input id="input-telecom-name" type="text" required maxlength="50"
+                                placeholder="Megnevezés (pl. Mobil előfizetés, Otthoni net)"
+                                class="monolith-input w-full rounded-xl px-3.5 py-2 text-sm text-zinc-100 placeholder-zinc-500">
+                        </div>
+                        <div class="sm:col-span-5 relative">
+                            <input id="input-telecom-amount" type="number" required min="1" step="1" placeholder="Összeg"
+                                class="monolith-input w-full rounded-xl pl-3.5 pr-8 py-2 text-sm font-medium text-zinc-100 placeholder-zinc-500 tabular-nums">
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500 pointer-events-none">Ft</span>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-bold py-2 px-4 rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 shadow-xs">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Összeg mentése
+                    </button>
+                </form>
+
+                <div class="border-t border-white/[0.07] my-2.5 shrink-0"></div>
+
+                <ul id="list-telecom" class="flex-1 overflow-y-auto pr-1 divide-y divide-white/[0.06] custom-scroll"></ul>
+            </div>
+
+            <!-- 5. KÁRTYA: VÁLLALKOZÓI KÖLTSÉGEK (SMARAGDZÖLD AKCENTUS) -->
+            <div data-card-category="business" class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6 h-[340px] flex flex-col">
+                <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-500/75 to-transparent"></div>
+
+                <div class="flex items-center justify-between gap-2.5 pb-2.5 shrink-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <div class="drag-handle p-1 -ml-1 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.06] transition shrink-0" title="Húzd a kártyát az átrendezéshez" aria-label="Kártya mozgatása">
+                            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                                <circle cx="5.5" cy="3.5" r="1.25"/><circle cx="10.5" cy="3.5" r="1.25"/>
+                                <circle cx="5.5" cy="8" r="1.25"/><circle cx="10.5" cy="8" r="1.25"/>
+                                <circle cx="5.5" cy="12.5" r="1.25"/><circle cx="10.5" cy="12.5" r="1.25"/>
+                            </svg>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="7" width="20" height="14" rx="2"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
+                            </svg>
+                        </div>
+                        <div class="min-w-0">
+                            <h2 class="text-base font-bold tracking-tight text-white truncate leading-tight">
+                                Vállalkozói költségek
+                            </h2>
+                            <p class="text-[11px] text-zinc-400 truncate">
+                                Járulékok és könyvelés
+                            </p>
+                        </div>
+                    </div>
+                    <span id="subtotal-business" class="text-sm font-bold text-zinc-100 tabular-nums whitespace-nowrap shrink-0 bg-white/[0.04] border border-white/10 px-3 py-1 rounded-lg">
+                        0 <span class="text-xs font-medium text-zinc-400">Ft / hó</span>
+                    </span>
+                </div>
+
+                <div class="w-full h-[3px] bg-white/[0.05] rounded-full overflow-hidden mb-3 shrink-0" title="Arány az összes fix kiadáson belül">
+                    <div id="bar-business" class="h-full bg-emerald-500/80 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+
+                <form id="form-business" class="space-y-2 shrink-0">
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                        <div class="sm:col-span-7">
+                            <input id="input-business-name" type="text" required maxlength="50"
+                                placeholder="Megnevezés (pl. Könyvelő, TB / SZOCHO)"
+                                class="monolith-input w-full rounded-xl px-3.5 py-2 text-sm text-zinc-100 placeholder-zinc-500">
+                        </div>
+                        <div class="sm:col-span-5 relative">
+                            <input id="input-business-amount" type="number" required min="1" step="1" placeholder="Összeg"
+                                class="monolith-input w-full rounded-xl pl-3.5 pr-8 py-2 text-sm font-medium text-zinc-100 placeholder-zinc-500 tabular-nums">
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500 pointer-events-none">Ft</span>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-bold py-2 px-4 rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 shadow-xs">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Összeg mentése
+                    </button>
+                </form>
+
+                <div class="border-t border-white/[0.07] my-2.5 shrink-0"></div>
+
+                <ul id="list-business" class="flex-1 overflow-y-auto pr-1 divide-y divide-white/[0.06] custom-scroll"></ul>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- LÁBLÉC -->
+    <footer class="max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 border-t border-white/[0.07] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-zinc-500">
+        <span>MONO — Személyes pénzügyi áttekintő</span>
+        <span>Helyi adattárolás aktív • Véletlen törlés elleni védelem bekapcsolva</span>
+    </footer>
+
+    <!-- MODÁLIS ABLAK 1: SZIGORÚ TÖRLÉS MEGERŐSÍTÉS -->
+    <div id="modal-delete" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-xs" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+        <div class="bg-[#13151b] border border-white/10 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-modal">
+            <div class="flex items-start gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/25 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h3 id="delete-modal-title" class="text-base font-bold text-white">
+                        Biztosan törlöd ezt a tételt?
+                    </h3>
+                    <p id="delete-modal-category" class="text-xs font-medium text-zinc-400 mt-0.5">
+                        Kategória
+                    </p>
+                    <div class="mt-3 p-3 rounded-xl bg-[#090a0d] border border-white/[0.08]">
+                        <p id="delete-modal-summary" class="text-sm font-bold text-zinc-100 tabular-nums">
+                            Tétel — 0 Ft
+                        </p>
+                    </div>
+                    <p class="text-xs text-zinc-400 mt-2.5">
+                        Ez a művelet véglegesen eltávolítja a tételt a havi összesítőből.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-6 flex items-center justify-end gap-2.5">
+                <button id="btn-cancel-delete" type="button"
+                    class="px-4 py-2.5 rounded-xl text-xs font-semibold bg-white/[0.05] text-zinc-200 border border-white/10 hover:bg-white/[0.1] transition cursor-pointer">
+                    Mégse
+                </button>
+                <button id="btn-confirm-delete" type="button"
+                    class="px-4 py-2.5 rounded-xl text-xs font-semibold bg-rose-600 text-white hover:bg-rose-500 transition cursor-pointer shadow-xs">
+                    Igen, törlöm
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODÁLIS ABLAK 2: TÉTEL SZERKESZTÉSE -->
+    <div id="modal-edit" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-xs" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+        <div class="bg-[#13151b] border border-white/10 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-modal">
+            <h3 id="edit-modal-title" class="text-base font-bold text-white">
+                Tétel módosítása
+            </h3>
+            <p id="edit-modal-subtitle" class="text-xs text-zinc-400 mt-0.5">
+                Megnevezés és havi összeg frissítése
+            </p>
+
+            <form id="form-edit-item" class="mt-4 space-y-4">
+                <div>
+                    <label for="edit-item-name" class="block text-xs font-semibold text-zinc-300 mb-1">
+                        Megnevezés
+                    </label>
+                    <input id="edit-item-name" type="text" required maxlength="50"
+                        class="monolith-input w-full rounded-xl px-3.5 py-2.5 text-sm font-medium text-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed">
+                </div>
+
+                <div>
+                    <label for="edit-item-amount" class="block text-xs font-semibold text-zinc-300 mb-1">
+                        Havi összeg (Ft)
+                    </label>
+                    <input id="edit-item-amount" type="number" required min="1" step="1"
+                        class="monolith-input w-full rounded-xl px-3.5 py-2.5 text-sm font-bold text-zinc-100 tabular-nums">
+                </div>
+
+                <div class="pt-2 flex items-center justify-end gap-2.5">
+                    <button id="btn-cancel-edit" type="button"
+                        class="px-4 py-2.5 rounded-xl text-xs font-semibold bg-white/[0.05] text-zinc-200 border border-white/10 hover:bg-white/[0.1] transition cursor-pointer">
+                        Mégse
+                    </button>
+                    <button type="submit"
+                        class="px-4 py-2.5 rounded-xl text-xs font-bold bg-zinc-100 text-zinc-950 hover:bg-white transition cursor-pointer">
+                        Összeg mentése
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODÁLIS ABLAK 3: AUTOMATA GITHUB SZINKRON BEÁLLÍTÁS -->
+    <div id="modal-github" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-xs" role="dialog" aria-modal="true" aria-labelledby="github-modal-title">
+        <div class="bg-[#13151b] border border-white/10 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-modal">
+            <div class="flex items-center justify-between gap-2">
+                <h3 id="github-modal-title" class="text-base font-bold text-white">
+                    Automata GitHub mentés
+                </h3>
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-sky-500/15 text-sky-300 border border-sky-500/30">
+                    adatok.json
+                </span>
+            </div>
+            <p class="text-xs text-zinc-400 mt-1 leading-relaxed">
+                Ha beállítod, minden egyes módosítás után automatikusan frissíti az <code class="text-zinc-200">adatok.json</code> fájlt a GitHubodon — így telefonon és a havi e-mailben is azonnal naprakész lesz.
+            </p>
+
+            <form id="form-github-sync" class="mt-4 space-y-3.5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label for="gh-owner" class="block text-xs font-semibold text-zinc-300 mb-1">
+                            GitHub felhasználónév
+                        </label>
+                        <input id="gh-owner" type="text" required
+                            class="monolith-input w-full rounded-xl px-3.5 py-2 text-sm text-zinc-100">
+                    </div>
+                    <div>
+                        <label for="gh-repo" class="block text-xs font-semibold text-zinc-300 mb-1">
+                            Repository neve
+                        </label>
+                        <input id="gh-repo" type="text" required
+                            class="monolith-input w-full rounded-xl px-3.5 py-2 text-sm text-zinc-100">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="gh-token" class="block text-xs font-semibold text-zinc-300 mb-1">
+                        GitHub Personal Access Token
+                    </label>
+                    <input id="gh-token" type="password" required autocomplete="off"
+                        placeholder="github_pat_... vagy ghp_..."
+                        class="monolith-input w-full rounded-xl px-3.5 py-2 text-sm text-zinc-100 placeholder-zinc-500">
+                    <p class="text-[11px] text-zinc-500 mt-1.5 leading-relaxed">
+                        A tokent kizárólag ez a böngésző őrzi meg helyben. GitHubon: <strong class="text-zinc-300">Settings → Developer settings → Personal access tokens → Fine-grained tokens</strong> → válaszd ki a <strong class="text-zinc-300">mono</strong> repót, és adj <strong class="text-zinc-300">Contents: Read and write</strong> jogosultságot.
+                    </p>
+                </div>
+
+                <label class="flex items-center gap-2.5 pt-1 cursor-pointer select-none">
+                    <input id="gh-auto-enabled" type="checkbox" checked
+                        class="w-4 h-4 rounded accent-sky-400 cursor-pointer">
+                    <span class="text-xs font-medium text-zinc-200">
+                        Automatikus mentés minden változtatás után
+                    </span>
+                </label>
+
+                <div class="pt-3 flex items-center justify-between gap-2">
+                    <button id="btn-gh-test-push" type="button"
+                        class="px-3 py-2 rounded-xl text-xs font-semibold bg-sky-500/15 text-sky-300 border border-sky-500/30 hover:bg-sky-500/25 transition cursor-pointer">
+                        Mentés most
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <button id="btn-cancel-github" type="button"
+                            class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/[0.05] text-zinc-200 border border-white/10 hover:bg-white/[0.1] transition cursor-pointer">
+                            Mégse
+                        </button>
+                        <button type="submit"
+                            class="px-4 py-2 rounded-xl text-xs font-bold bg-zinc-100 text-zinc-950 hover:bg-white transition cursor-pointer">
+                            Beállítás mentése
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * MONO — Személyes fix költség kalkulátor
+         * Sötét téma, 0 Ft-os kiindulási állapot, előre megadott példa adatok nélkül.
+         */
+
+        const STORAGE_KEY = 'monolith_budget_v1';
+        const GITHUB_SYNC_KEY = 'mono_github_sync_v1';
+
+        const CATEGORY_LABELS = {
+            streaming: 'Streaming szolgáltatások',
+            housing: 'Albérlet és rezsi',
+            loans: 'Hitelek',
+            telecom: 'Telefonszámlák és internet',
+            business: 'Vállalkozói költségek'
+        };
+
+        const DEFAULT_CARD_ORDER = ['streaming', 'housing', 'loans', 'telecom', 'business'];
+
+        // Teljesen üres kiinduló állapot (példa adatok nélkül, biztonsági mentés és kártyasorrend követéssel)
+        let appState = {
+            items: [],
+            cardOrder: [...DEFAULT_CARD_ORDER],
+            hasUnsavedExport: false,
+            lastExportedAt: null
+        };
+
+        let pendingDeleteId = null;
+        let pendingEditId = null;
+        let isGitHubPushing = false;
+        let githubPushTimer = null;
+
+        // Automata GitHub szinkron beállítások (alapértelmezetten a katsatale/mono repóra)
+        let githubConfig = {
+            owner: 'katsatale',
+            repo: 'mono',
+            path: 'adatok.json',
+            token: '',
+            autoSync: true
+        };
+
+        // Szám formázása szóközökkel (pl. "245 000")
+        function formatNumberHU(value) {
+            const num = Math.round(Number(value) || 0);
+            return new Intl.NumberFormat('hu-HU', {
+                maximumFractionDigits: 0
+            }).format(num);
+        }
+
+        // Magyar forint formázás szövegként (pl. "245 000 Ft")
+        function formatHUF(value) {
+            return `${formatNumberHU(value)} Ft`;
+        }
+
+        // XSS elleni védelem felhasználói szövegekhez
+        function escapeHTML(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Diszkrét értesítő buborék megjelenítése (alert() helyett)
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            const isError = type === 'error';
+            toast.className = `pointer-events-auto px-4 py-2.5 rounded-xl text-xs font-semibold shadow-xl border transition-all duration-200 flex items-center gap-2 ${
+                isError
+                    ? 'bg-rose-950/95 border-rose-500/40 text-rose-200'
+                    : 'bg-[#161820]/95 border-white/15 text-zinc-100'
+            }`;
+            toast.innerHTML = `
+                <span class="w-1.5 h-1.5 rounded-full ${isError ? 'bg-rose-400' : 'bg-sky-400'} shrink-0"></span>
+                <span>${escapeHTML(message)}</span>
+            `;
+
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(6px)';
+                setTimeout(() => toast.remove(), 220);
+            }, 2600);
+        }
+
+        // Teljes felület és összesítők újrarenderelése
+        function renderAll() {
+            const categories = Object.keys(CATEGORY_LABELS);
+            let totalMonthly = 0;
+            const categoryTotals = {};
+
+            categories.forEach(cat => {
+                categoryTotals[cat] = 0;
+            });
+
+            appState.items.forEach(item => {
+                const amt = Number(item.amount) || 0;
+                totalMonthly += amt;
+                if (Object.prototype.hasOwnProperty.call(categoryTotals, item.category)) {
+                    categoryTotals[item.category] += amt;
+                }
+            });
+
+            const totalEl = document.getElementById('display-total-fixed');
+            const annualEl = document.getElementById('display-annual-fixed');
+            const badgeEl = document.getElementById('badge-total-items');
+
+            if (totalEl) {
+                totalEl.innerHTML = `${formatNumberHU(totalMonthly)} <span class="text-lg sm:text-xl font-semibold text-zinc-500">Ft</span>`;
+            }
+            if (annualEl) {
+                annualEl.innerHTML = `${formatNumberHU(totalMonthly * 12)} <span class="text-lg sm:text-xl font-semibold text-zinc-500">Ft</span>`;
+            }
+            if (badgeEl) {
+                badgeEl.textContent = `${appState.items.length} tétel`;
+            }
+
+            categories.forEach(cat => {
+                const catSum = categoryTotals[cat] || 0;
+                const subtotalEl = document.getElementById(`subtotal-${cat}`);
+                const barEl = document.getElementById(`bar-${cat}`);
+                const listEl = document.getElementById(`list-${cat}`);
+
+                if (subtotalEl) {
+                    subtotalEl.innerHTML = `${formatNumberHU(catSum)} <span class="text-xs font-medium text-zinc-400">Ft / hó</span>`;
+                }
+                if (barEl) {
+                    const pct = totalMonthly > 0 ? Math.min(100, Math.round((catSum / totalMonthly) * 100)) : 0;
+                    barEl.style.width = `${pct}%`;
+                }
+
+                if (!listEl) return;
+
+                const catItems = appState.items.filter(item => item.category === cat);
+                if (catItems.length === 0) {
+                    listEl.innerHTML = `
+                        <li class="py-6 text-center text-xs text-zinc-500">
+                            Még nincs rögzített tétel ebben a kategóriában.
+                        </li>
+                    `;
+                    return;
+                }
+
+                listEl.innerHTML = catItems.map(item => `
+                    <li class="py-2.5 flex items-center justify-between gap-3 group">
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm font-medium text-zinc-100 truncate">${escapeHTML(item.name)}</p>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span class="text-sm font-bold text-zinc-100 tabular-nums whitespace-nowrap">
+                                ${formatHUF(item.amount)}
+                            </span>
+                            <button type="button" data-action="edit" data-id="${escapeHTML(item.id)}"
+                                class="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.08] transition cursor-pointer"
+                                title="Tétel szerkesztése" aria-label="Tétel szerkesztése">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                </svg>
+                            </button>
+                            <button type="button" data-action="delete" data-id="${escapeHTML(item.id)}"
+                                class="p-1.5 rounded-lg text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition cursor-pointer"
+                                title="Tétel törlése" aria-label="Tétel törlése">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </li>
+                `).join('');
+            });
+        }
+
+        // Biztonsági mentés állapotjelző frissítése a fejlécben
+        function updateBackupStatusUI() {
+            const btn = document.getElementById('btn-backup-status');
+            const dot = document.getElementById('backup-status-dot');
+            const ping = document.getElementById('backup-status-ping');
+            const text = document.getElementById('backup-status-text');
+            if (!btn || !dot || !ping || !text) return;
+
+            if (appState.hasUnsavedExport) {
+                btn.className = 'inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs font-semibold text-amber-300 hover:bg-amber-500/20 transition cursor-pointer whitespace-nowrap';
+                dot.className = 'relative inline-flex rounded-full h-2 w-2 bg-amber-400';
+                ping.classList.remove('hidden');
+                text.textContent = 'Nem exportált változás';
+            } else {
+                btn.className = 'inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/20 transition cursor-pointer whitespace-nowrap';
+                dot.className = 'relative inline-flex rounded-full h-2 w-2 bg-emerald-400';
+                ping.classList.add('hidden');
+                text.textContent = 'Mentés naprakész';
+            }
+        }
+
+        // Állapot mentése a localStorage-ba (és opcionálisan automata GitHub feltöltés indítása)
+        function saveState(markDirty = false) {
+            if (markDirty) {
+                appState.hasUnsavedExport = true;
+            }
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            } catch (err) {
+                console.error('Hiba a helyi mentés közben:', err);
+                showToast('Nem sikerült a helyi mentés.', 'error');
+            }
+            updateBackupStatusUI();
+
+            if (markDirty && githubConfig.autoSync && githubConfig.token) {
+                scheduleGitHubSync();
+            }
+        }
+
+        // GitHub szinkron beállítások betöltése és mentése
+        function loadGitHubConfig() {
+            try {
+                const raw = localStorage.getItem(GITHUB_SYNC_KEY);
+                if (!raw) return;
+                const parsed = JSON.parse(raw);
+                if (parsed && typeof parsed === 'object') {
+                    githubConfig = {
+                        owner: String(parsed.owner || 'katsatale').trim(),
+                        repo: String(parsed.repo || 'mono').trim(),
+                        path: String(parsed.path || 'adatok.json').trim() || 'adatok.json',
+                        token: String(parsed.token || '').trim(),
+                        autoSync: parsed.autoSync !== false
+                    };
+                }
+            } catch (err) {
+                console.warn('GitHub beállítások nem olvashatók:', err);
+            }
+            updateGitHubSyncButtonUI();
+        }
+
+        function saveGitHubConfig() {
+            try {
+                localStorage.setItem(GITHUB_SYNC_KEY, JSON.stringify(githubConfig));
+            } catch (err) {
+                console.warn('GitHub beállítások nem menthetők:', err);
+            }
+            updateGitHubSyncButtonUI();
+        }
+
+        function updateGitHubSyncButtonUI() {
+            const btn = document.getElementById('btn-github-sync');
+            const label = document.getElementById('github-sync-label');
+            if (!btn || !label) return;
+
+            if (githubConfig.token && githubConfig.autoSync) {
+                btn.className = 'inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-sky-500/15 text-sky-300 border border-sky-500/35 hover:bg-sky-500/25 transition cursor-pointer whitespace-nowrap';
+                label.textContent = isGitHubPushing ? 'Mentés GitHubra...' : 'Auto-mentés BE';
+            } else if (githubConfig.token) {
+                btn.className = 'inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/[0.05] text-zinc-300 border border-white/15 hover:bg-white/[0.1] transition cursor-pointer whitespace-nowrap';
+                label.textContent = 'GitHub kézi';
+            } else {
+                btn.className = 'inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-sky-500/10 text-sky-300 border border-sky-500/25 hover:bg-sky-500/20 transition cursor-pointer whitespace-nowrap';
+                label.textContent = 'GitHub Szinkron';
+            }
+        }
+
+        // UTF-8 biztonságos Base64 kódolás a GitHub Contents API-hoz
+        function encodeBase64UTF8(str) {
+            const bytes = new TextEncoder().encode(str);
+            let binary = '';
+            for (let i = 0; i < bytes.length; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
+        }
+
+        // Késleltetett (debounce) automata feltöltés, hogy gyors egymás utáni gépelésnél ne küldjön felesleges kérést
+        function scheduleGitHubSync() {
+            if (githubPushTimer) {
+                clearTimeout(githubPushTimer);
+            }
+            githubPushTimer = setTimeout(() => {
+                pushAdatokToGitHub(false);
+            }, 600);
+        }
+
+        // adatok.json közvetlen létrehozása vagy frissítése a GitHub repositoryban
+        async function pushAdatokToGitHub(notifyOnSuccess = true) {
+            const owner = String(githubConfig.owner || '').trim();
+            const repo = String(githubConfig.repo || '').trim();
+            const path = String(githubConfig.path || 'adatok.json').trim();
+            const token = String(githubConfig.token || '').trim();
+
+            if (!owner || !repo || !token) {
+                showToast('Add meg a GitHub felhasználónevet, repót és tokent!', 'error');
+                return false;
+            }
+            if (isGitHubPushing) return false;
+
+            isGitHubPushing = true;
+            updateGitHubSyncButtonUI();
+
+            try {
+                const apiUrl = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${encodeURIComponent(path)}`;
+                const headers = {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/vnd.github+json',
+                    'Content-Type': 'application/json'
+                };
+
+                // 1. Megnézzük, létezik-e már az adatok.json a repóban (ha igen, kell a sha értéke a felülíráshoz)
+                let existingSha = null;
+                const getRes = await fetch(apiUrl, { headers, cache: 'no-store' });
+                if (getRes.ok) {
+                    const existingFile = await getRes.json();
+                    if (existingFile && existingFile.sha) {
+                        existingSha = existingFile.sha;
+                    }
+                } else if (getRes.status !== 404) {
+                    throw new Error(`GitHub olvasási hiba (${getRes.status})`);
+                }
+
+                // 2. Elkészítjük a friss JSON tartalmat
+                const nowIso = new Date().toISOString();
+                const payloadObj = {
+                    app: 'MONO',
+                    version: 1,
+                    exportedAt: nowIso,
+                    cardOrder: sanitizeCardOrder(appState.cardOrder),
+                    items: appState.items
+                };
+                const jsonString = JSON.stringify(payloadObj, null, 2);
+
+                const body = {
+                    message: `MONO adatok.json frissítése (${nowIso.slice(0, 16).replace('T', ' ')})`,
+                    content: encodeBase64UTF8(jsonString)
+                };
+                if (existingSha) {
+                    body.sha = existingSha;
+                }
+
+                const putRes = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers,
+                    body: JSON.stringify(body)
+                });
+
+                if (!putRes.ok) {
+                    const errData = await putRes.json().catch(() => ({}));
+                    throw new Error(errData.message || `GitHub mentési hiba (${putRes.status})`);
+                }
+
+                appState.hasUnsavedExport = false;
+                appState.lastExportedAt = nowIso;
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+                } catch (e) {}
+                updateBackupStatusUI();
+
+                if (notifyOnSuccess) {
+                    showToast('Automatikusan elmentve a GitHubra (adatok.json)');
+                }
+                return true;
+            } catch (err) {
+                console.error('GitHub szinkron hiba:', err);
+                showToast(`GitHub hiba: ${err.message}`, 'error');
+                return false;
+            } finally {
+                isGitHubPushing = false;
+                updateGitHubSyncButtonUI();
+            }
+        }
+
+        function openGitHubModal() {
+            document.getElementById('gh-owner').value = githubConfig.owner || 'katsatale';
+            document.getElementById('gh-repo').value = githubConfig.repo || 'mono';
+            document.getElementById('gh-token').value = githubConfig.token || '';
+            document.getElementById('gh-auto-enabled').checked = Boolean(githubConfig.autoSync);
+
+            const modal = document.getElementById('modal-github');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeGitHubModal() {
+            const modal = document.getElementById('modal-github');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Állapot betöltése a localStorage-ból
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return;
+                const parsed = JSON.parse(raw);
+                if (parsed && Array.isArray(parsed.items)) {
+                    appState.items = parsed.items.filter(item =>
+                        item &&
+                        typeof item.id === 'string' &&
+                        typeof item.category === 'string' &&
+                        typeof item.name === 'string' &&
+                        Number.isFinite(Number(item.amount)) &&
+                        Number(item.amount) > 0
+                    );
+                    appState.hasUnsavedExport = Boolean(parsed.hasUnsavedExport);
+                    appState.lastExportedAt = parsed.lastExportedAt || null;
+                    if (Array.isArray(parsed.cardOrder)) {
+                        appState.cardOrder = sanitizeCardOrder(parsed.cardOrder);
+                    }
+                }
+            } catch (err) {
+                console.warn('Nem sikerült beolvasni a mentett adatokat:', err);
+            }
+        }
+
+        // Kártyasorrend érvényesítése (mind az 5 kategória pontosan egyszer szerepeljen)
+        function sanitizeCardOrder(order) {
+            if (!Array.isArray(order)) return [...DEFAULT_CARD_ORDER];
+            const valid = order.filter(cat => DEFAULT_CARD_ORDER.includes(cat));
+            const unique = [...new Set(valid)];
+            DEFAULT_CARD_ORDER.forEach(cat => {
+                if (!unique.includes(cat)) unique.push(cat);
+            });
+            return unique;
+        }
+
+        // Kártyák DOM sorrendjének alkalmazása az elmentett állapot szerint
+        function applyCardOrder() {
+            const grid = document.getElementById('cards-grid');
+            if (!grid) return;
+            const order = sanitizeCardOrder(appState.cardOrder);
+            order.forEach(cat => {
+                const card = grid.querySelector(`[data-card-category="${cat}"]`);
+                if (card) {
+                    grid.appendChild(card);
+                }
+            });
+        }
+
+        // Aktuális DOM sorrend kiolvasása és mentése
+        function persistCurrentGridOrder() {
+            const grid = document.getElementById('cards-grid');
+            if (!grid) return;
+            const currentOrder = Array.from(grid.querySelectorAll('[data-card-category]'))
+                .map(el => el.dataset.cardCategory);
+            const sanitized = sanitizeCardOrder(currentOrder);
+            const changed = JSON.stringify(sanitized) !== JSON.stringify(appState.cardOrder);
+            appState.cardOrder = sanitized;
+            if (changed) {
+                saveState(true);
+                showToast('Kártyák sorrendje elmentve');
+            }
+        }
+
+        // Szabadon árendezhető Drag & Drop (egér + érintőképernyő) inicializálása
+        function initCardDragAndDrop() {
+            const grid = document.getElementById('cards-grid');
+            if (!grid) return;
+
+            let draggedCard = null;
+            let activeTouchCard = null;
+
+            const cards = Array.from(grid.querySelectorAll('[data-card-category]'));
+
+            cards.forEach(card => {
+                const handle = card.querySelector('.drag-handle');
+                if (!handle) return;
+
+                // Asztali böngésző: csak a fogantyúról indítva válik húzhatóvá, így a szövegkijelölés és űrlapok zavartalanok
+                handle.addEventListener('pointerdown', () => {
+                    card.setAttribute('draggable', 'true');
+                });
+                window.addEventListener('pointerup', () => {
+                    card.removeAttribute('draggable');
+                });
+
+                card.addEventListener('dragstart', (e) => {
+                    draggedCard = card;
+                    card.classList.add('is-dragging');
+                    if (e.dataTransfer) {
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('text/plain', card.dataset.cardCategory);
+                    }
+                });
+
+                card.addEventListener('dragend', () => {
+                    card.classList.remove('is-dragging');
+                    card.removeAttribute('draggable');
+                    cards.forEach(c => c.classList.remove('drag-over'));
+                    draggedCard = null;
+                    persistCurrentGridOrder();
+                });
+
+                card.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    if (!draggedCard || draggedCard === card) return;
+
+                    const rect = card.getBoundingClientRect();
+                    const isAfter = (e.clientY - rect.top) > rect.height / 2 ||
+                                    ((e.clientX - rect.left) > rect.width / 2 && Math.abs(e.clientY - rect.top - rect.height / 2) < rect.height * 0.35);
+
+                    if (isAfter) {
+                        grid.insertBefore(draggedCard, card.nextSibling);
+                    } else {
+                        grid.insertBefore(draggedCard, card);
+                    }
+                });
+
+                card.addEventListener('dragenter', (e) => {
+                    e.preventDefault();
+                    if (draggedCard && draggedCard !== card) {
+                        card.classList.add('drag-over');
+                    }
+                });
+
+                card.addEventListener('dragleave', () => {
+                    card.classList.remove('drag-over');
+                });
+
+                card.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    card.classList.remove('drag-over');
+                });
+
+                // Mobil / érintőképernyő támogatás a fogantyún keresztül
+                handle.addEventListener('touchstart', (e) => {
+                    if (e.touches.length !== 1) return;
+                    activeTouchCard = card;
+                    card.classList.add('is-dragging');
+                }, { passive: true });
+
+                handle.addEventListener('touchmove', (e) => {
+                    if (!activeTouchCard || e.touches.length !== 1) return;
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const elemBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+                    const targetCard = elemBelow ? elemBelow.closest('[data-card-category]') : null;
+
+                    cards.forEach(c => c.classList.remove('drag-over'));
+
+                    if (targetCard && targetCard !== activeTouchCard && grid.contains(targetCard)) {
+                        targetCard.classList.add('drag-over');
+                        const rect = targetCard.getBoundingClientRect();
+                        const insertAfter = touch.clientY > rect.top + rect.height / 2;
+                        if (insertAfter) {
+                            grid.insertBefore(activeTouchCard, targetCard.nextSibling);
+                        } else {
+                            grid.insertBefore(activeTouchCard, targetCard);
+                        }
+                    }
+                }, { passive: false });
+
+                handle.addEventListener('touchend', () => {
+                    if (!activeTouchCard) return;
+                    activeTouchCard.classList.remove('is-dragging');
+                    cards.forEach(c => c.classList.remove('drag-over'));
+                    activeTouchCard = null;
+                    persistCurrentGridOrder();
+                });
+            });
+        }
+
+        // Új tétel felvétele
+        function addItem(category, name, amount) {
+            const cleanName = String(name || '').trim();
+            const numAmount = Math.abs(Math.round(Number(amount)));
+
+            if (!cleanName || !Number.isFinite(numAmount) || numAmount <= 0) {
+                return false;
+            }
+
+            appState.items.push({
+                id: 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6),
+                category,
+                name: cleanName,
+                amount: numAmount
+            });
+
+            saveState(true);
+            renderAll();
+            showToast(`${cleanName} mentve (${formatHUF(numAmount)})`);
+            return true;
+        }
+
+        // Törlés megerősítő ablak megnyitása
+        function openDeleteModal(id) {
+            const item = appState.items.find(i => i.id === id);
+            if (!item) return;
+
+            pendingDeleteId = id;
+            document.getElementById('delete-modal-category').textContent = CATEGORY_LABELS[item.category] || item.category;
+            document.getElementById('delete-modal-summary').textContent = `${item.name} — ${formatHUF(item.amount)}`;
+
+            const modal = document.getElementById('modal-delete');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Törlés megerősítő ablak bezárása
+        function closeDeleteModal() {
+            pendingDeleteId = null;
+            const modal = document.getElementById('modal-delete');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Szerkesztés modális ablak megnyitása
+        function openEditModal(id) {
+            const item = appState.items.find(i => i.id === id);
+            if (!item) return;
+
+            pendingEditId = id;
+            document.getElementById('edit-modal-subtitle').textContent = CATEGORY_LABELS[item.category] || item.category;
+
+            const nameInput = document.getElementById('edit-item-name');
+            const amountInput = document.getElementById('edit-item-amount');
+
+            nameInput.value = item.name;
+            amountInput.value = item.amount;
+            nameInput.disabled = false;
+
+            const modal = document.getElementById('modal-edit');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            setTimeout(() => {
+                nameInput.focus();
+            }, 30);
+        }
+
+        // Szerkesztés modális ablak bezárása
+        function closeEditModal() {
+            pendingEditId = null;
+            const modal = document.getElementById('modal-edit');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Biztonsági mentés (.json) exportálása (alapértelmezetten adatok.json néven a GitHub szinkronhoz)
+        function exportBackupJSON() {
+            const nowIso = new Date().toISOString();
+            const payload = {
+                app: 'MONO',
+                version: 1,
+                exportedAt: nowIso,
+                cardOrder: sanitizeCardOrder(appState.cardOrder),
+                items: appState.items
+            };
+
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'adatok.json';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+
+            appState.hasUnsavedExport = false;
+            appState.lastExportedAt = nowIso;
+            saveState(false);
+            showToast('adatok.json letöltve (feltölthető a GitHub mappába)');
+        }
+
+        // JSON adatok tisztítása és érvényesítése
+        function parseAndSanitizeItems(parsed) {
+            const rawItems = Array.isArray(parsed) ? parsed : (parsed && parsed.items);
+            if (!Array.isArray(rawItems)) {
+                return null;
+            }
+            const validCategories = Object.keys(CATEGORY_LABELS);
+            return rawItems
+                .filter(item =>
+                    item &&
+                    validCategories.includes(item.category) &&
+                    typeof item.name === 'string' &&
+                    item.name.trim().length > 0 &&
+                    Number.isFinite(Number(item.amount)) &&
+                    Number(item.amount) > 0
+                )
+                .map((item, idx) => ({
+                    id: typeof item.id === 'string' ? item.id : `imp-${Date.now()}-${idx}`,
+                    category: item.category,
+                    name: item.name.trim().slice(0, 50),
+                    amount: Math.abs(Math.round(Number(item.amount)))
+                }));
+        }
+
+        // Automatikus betöltés a mellette lévő adatok.json fájlból (GitHub Pages / szerver esetén)
+        async function tryLoadRemoteAdatokJSON() {
+            // Helyi file:// megnyitásnál a böngésző CORS miatt tiltja a fetch-et
+            if (window.location.protocol === 'file:') return;
+
+            try {
+                const response = await fetch(`./adatok.json?t=${Date.now()}`, { cache: 'no-store' });
+                if (!response.ok) return;
+
+                const parsed = await response.json();
+                const cleaned = parseAndSanitizeItems(parsed);
+                if (!cleaned) return;
+
+                const remoteExportedAt = (parsed && parsed.exportedAt) ? String(parsed.exportedAt) : null;
+                const localExportedAt = appState.lastExportedAt ? String(appState.lastExportedAt) : null;
+
+                // Betöltjük, ha még nincs helyi adatunk, vagy ha a GitHubon lévő adatok.json frissebb
+                const shouldApplyRemote =
+                    appState.items.length === 0 ||
+                    (remoteExportedAt && (!localExportedAt || remoteExportedAt > localExportedAt));
+
+                if (shouldApplyRemote && cleaned.length > 0) {
+                    appState.items = cleaned;
+                    if (parsed && Array.isArray(parsed.cardOrder)) {
+                        appState.cardOrder = sanitizeCardOrder(parsed.cardOrder);
+                        applyCardOrder();
+                    }
+                    appState.hasUnsavedExport = false;
+                    appState.lastExportedAt = remoteExportedAt || new Date().toISOString();
+                    saveState(false);
+                    renderAll();
+                    showToast(`Automatikusan betöltve az adatok.json fájlból (${cleaned.length} tétel)`);
+                }
+            } catch (err) {
+                // Ha még nincs feltöltve adatok.json a mappába, csendben a helyi tárhelyet használjuk
+            }
+        }
+
+        // Biztonsági mentés (.json) visszatöltése
+        function importBackupJSON(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const parsed = JSON.parse(event.target.result);
+                    const cleaned = parseAndSanitizeItems(parsed);
+                    if (!cleaned) {
+                        throw new Error('Érvénytelen fájlformátum');
+                    }
+
+                    appState.items = cleaned;
+                    if (parsed && Array.isArray(parsed.cardOrder)) {
+                        appState.cardOrder = sanitizeCardOrder(parsed.cardOrder);
+                        applyCardOrder();
+                    }
+                    appState.hasUnsavedExport = false;
+                    appState.lastExportedAt = new Date().toISOString();
+                    saveState(false);
+                    renderAll();
+                    showToast(`${cleaned.length} tétel sikeresen betöltve`);
+                } catch (err) {
+                    console.error('Importálási hiba:', err);
+                    showToast('Hibás vagy sérült .json mentési fájl', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // PWA mobilapp ikon (PNG) és manifest dinamikus generálása
+        function initMobileAppAssets() {
+            try {
+                function createMonolithIconDataURL(size) {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = size;
+                    canvas.height = size;
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) return '';
+
+                    // Sötét háttér finom átmenettel
+                    const bgGrad = ctx.createLinearGradient(0, 0, size, size);
+                    bgGrad.addColorStop(0, '#181a20');
+                    bgGrad.addColorStop(1, '#090a0d');
+                    ctx.fillStyle = bgGrad;
+                    ctx.fillRect(0, 0, size, size);
+
+                    const s = size / 28;
+
+                    // Bal monolit oszlop
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.moveTo(5 * s, 21 * s);
+                    ctx.lineTo(5 * s, 7 * s);
+                    ctx.lineTo(11.5 * s, 14 * s);
+                    ctx.lineTo(11.5 * s, 21 * s);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Jobb monolit oszlop
+                    ctx.fillStyle = '#a1a1aa';
+                    ctx.beginPath();
+                    ctx.moveTo(23 * s, 21 * s);
+                    ctx.lineTo(23 * s, 7 * s);
+                    ctx.lineTo(16.5 * s, 14 * s);
+                    ctx.lineTo(16.5 * s, 21 * s);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Középső ciánkék ék
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.beginPath();
+                    ctx.moveTo(14 * s, 11.2 * s);
+                    ctx.lineTo(17.2 * s, 7.8 * s);
+                    ctx.lineTo(14 * s, 15.2 * s);
+                    ctx.lineTo(10.8 * s, 7.8 * s);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    return canvas.toDataURL('image/png');
+                }
+
+                const icon180 = createMonolithIconDataURL(180);
+                const icon512 = createMonolithIconDataURL(512);
+
+                const appleLink = document.getElementById('apple-touch-icon-link');
+                if (appleLink && icon180) {
+                    appleLink.href = icon180;
+                }
+
+                const manifest = {
+                    name: 'MONO',
+                    short_name: 'MONO',
+                    start_url: '.',
+                    display: 'standalone',
+                    background_color: '#090a0d',
+                    theme_color: '#090a0d',
+                    icons: icon512 ? [{
+                        src: icon512,
+                        sizes: '512x512',
+                        type: 'image/png'
+                    }] : []
+                };
+
+                const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+                const manifestLink = document.getElementById('web-manifest-link');
+                if (manifestLink) {
+                    manifestLink.href = URL.createObjectURL(manifestBlob);
+                }
+            } catch (err) {
+                console.warn('Mobilapp ikon inicializálási figyelmeztetés:', err);
+            }
+        }
+
+        // Eseménykezelők bekötése betöltéskor
+        document.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            loadGitHubConfig();
+            applyCardOrder();
+            initCardDragAndDrop();
+            renderAll();
+            updateBackupStatusUI();
+            initMobileAppAssets();
+            tryLoadRemoteAdatokJSON();
+
+            document.getElementById('form-streaming').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const nameEl = document.getElementById('input-streaming-name');
+                const amountEl = document.getElementById('input-streaming-amount');
+                if (addItem('streaming', nameEl.value, amountEl.value)) {
+                    nameEl.value = '';
+                    amountEl.value = '';
+                    nameEl.focus();
+                }
+            });
+
+            document.getElementById('form-housing').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const nameEl = document.getElementById('input-housing-name');
+                const amountEl = document.getElementById('input-housing-amount');
+                if (addItem('housing', nameEl.value, amountEl.value)) {
+                    nameEl.value = '';
+                    amountEl.value = '';
+                    nameEl.focus();
+                }
+            });
+
+            document.getElementById('form-loans').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const nameEl = document.getElementById('input-loans-name');
+                const amountEl = document.getElementById('input-loans-amount');
+                if (addItem('loans', nameEl.value, amountEl.value)) {
+                    nameEl.value = '';
+                    amountEl.value = '';
+                    nameEl.focus();
+                }
+            });
+
+            document.getElementById('form-telecom').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const nameEl = document.getElementById('input-telecom-name');
+                const amountEl = document.getElementById('input-telecom-amount');
+                if (addItem('telecom', nameEl.value, amountEl.value)) {
+                    nameEl.value = '';
+                    amountEl.value = '';
+                    nameEl.focus();
+                }
+            });
+
+            document.getElementById('form-business').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const nameEl = document.getElementById('input-business-name');
+                const amountEl = document.getElementById('input-business-amount');
+                if (addItem('business', nameEl.value, amountEl.value)) {
+                    nameEl.value = '';
+                    amountEl.value = '';
+                    nameEl.focus();
+                }
+            });
+
+            // Lista gombok (szerkesztés / törlés) delegált kezelése
+            document.querySelector('main').addEventListener('click', (e) => {
+                const btn = e.target.closest('button[data-action]');
+                if (!btn) return;
+                const action = btn.dataset.action;
+                const id = btn.dataset.id;
+                if (action === 'delete') openDeleteModal(id);
+                if (action === 'edit') openEditModal(id);
+            });
+
+            // Törlés modális gombok
+            document.getElementById('btn-cancel-delete').addEventListener('click', closeDeleteModal);
+            document.getElementById('btn-confirm-delete').addEventListener('click', () => {
+                if (!pendingDeleteId) return;
+                const target = appState.items.find(i => i.id === pendingDeleteId);
+                appState.items = appState.items.filter(i => i.id !== pendingDeleteId);
+                closeDeleteModal();
+                saveState(true);
+                renderAll();
+                if (target) {
+                    showToast(`${target.name} törölve`);
+                }
+            });
+
+            // Szerkesztés modális gombok és űrlap
+            document.getElementById('btn-cancel-edit').addEventListener('click', closeEditModal);
+            document.getElementById('form-edit-item').addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!pendingEditId) return;
+                const item = appState.items.find(i => i.id === pendingEditId);
+                if (!item) return;
+
+                const newName = document.getElementById('edit-item-name').value.trim();
+                const newAmount = Math.abs(Math.round(Number(document.getElementById('edit-item-amount').value)));
+
+                if (!newName || !Number.isFinite(newAmount) || newAmount <= 0) return;
+
+                item.name = newName;
+                item.amount = newAmount;
+                closeEditModal();
+                saveState(true);
+                renderAll();
+                showToast(`${newName} frissítve (${formatHUF(newAmount)})`);
+            });
+
+            // Modális ablakok bezárása háttérre kattintással vagy Escape gombbal
+            document.getElementById('modal-delete').addEventListener('click', (e) => {
+                if (e.target.id === 'modal-delete') closeDeleteModal();
+            });
+            document.getElementById('modal-edit').addEventListener('click', (e) => {
+                if (e.target.id === 'modal-edit') closeEditModal();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeDeleteModal();
+                    closeEditModal();
+                    closeGitHubModal();
+                }
+            });
+
+            // GitHub Szinkron modális kezelése
+            document.getElementById('btn-github-sync').addEventListener('click', openGitHubModal);
+            document.getElementById('btn-cancel-github').addEventListener('click', closeGitHubModal);
+            document.getElementById('modal-github').addEventListener('click', (e) => {
+                if (e.target.id === 'modal-github') closeGitHubModal();
+            });
+            document.getElementById('form-github-sync').addEventListener('submit', (e) => {
+                e.preventDefault();
+                githubConfig = {
+                    owner: document.getElementById('gh-owner').value.trim() || 'katsatale',
+                    repo: document.getElementById('gh-repo').value.trim() || 'mono',
+                    path: 'adatok.json',
+                    token: document.getElementById('gh-token').value.trim(),
+                    autoSync: document.getElementById('gh-auto-enabled').checked
+                };
+                saveGitHubConfig();
+                closeGitHubModal();
+                if (githubConfig.token && githubConfig.autoSync) {
+                    pushAdatokToGitHub(true);
+                } else {
+                    showToast('GitHub szinkron beállítások elmentve');
+                }
+            });
+            document.getElementById('btn-gh-test-push').addEventListener('click', async () => {
+                githubConfig = {
+                    owner: document.getElementById('gh-owner').value.trim() || 'katsatale',
+                    repo: document.getElementById('gh-repo').value.trim() || 'mono',
+                    path: 'adatok.json',
+                    token: document.getElementById('gh-token').value.trim(),
+                    autoSync: document.getElementById('gh-auto-enabled').checked
+                };
+                saveGitHubConfig();
+                const ok = await pushAdatokToGitHub(true);
+                if (ok) closeGitHubModal();
+            });
+
+            // Export, Import és állapotjelző gombok
+            document.getElementById('btn-export').addEventListener('click', exportBackupJSON);
+            document.getElementById('btn-backup-status').addEventListener('click', exportBackupJSON);
+            document.getElementById('input-import').addEventListener('change', (e) => {
+                const file = e.target.files && e.target.files[0];
+                if (file) {
+                    importBackupJSON(file);
+                    e.target.value = '';
+                }
+            });
         });
-
-        card.addEventListener('click', (e) => {
-          const btn = e.target.closest('button[data-action]');
-          if (!btn) return;
-          const action = btn.dataset.action;
-          const itemId = btn.dataset.id;
-          if (action === 'delete') openDeleteModal(cat.id, itemId);
-          if (action === 'edit') openEditModal(cat.id, itemId);
-        });
-
-        grid.appendChild(card);
-      }
-    }
-
-    // Törlés modál események
-    document.getElementById('btn-cancel-delete').addEventListener('click', closeDeleteModal);
-    document.getElementById('btn-confirm-delete').addEventListener('click', () => {
-      if (!pendingDelete) return;
-      const { categoryId, itemId } = pendingDelete;
-      const cat = state.categories.find(c => c.id === categoryId);
-      if (cat) {
-        cat.items = cat.items.filter(i => i.id !== itemId);
-        saveState();
-        showToast('Tétel törölve');
-      }
-      closeDeleteModal();
-    });
-
-    // Szerkesztés modál események
-    document.getElementById('btn-cancel-edit').addEventListener('click', closeEditModal);
-    document.getElementById('edit-item-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (!pendingEdit) return;
-      const { categoryId, itemId } = pendingEdit;
-      const cat = state.categories.find(c => c.id === categoryId);
-      const item = cat?.items.find(i => i.id === itemId);
-      if (!item) return;
-
-      const newName = document.getElementById('edit-item-name').value.trim();
-      const newAmount = Number(document.getElementById('edit-item-amount').value);
-      if (!newName || Number.isNaN(newAmount) || newAmount < 0) {
-        showToast('Érvénytelen név vagy összeg!', 'error');
-        return;
-      }
-      item.name = newName;
-      item.amount = newAmount;
-      saveState();
-      showToast('Tétel frissítve');
-      closeEditModal();
-    });
-
-    // Export / Import
-    document.getElementById('btn-export-json').addEventListener('click', () => {
-      const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), categories: state.categories }, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'mono-adatok.json';
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast('JSON exportálva');
-    });
-
-    document.getElementById('input-import-json').addEventListener('change', async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      try {
-        const text = await file.text();
-        const parsed = JSON.parse(text);
-        if (!Array.isArray(parsed.categories)) throw new Error('Hiányzó categories mező.');
-        state = { categories: parsed.categories };
-        saveState();
-        showToast('JSON importálva', 'success');
-      } catch (err) {
-        showToast(`Import hiba: ${err.message}`, 'error');
-      }
-      e.target.value = '';
-    });
-
-    // GitHub Szinkron modál vezérlők
-    const syncModal = document.getElementById('sync-modal');
-    document.getElementById('btn-open-sync').addEventListener('click', () => {
-      updateSyncUi();
-      syncModal.classList.remove('hidden');
-      syncModal.classList.add('flex');
-    });
-    document.getElementById('btn-close-sync').addEventListener('click', () => {
-      syncModal.classList.add('hidden');
-      syncModal.classList.remove('flex');
-    });
-    syncModal.addEventListener('click', (e) => {
-      if (e.target === syncModal) {
-        syncModal.classList.add('hidden');
-        syncModal.classList.remove('flex');
-      }
-    });
-
-    function readSyncInputs() {
-      ghConfig.owner = document.getElementById('gh-owner').value.trim() || 'katsatale';
-      ghConfig.repo = document.getElementById('gh-repo').value.trim() || 'mono';
-      ghConfig.path = document.getElementById('gh-path').value.trim() || 'adatok.json';
-      ghConfig.token = document.getElementById('gh-token').value.trim();
-      ghConfig.autoSave = document.getElementById('gh-autosave').checked;
-    }
-
-    document.getElementById('btn-save-sync-config').addEventListener('click', () => {
-      readSyncInputs();
-      saveGhConfig();
-      showToast('GitHub szinkron beállítás elmentve', 'success');
-    });
-
-    document.getElementById('btn-push-now').addEventListener('click', async () => {
-      readSyncInputs();
-      saveGhConfig();
-      await pushToGitHub(false);
-    });
-
-    document.getElementById('btn-pull-github').addEventListener('click', async () => {
-      readSyncInputs();
-      saveGhConfig();
-      await pullFromGitHub();
-    });
-
-    updateSyncUi();
-    renderAll();
-  </script>
+    </script>
 </body>
 </html>
