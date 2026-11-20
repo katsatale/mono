@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T18:15:42.129Z",
+  "exportedAt": "2026-11-20T18:15:44.463Z",
   "cardOrder": [
     "streaming",
     "loans",
@@ -27,6 +27,12 @@
       "category": "streaming",
       "name": "eewew",
       "amount": 342345
+    },
+    {
+      "id": "id-mwpav1ar-f3bo",
+      "category": "streaming",
+      "name": "325252",
+      "amount": 32525
     }
   ]
 }
