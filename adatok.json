@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T23:16:24.908Z",
+  "exportedAt": "2026-11-20T23:16:53.580Z",
   "cardOrder": [
     "income",
     "streaming",
@@ -28,6 +28,12 @@
       "category": "streaming",
       "name": "Disney",
       "amount": 2990
+    },
+    {
+      "id": "id-mwplmbhk-c3dq",
+      "category": "streaming",
+      "name": "Prime Video",
+      "amount": 1900
     }
   ]
 }
