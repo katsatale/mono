@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T23:28:00.579Z",
+  "exportedAt": "2026-11-20T23:28:46.324Z",
   "cardOrder": [
     "income",
     "streaming",
@@ -94,6 +94,12 @@
       "category": "loans",
       "name": "Hitelkártya",
       "amount": 31113
+    },
+    {
+      "id": "id-mwpm1lfb-wo22",
+      "category": "business",
+      "name": "Üzemanyag",
+      "amount": 40000
     }
   ]
 }
