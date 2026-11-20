@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T23:22:22.291Z",
+  "exportedAt": "2026-11-20T23:22:35.277Z",
   "cardOrder": [
     "income",
     "streaming",
@@ -76,6 +76,12 @@
       "category": "business",
       "name": "Könyvelés",
       "amount": 15000
+    },
+    {
+      "id": "id-mwpltn72-olll",
+      "category": "business",
+      "name": "Járulékok",
+      "amount": 100000
     }
   ]
 }
