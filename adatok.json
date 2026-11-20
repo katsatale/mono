@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T17:44:44.552Z",
+  "exportedAt": "2026-11-20T17:46:52.358Z",
   "cardOrder": [
     "housing",
     "streaming",
@@ -15,6 +15,12 @@
       "category": "housing",
       "name": "FF",
       "amount": 454
+    },
+    {
+      "id": "id-mwp9twrb-auxl",
+      "category": "housing",
+      "name": "22222",
+      "amount": 222
     }
   ]
 }
