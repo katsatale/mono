@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T23:18:08.056Z",
+  "exportedAt": "2026-11-20T23:18:39.464Z",
   "cardOrder": [
     "income",
     "streaming",
@@ -40,6 +40,12 @@
       "category": "streaming",
       "name": "YouTube Premium",
       "amount": 3490
+    },
+    {
+      "id": "id-mwplol7m-bmka",
+      "category": "streaming",
+      "name": "Prime Video 2",
+      "amount": 990
     }
   ]
 }
