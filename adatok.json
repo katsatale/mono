@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T20:04:19.332Z",
+  "exportedAt": "2026-11-20T20:04:24.530Z",
   "cardOrder": [
     "streaming",
     "loans",
@@ -9,5 +9,24 @@
     "business",
     "telecom"
   ],
-  "items": []
+  "items": [
+    {
+      "id": "id-mwp98hg8-px7f",
+      "category": "housing",
+      "name": "FF",
+      "amount": 454
+    },
+    {
+      "id": "id-mwpauweu-mbt9",
+      "category": "streaming",
+      "name": "www",
+      "amount": 2
+    },
+    {
+      "id": "id-mwpav1ar-f3bo",
+      "category": "streaming",
+      "name": "325252",
+      "amount": 32525
+    }
+  ]
 }
