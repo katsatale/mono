@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T23:22:01.768Z",
+  "exportedAt": "2026-11-20T23:22:22.291Z",
   "cardOrder": [
     "income",
     "streaming",
@@ -70,6 +70,12 @@
       "category": "housing",
       "name": "Albérlet",
       "amount": 160000
+    },
+    {
+      "id": "id-mwpltd5f-o0jf",
+      "category": "business",
+      "name": "Könyvelés",
+      "amount": 15000
     }
   ]
 }
