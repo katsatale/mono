@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T23:23:48.463Z",
+  "exportedAt": "2026-11-20T23:25:40.354Z",
   "cardOrder": [
     "income",
     "streaming",
@@ -88,6 +88,12 @@
       "category": "loans",
       "name": "Munkás Hitel",
       "amount": 68055
+    },
+    {
+      "id": "id-mwplxlwz-vuoo",
+      "category": "loans",
+      "name": "Hitelkártya",
+      "amount": 31113
     }
   ]
 }
