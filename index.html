@@ -16,43 +16,113 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: #090a0d;
+            background-color: #07080b;
             color: #f4f4f5;
             padding-bottom: env(safe-area-inset-bottom);
+            overflow-x: hidden;
         }
 
-        /* iOS notch / Dynamic Island safe-area támogatás a ragadós fejlécben */
+        /* Kreatív lebegő aurora és építészeti négyzetháló háttér */
+        .mono-ambient-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% -10%, #131826 0%, #07080b 65%);
+        }
+
+        .mono-ambient-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+            background-size: 42px 42px;
+            mask-image: radial-gradient(ellipse 80% 70% at 50% 25%, #000 35%, transparent 100%);
+            -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 25%, #000 35%, transparent 100%);
+        }
+
+        .aurora-orb {
+            position: absolute;
+            border-radius: 9999px;
+            filter: blur(110px);
+            opacity: 0.42;
+            will-change: transform;
+        }
+
+        .aurora-orb-1 {
+            width: 34rem;
+            height: 34rem;
+            top: -10rem;
+            left: -6rem;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.35), rgba(14, 165, 233, 0));
+            animation: floatOrbOne 22s ease-in-out infinite alternate;
+        }
+
+        .aurora-orb-2 {
+            width: 32rem;
+            height: 32rem;
+            top: 12%;
+            right: -8rem;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.32), rgba(124, 58, 237, 0));
+            animation: floatOrbTwo 26s ease-in-out infinite alternate;
+        }
+
+        .aurora-orb-3 {
+            width: 28rem;
+            height: 28rem;
+            bottom: -8rem;
+            left: 28%;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.22), rgba(5, 150, 105, 0));
+            animation: floatOrbThree 24s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatOrbOne {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(60px, 45px) scale(1.12); }
+        }
+
+        @keyframes floatOrbTwo {
+            0% { transform: translate(0, 0) scale(1.05); }
+            100% { transform: translate(-70px, 55px) scale(0.95); }
+        }
+
+        @keyframes floatOrbThree {
+            0% { transform: translate(0, 0) scale(0.95); }
+            100% { transform: translate(45px, -50px) scale(1.1); }
+        }
+
+        /* iOS notch / Dynamic Island safe-area támogatás */
         .safe-header {
             padding-top: env(safe-area-inset-top);
         }
 
-        /* iOS Safari automatikus ráközelítés (auto-zoom) megakadályozása gépeléskor */
+        /* iOS Safari auto-zoom tiltása */
         @media screen and (max-width: 768px) {
             input[type="text"],
             input[type="number"],
+            input[type="password"],
             select {
                 font-size: 16px !important;
             }
         }
 
-        /* Tabuláris számok a pontos Ft igazításhoz */
         .tabular-nums {
             font-variant-numeric: tabular-nums;
         }
 
-        /* Műszaki micro-grid háttértextúra a fejléchez */
         .header-micro-grid {
-            background-image: 
+            background-image:
                 linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
             background-size: 24px 24px;
         }
 
-        /* Szám mező nyilainak elrejtése a letisztult megjelenésért */
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
             -webkit-appearance: none;
@@ -62,34 +132,34 @@
             -moz-appearance: textfield;
         }
 
-        /* Finom hover és fókuszfények a kártyákhoz és mezőkhöz */
         .monolith-card {
-            background: linear-gradient(180deg, rgba(24, 26, 32, 0.92) 0%, rgba(17, 19, 24, 0.96) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+            background: linear-gradient(180deg, rgba(22, 25, 33, 0.86) 0%, rgba(15, 17, 23, 0.92) 100%);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 12px 32px -10px rgba(0, 0, 0, 0.65), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
             transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
         }
         .monolith-card:hover {
-            border-color: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 14px 36px -10px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.16);
+            box-shadow: 0 16px 38px -10px rgba(0, 0, 0, 0.78), 0 0 0 1px rgba(255, 255, 255, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 0.09);
         }
 
         .monolith-input {
-            background-color: rgba(9, 10, 13, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background-color: rgba(9, 10, 14, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.09);
             transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
         }
         .monolith-input:hover {
-            border-color: rgba(255, 255, 255, 0.16);
+            border-color: rgba(255, 255, 255, 0.18);
         }
         .monolith-input:focus {
             outline: none;
             background-color: #090a0d;
-            border-color: rgba(255, 255, 255, 0.32);
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
+            border-color: rgba(56, 189, 248, 0.45);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
         }
 
-        /* Finom, sötét módú görgetősáv a kártyákon belüli listákhoz */
         .custom-scroll::-webkit-scrollbar {
             width: 4px;
         }
@@ -112,7 +182,7 @@
             animation: modalFadeIn 0.16s ease-out forwards;
         }
 
-        /* Drag & Drop kártya mozgatás stílusai */
+        /* Drag & Drop kártya mozgatás */
         .drag-handle {
             cursor: grab;
             touch-action: none;
@@ -123,30 +193,97 @@
         .monolith-card.is-dragging {
             opacity: 0.45;
             transform: scale(0.985);
-            border-color: rgba(56, 189, 248, 0.5);
+            border-color: rgba(56, 189, 248, 0.55);
         }
         .monolith-card.drag-over {
-            border-color: rgba(56, 189, 248, 0.75);
-            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.28), 0 18px 40px -10px rgba(0, 0, 0, 0.85);
+            border-color: rgba(56, 189, 248, 0.8);
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.3), 0 18px 40px -10px rgba(0, 0, 0, 0.85);
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased selection:bg-zinc-100 selection:text-zinc-950">
+<body class="min-h-screen flex flex-col antialiased selection:bg-zinc-100 selection:text-zinc-950 relative">
 
-    <!-- FEJLÉC -->
-    <header class="sticky top-0 z-30 bg-[#090a0d]/85 backdrop-blur-xl border-b border-white/[0.07] header-micro-grid safe-header">
+    <!-- KREATÍV HÁTTÉR RÉTEG -->
+    <div class="mono-ambient-canvas" aria-hidden="true">
+        <div class="aurora-orb aurora-orb-1"></div>
+        <div class="aurora-orb aurora-orb-2"></div>
+        <div class="aurora-orb aurora-orb-3"></div>
+        <div class="mono-ambient-grid"></div>
+    </div>
+
+    <!-- NYITÓ BEJELENTKEZÉSI FELÜLET -->
+    <div id="login-screen" class="relative z-40 flex-1 flex items-center justify-center p-4 min-h-screen">
+        <div class="w-full max-w-md rounded-3xl bg-[#11131a]/90 backdrop-blur-2xl border border-white/10 p-6 sm:p-8 shadow-2xl animate-modal">
+            <div class="flex items-center gap-3.5 mb-6">
+                <div class="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-[#1f222b] via-[#12141a] to-[#090a0d] text-white flex items-center justify-center shrink-0 shadow-lg ring-1 ring-white/15">
+                    <svg class="w-6 h-6" viewBox="0 0 28 28" fill="none">
+                        <path d="M5 21V7L11.5 14V21H5Z" fill="#FFFFFF"/>
+                        <path d="M23 21V7L16.5 14V21H23Z" fill="#A1A1AA"/>
+                        <path d="M14 11.2L17.2 7.8L14 15.2L10.8 7.8L14 11.2Z" fill="#38bdf8"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black tracking-[0.16em] text-white leading-none">MONO</h1>
+                    <p class="text-xs text-zinc-400 mt-1">Privát pénzügyi áttekintő • Belépés</p>
+                </div>
+            </div>
+
+            <form id="form-login" class="space-y-4">
+                <div>
+                    <label for="login-username" class="block text-xs font-semibold text-zinc-300 mb-1.5">
+                        Felhasználónév
+                    </label>
+                    <input id="login-username" type="text" required autocomplete="username"
+                        placeholder="Add meg a felhasználónevet"
+                        class="monolith-input w-full rounded-xl px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500">
+                </div>
+
+                <div>
+                    <label for="login-password" class="block text-xs font-semibold text-zinc-300 mb-1.5">
+                        Jelszó
+                    </label>
+                    <div class="relative">
+                        <input id="login-password" type="password" required autocomplete="current-password"
+                            placeholder="Add meg a jelszót"
+                            class="monolith-input w-full rounded-xl pl-3.5 pr-16 py-2.5 text-sm text-zinc-100 placeholder-zinc-500">
+                        <button id="btn-toggle-password" type="button"
+                            class="absolute right-2.5 top-1/2 -translate-y-1/2 px-2 py-1 rounded-lg text-[11px] font-semibold text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.08] transition cursor-pointer">
+                            Mutat
+                        </button>
+                    </div>
+                </div>
+
+                <label class="flex items-center gap-2.5 pt-0.5 cursor-pointer select-none">
+                    <input id="login-remember" type="checkbox" checked
+                        class="w-4 h-4 rounded accent-sky-400 cursor-pointer">
+                    <span class="text-xs font-medium text-zinc-300">
+                        Bejelentkezés elmentése ezen az eszközön
+                    </span>
+                </label>
+
+                <p id="login-error" class="hidden text-xs font-semibold text-rose-400 bg-rose-500/10 border border-rose-500/25 rounded-xl px-3 py-2">
+                    Hibás felhasználónév vagy jelszó!
+                </p>
+
+                <button type="submit"
+                    class="w-full bg-zinc-100 hover:bg-white text-zinc-950 text-sm font-bold py-2.5 px-4 rounded-xl transition cursor-pointer shadow-md mt-2">
+                    Belépés a MONO-ba
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FEJLÉC (BEJELENTKEZÉS UTÁN LÁTHATÓ) -->
+    <header id="app-header" class="hidden sticky top-0 z-30 bg-[#090a0d]/80 backdrop-blur-xl border-b border-white/[0.07] header-micro-grid safe-header">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
-            <!-- Bal oldali blokk: Geometrikus MONO embléma, főcím és alcím -->
+            <!-- Bal oldali blokk: MONO embléma, főcím és alcím -->
             <div class="flex items-center gap-3.5 min-w-0">
-                <div class="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-[#1f222b] via-[#12141a] to-[#090a0d] text-white flex items-center justify-center shrink-0 shadow-lg shadow-black/60 ring-1 ring-white/15 overflow-hidden group">
+                <div class="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-[#1f222b] via-[#12141a] to-[#090a0d] text-white flex items-center justify-center shrink-0 shadow-lg shadow-black/60 ring-1 ring-white/15 overflow-hidden">
                     <div class="absolute inset-0 bg-gradient-to-tr from-white/[0.02] via-transparent to-white/[0.12]"></div>
                     <svg class="w-6 h-6 relative z-10" viewBox="0 0 28 28" fill="none">
-                        <!-- Bal monolit oszlop -->
                         <path d="M5 21V7L11.5 14V21H5Z" fill="url(#mono-grad-1)"/>
-                        <!-- Jobb monolit oszlop -->
                         <path d="M23 21V7L16.5 14V21H23Z" fill="url(#mono-grad-2)"/>
-                        <!-- Középső ék / csúcs -->
                         <path d="M14 11.2L17.2 7.8L14 15.2L10.8 7.8L14 11.2Z" fill="#38bdf8"/>
                         <defs>
                             <linearGradient id="mono-grad-1" x1="5" y1="7" x2="11.5" y2="21" gradientUnits="userSpaceOnUse">
@@ -165,9 +302,18 @@
                         <h1 class="text-xl sm:text-2xl font-black tracking-[0.14em] text-white leading-none">
                             MONO
                         </h1>
-            <!-- Jobb oldali blokk: Állapotjelző jelvény + GitHub Szinkron + Export / Import gombok -->
-            <div class="flex flex-wrap items-center md:justify-end gap-2.5 shrink-0">
-                <!-- Kattintható biztonsági mentés állapotjelző -->
+                        <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-white/[0.05] text-zinc-400 border border-white/10">
+                            Pénzügyek
+                        </span>
+                    </div>
+                    <p class="text-xs text-zinc-400 mt-1 truncate">
+                        Havi bevételek és fix kiadások áttekintése
+                    </p>
+                </div>
+            </div>
+
+            <!-- Jobb oldali blokk: Állapotjelző + GitHub Szinkron + Export / Import + Kilépés -->
+            <div class="flex flex-wrap items-center md:justify-end gap-2 shrink-0">
                 <button id="btn-backup-status" type="button"
                     class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/20 transition cursor-pointer whitespace-nowrap"
                     title="Minden adatod szinkronban van az utolsó mentéssel.">
@@ -178,7 +324,6 @@
                     <span id="backup-status-text">Mentés naprakész</span>
                 </button>
 
-                <!-- GitHub automata szinkron beállító gomb -->
                 <button id="btn-github-sync" type="button"
                     class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-sky-500/10 text-sky-300 border border-sky-500/25 hover:bg-sky-500/20 transition cursor-pointer whitespace-nowrap"
                     title="Automatikus mentés beállítása az adatok.json fájlba a GitHubon">
@@ -188,7 +333,6 @@
                     <span id="github-sync-label">GitHub Szinkron</span>
                 </button>
 
-                <!-- Export gomb -->
                 <button id="btn-export" type="button"
                     class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-zinc-100 text-zinc-950 hover:bg-white transition cursor-pointer shadow-sm whitespace-nowrap">
                     <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
@@ -197,7 +341,6 @@
                     Export (.json)
                 </button>
 
-                <!-- Import gomb -->
                 <label for="input-import"
                     class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/[0.04] text-zinc-200 border border-white/10 hover:bg-white/[0.08] hover:border-white/20 transition cursor-pointer whitespace-nowrap">
                     <svg class="w-3.5 h-3.5 text-zinc-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
@@ -206,6 +349,12 @@
                     Import
                 </label>
                 <input id="input-import" type="file" accept=".json,application/json" class="hidden">
+
+                <button id="btn-logout" type="button"
+                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-rose-500/10 text-rose-300 border border-rose-500/25 hover:bg-rose-500/20 transition cursor-pointer whitespace-nowrap"
+                    title="Kilépés és mentett belépés törlése">
+                    Kilépés
+                </button>
             </div>
 
         </div>
@@ -214,40 +363,72 @@
     <!-- Értesítési konténer (alert() helyett) -->
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- FŐ TARTALOM -->
-    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <!-- FŐ TARTALOM (BEJELENTKEZÉS UTÁN LÁTHATÓ) -->
+    <main id="app-main" class="hidden relative z-10 flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
 
-        <!-- FELSŐ ÖSSZESÍTŐ SÁV: KÉT KÁRTYA -->
-        <section class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-            <!-- 1. Összesítő kártya: Havi fix kiadás -->
-            <div class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
-                <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent"></div>
+        <!-- FELSŐ ÖSSZESÍTŐ SÁV: 4 KÁRTYA (BEVÉTEL, FIX KIADÁS, ÉVES KIADÁS, HAVI EGYENLEG) -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            <!-- 1. Összesítő kártya: Összes bevétel / hó -->
+            <div class="monolith-card relative overflow-hidden rounded-2xl p-5 flex flex-col justify-between">
+                <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-teal-400/45 to-transparent"></div>
                 <div class="flex items-center justify-between gap-2">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                        Összes fix kiadás / hó
+                    <span class="text-xs font-semibold uppercase tracking-wider text-zinc-400 whitespace-nowrap">
+                        Összes bevétel / hó
                     </span>
-                    <span id="badge-total-items" class="text-xs font-medium text-zinc-300 bg-white/[0.05] border border-white/10 px-2.5 py-0.5 rounded-full tabular-nums whitespace-nowrap">
+                    <span id="badge-income-items" class="text-xs font-medium text-teal-300 bg-teal-500/10 border border-teal-500/25 px-2.5 py-0.5 rounded-full tabular-nums whitespace-nowrap shrink-0">
                         0 tétel
                     </span>
                 </div>
-                <div id="display-total-fixed" class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white tabular-nums mt-3">
-                    0 <span class="text-lg sm:text-xl font-semibold text-zinc-500">Ft</span>
+                <div id="display-total-income" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-teal-300 tabular-nums mt-3">
+                    0 <span class="text-base sm:text-lg font-semibold text-zinc-500">Ft</span>
                 </div>
             </div>
 
-            <!-- 2. Összesítő kártya: Éves vetített összeg -->
-            <div class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6 flex flex-col justify-between">
-                <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/15 to-transparent"></div>
+            <!-- 2. Összesítő kártya: Havi fix kiadás -->
+            <div class="monolith-card relative overflow-hidden rounded-2xl p-5 flex flex-col justify-between">
+                <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent"></div>
                 <div class="flex items-center justify-between gap-2">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                        Éves vetített kiadás
+                    <span class="text-xs font-semibold uppercase tracking-wider text-zinc-400 whitespace-nowrap">
+                        Összes fix kiadás / hó
                     </span>
-                    <span class="text-xs font-medium text-zinc-500">
-                        12 hónapra vetítve
+                    <span id="badge-total-items" class="text-xs font-medium text-zinc-300 bg-white/[0.05] border border-white/10 px-2.5 py-0.5 rounded-full tabular-nums whitespace-nowrap shrink-0">
+                        0 tétel
                     </span>
                 </div>
-                <div id="display-annual-fixed" class="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-200 tabular-nums mt-3">
-                    0 <span class="text-lg sm:text-xl font-semibold text-zinc-500">Ft</span>
+                <div id="display-total-fixed" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white tabular-nums mt-3">
+                    0 <span class="text-base sm:text-lg font-semibold text-zinc-500">Ft</span>
+                </div>
+            </div>
+
+            <!-- 3. Összesítő kártya: Éves vetített kiadás -->
+            <div class="monolith-card relative overflow-hidden rounded-2xl p-5 flex flex-col justify-between">
+                <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/15 to-transparent"></div>
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-zinc-400 whitespace-nowrap">
+                        Éves vetített kiadás
+                    </span>
+                    <span class="text-xs font-medium text-zinc-500 whitespace-nowrap shrink-0">
+                        12 hó
+                    </span>
+                </div>
+                <div id="display-annual-fixed" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-200 tabular-nums mt-3">
+                    0 <span class="text-base sm:text-lg font-semibold text-zinc-500">Ft</span>
+                </div>
+            </div>
+
+            <!-- 4. Összesítő kártya: Havi egyenleg -->
+            <div class="monolith-card relative overflow-hidden rounded-2xl p-5 flex flex-col justify-between">
+                <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-sky-400/40 to-transparent"></div>
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-zinc-400 whitespace-nowrap">
+                        Havi egyenleg
+                    </span>
+                    <span class="text-xs font-medium text-zinc-500 whitespace-nowrap shrink-0">
+                        Bevétel - kiadás
+                    </span>
+                </div>
+                <div id="display-monthly-balance" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-sky-300 tabular-nums mt-3">
+                    0 <span class="text-base sm:text-lg font-semibold text-zinc-500">Ft</span>
                 </div>
             </div>
         </section>
@@ -256,13 +437,74 @@
         <div class="my-6 sm:my-7 flex items-center gap-4" aria-hidden="true">
             <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/[0.08] to-white/[0.08]"></div>
             <span class="text-[11px] font-semibold uppercase tracking-widest text-zinc-500">
-                Kategóriák &amp; Tételek • Átrendezhető
+                Bevételek &amp; Kiadási kategóriák • Átrendezhető
             </span>
             <div class="h-px flex-1 bg-gradient-to-l from-transparent via-white/[0.08] to-white/[0.08]"></div>
         </div>
 
-        <!-- FŐ KÖLTSÉG BLOKKOK RÁCSA (RÖGZÍTETT h-[340px] MAGASSÁGÚ, SZABADON ÁTRENDEZHETŐ KÁRTYÁK) -->
+        <!-- FŐ KÖLTSÉG ÉS BEVÉTEL BLOKKOK RÁCSA -->
         <section id="cards-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- 0. KÁRTYA: ÖSSZES BEVÉTEL (TÜRKIZ AKCENTUS) -->
+            <div data-card-category="income" class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6 h-[340px] flex flex-col">
+                <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-teal-400/80 to-transparent"></div>
+
+                <div class="flex items-center justify-between gap-2.5 pb-2.5 shrink-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <div class="drag-handle p-1 -ml-1 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.06] transition shrink-0" title="Húzd a kártyát az átrendezéshez" aria-label="Kártya mozgatása">
+                            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                                <circle cx="5.5" cy="3.5" r="1.25"/><circle cx="10.5" cy="3.5" r="1.25"/>
+                                <circle cx="5.5" cy="8" r="1.25"/><circle cx="10.5" cy="8" r="1.25"/>
+                                <circle cx="5.5" cy="12.5" r="1.25"/><circle cx="10.5" cy="12.5" r="1.25"/>
+                            </svg>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/25 text-teal-300 flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18M17 7.5c0-1.933-2.239-3.5-5-3.5s-5 1.567-5 3.5S9.239 11 12 11s5 1.567 5 3.5S14.761 18 12 18s-5-1.567-5-3.5"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-base font-bold tracking-tight text-white truncate">
+                            Összes bevétel
+                        </h2>
+                    </div>
+                    <span id="subtotal-income" class="text-sm font-bold text-teal-300 tabular-nums whitespace-nowrap shrink-0 bg-teal-500/10 border border-teal-500/25 px-3 py-1 rounded-lg">
+                        0 <span class="text-xs font-medium text-teal-200/70">Ft / hó</span>
+                    </span>
+                </div>
+
+                <div class="w-full h-[3px] bg-white/[0.05] rounded-full overflow-hidden mb-3 shrink-0" title="Kiadások aránya a bevételhez képest">
+                    <div id="bar-income" class="h-full bg-teal-400/80 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+
+                <form id="form-income" class="space-y-2 shrink-0">
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                        <div class="sm:col-span-7">
+                            <label class="sr-only" for="input-income-name">Bevétel forrása</label>
+                            <input id="input-income-name" type="text" required maxlength="50"
+                                placeholder="Megnevezés (pl. Fizetés, Mellékállás)"
+                                class="monolith-input w-full rounded-xl px-3.5 py-2 text-sm text-zinc-100 placeholder-zinc-500">
+                        </div>
+                        <div class="sm:col-span-5 relative">
+                            <label class="sr-only" for="input-income-amount">Összeg (Ft)</label>
+                            <input id="input-income-amount" type="number" required min="1" step="1" placeholder="Összeg"
+                                class="monolith-input w-full rounded-xl pl-3.5 pr-8 py-2 text-sm font-medium text-zinc-100 placeholder-zinc-500 tabular-nums">
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500 pointer-events-none">Ft</span>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-teal-400 hover:bg-teal-300 text-zinc-950 text-xs font-bold py-2 px-4 rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 shadow-xs">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Bevétel mentése
+                    </button>
+                </form>
+
+                <div class="border-t border-white/[0.07] my-2.5 shrink-0"></div>
+
+                <ul id="list-income" class="flex-1 overflow-y-auto pr-1 divide-y divide-white/[0.06] custom-scroll"></ul>
+            </div>
 
             <!-- 1. KÁRTYA: STREAMING SZOLGÁLTATÁSOK (PIROSAS AKCENTUS) -->
             <div data-card-category="streaming" class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6 h-[340px] flex flex-col">
@@ -304,7 +546,6 @@
                                 placeholder="Megnevezés (pl. Netflix, Disney+, Spotify)"
                                 class="monolith-input w-full rounded-xl px-3.5 py-2 text-sm text-zinc-100 placeholder-zinc-500">
                         </div>
-
                         <div class="sm:col-span-5 relative">
                             <label class="sr-only" for="input-streaming-amount">Összeg (Ft)</label>
                             <input id="input-streaming-amount" type="number" required min="1" step="1" placeholder="Összeg"
@@ -574,8 +815,8 @@
 
     </main>
 
-    <!-- LÁBLÉC -->
-    <footer class="max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 border-t border-white/[0.07] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-zinc-500">
+    <!-- LÁBLÉC (BEJELENTKEZÉS UTÁN LÁTHATÓ) -->
+    <footer id="app-footer" class="hidden relative z-10 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 border-t border-white/[0.07] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-zinc-500">
         <span>MONO — Személyes pénzügyi áttekintő</span>
         <span>Helyi adattárolás aktív • Véletlen törlés elleni védelem bekapcsolva</span>
     </footer>
@@ -602,7 +843,7 @@
                         </p>
                     </div>
                     <p class="text-xs text-zinc-400 mt-2.5">
-                        Ez a művelet véglegesen eltávolítja a tételt a havi összesítőből.
+                        Ez a művelet véglegesen eltávolítja a tételt az összesítőből.
                     </p>
                 </div>
             </div>
@@ -636,7 +877,7 @@
                         Megnevezés
                     </label>
                     <input id="edit-item-name" type="text" required maxlength="50"
-                        class="monolith-input w-full rounded-xl px-3.5 py-2.5 text-sm font-medium text-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed">
+                        class="monolith-input w-full rounded-xl px-3.5 py-2.5 text-sm font-medium text-zinc-100">
                 </div>
 
                 <div>
@@ -736,14 +977,15 @@
 
     <script>
         /**
-         * MONO — Személyes fix költség kalkulátor
-         * Sötét téma, 0 Ft-os kiindulási állapot, előre megadott példa adatok nélkül.
+         * MONO — Személyes bevétel és fix költség kalkulátor
          */
 
         const STORAGE_KEY = 'monolith_budget_v1';
         const GITHUB_SYNC_KEY = 'mono_github_sync_v1';
+        const AUTH_SESSION_KEY = 'mono_saved_auth_user_v1';
 
         const CATEGORY_LABELS = {
+            income: 'Összes bevétel',
             streaming: 'Streaming szolgáltatások',
             housing: 'Albérlet és rezsi',
             loans: 'Hitelek',
@@ -751,9 +993,9 @@
             business: 'Vállalkozói költségek'
         };
 
-        const DEFAULT_CARD_ORDER = ['streaming', 'housing', 'loans', 'telecom', 'business'];
+        const EXPENSE_CATEGORIES = ['streaming', 'housing', 'loans', 'telecom', 'business'];
+        const DEFAULT_CARD_ORDER = ['income', 'streaming', 'housing', 'loans', 'telecom', 'business'];
 
-        // Teljesen üres kiinduló állapot (példa adatok nélkül, biztonsági mentés és kártyasorrend követéssel)
         let appState = {
             items: [],
             cardOrder: [...DEFAULT_CARD_ORDER],
@@ -766,7 +1008,6 @@
         let isGitHubPushing = false;
         let githubPushTimer = null;
 
-        // Automata GitHub szinkron beállítások (alapértelmezetten a katsatale/mono repóra)
         let githubConfig = {
             owner: 'katsatale',
             repo: 'mono',
@@ -775,7 +1016,77 @@
             autoSync: true
         };
 
-        // Szám formázása szóközökkel (pl. "245 000")
+        // --- STABIL BEJELENTKEZÉS KEZELÉSE (4 RÉTEGŰ MENTÉSSEL) ---
+        function readSavedLoginUser() {
+            try {
+                const ls = localStorage.getItem(AUTH_SESSION_KEY);
+                if (ls) return ls;
+            } catch (e) {}
+            try {
+                const ss = sessionStorage.getItem(AUTH_SESSION_KEY);
+                if (ss) return ss;
+            } catch (e) {}
+            try {
+                const match = document.cookie.match(new RegExp('(?:^|; )' + AUTH_SESSION_KEY + '=([^;]*)'));
+                if (match) return decodeURIComponent(match[1]);
+            } catch (e) {}
+            try {
+                if (window.name && window.name.startsWith('MONO_AUTH:')) {
+                    return window.name.slice('MONO_AUTH:'.length);
+                }
+            } catch (e) {}
+            return null;
+        }
+
+        function persistSavedLoginUser(username, remember) {
+            try {
+                sessionStorage.setItem(AUTH_SESSION_KEY, username);
+            } catch (e) {}
+            try {
+                window.name = 'MONO_AUTH:' + username;
+            } catch (e) {}
+            if (remember) {
+                try {
+                    localStorage.setItem(AUTH_SESSION_KEY, username);
+                } catch (e) {}
+                try {
+                    const maxAge = 60 * 60 * 24 * 365;
+                    document.cookie = `${AUTH_SESSION_KEY}=${encodeURIComponent(username)}; max-age=${maxAge}; path=/; SameSite=Lax`;
+                } catch (e) {}
+            }
+        }
+
+        function clearSavedLoginUser() {
+            try { localStorage.removeItem(AUTH_SESSION_KEY); } catch (e) {}
+            try { sessionStorage.removeItem(AUTH_SESSION_KEY); } catch (e) {}
+            try { document.cookie = `${AUTH_SESSION_KEY}=; max-age=0; path=/`; } catch (e) {}
+            try {
+                if (window.name && window.name.startsWith('MONO_AUTH:')) {
+                    window.name = '';
+                }
+            } catch (e) {}
+        }
+
+        function setAuthenticatedUI(isLoggedIn) {
+            const loginScreen = document.getElementById('login-screen');
+            const header = document.getElementById('app-header');
+            const main = document.getElementById('app-main');
+            const footer = document.getElementById('app-footer');
+
+            if (isLoggedIn) {
+                if (loginScreen) loginScreen.classList.add('hidden');
+                if (header) header.classList.remove('hidden');
+                if (main) main.classList.remove('hidden');
+                if (footer) footer.classList.remove('hidden');
+            } else {
+                if (loginScreen) loginScreen.classList.remove('hidden');
+                if (header) header.classList.add('hidden');
+                if (main) main.classList.add('hidden');
+                if (footer) footer.classList.add('hidden');
+            }
+        }
+
+        // --- FORMÁZÓ ÉS SEGÉDFÜGGVÉNYEK ---
         function formatNumberHU(value) {
             const num = Math.round(Number(value) || 0);
             return new Intl.NumberFormat('hu-HU', {
@@ -783,12 +1094,10 @@
             }).format(num);
         }
 
-        // Magyar forint formázás szövegként (pl. "245 000 Ft")
         function formatHUF(value) {
             return `${formatNumberHU(value)} Ft`;
         }
 
-        // XSS elleni védelem felhasználói szövegekhez
         function escapeHTML(str) {
             return String(str)
                 .replace(/&/g, '&amp;')
@@ -798,7 +1107,6 @@
                 .replace(/'/g, '&#039;');
         }
 
-        // Diszkrét értesítő buborék megjelenítése (alert() helyett)
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             if (!container) return;
@@ -823,10 +1131,13 @@
             }, 2600);
         }
 
-        // Teljes felület és összesítők újrarenderelése
+        // --- FELÜLET ÉS ÖSSZESÍTŐK ÚJRARENDERELÉSE ---
         function renderAll() {
             const categories = Object.keys(CATEGORY_LABELS);
-            let totalMonthly = 0;
+            let totalIncomeMonthly = 0;
+            let totalExpenseMonthly = 0;
+            let incomeCount = 0;
+            let expenseCount = 0;
             const categoryTotals = {};
 
             categories.forEach(cat => {
@@ -835,24 +1146,46 @@
 
             appState.items.forEach(item => {
                 const amt = Number(item.amount) || 0;
-                totalMonthly += amt;
-                if (Object.prototype.hasOwnProperty.call(categoryTotals, item.category)) {
+                if (item.category === 'income') {
+                    totalIncomeMonthly += amt;
+                    incomeCount += 1;
+                    categoryTotals.income += amt;
+                } else if (EXPENSE_CATEGORIES.includes(item.category)) {
+                    totalExpenseMonthly += amt;
+                    expenseCount += 1;
                     categoryTotals[item.category] += amt;
                 }
             });
 
+            const balanceMonthly = totalIncomeMonthly - totalExpenseMonthly;
+
+            const incomeEl = document.getElementById('display-total-income');
+            const incomeBadgeEl = document.getElementById('badge-income-items');
             const totalEl = document.getElementById('display-total-fixed');
             const annualEl = document.getElementById('display-annual-fixed');
             const badgeEl = document.getElementById('badge-total-items');
+            const balanceEl = document.getElementById('display-monthly-balance');
 
+            if (incomeEl) {
+                incomeEl.innerHTML = `${formatNumberHU(totalIncomeMonthly)} <span class="text-base sm:text-lg font-semibold text-zinc-500">Ft</span>`;
+            }
+            if (incomeBadgeEl) {
+                incomeBadgeEl.textContent = `${incomeCount} tétel`;
+            }
             if (totalEl) {
-                totalEl.innerHTML = `${formatNumberHU(totalMonthly)} <span class="text-lg sm:text-xl font-semibold text-zinc-500">Ft</span>`;
+                totalEl.innerHTML = `${formatNumberHU(totalExpenseMonthly)} <span class="text-base sm:text-lg font-semibold text-zinc-500">Ft</span>`;
             }
             if (annualEl) {
-                annualEl.innerHTML = `${formatNumberHU(totalMonthly * 12)} <span class="text-lg sm:text-xl font-semibold text-zinc-500">Ft</span>`;
+                annualEl.innerHTML = `${formatNumberHU(totalExpenseMonthly * 12)} <span class="text-base sm:text-lg font-semibold text-zinc-500">Ft</span>`;
             }
             if (badgeEl) {
-                badgeEl.textContent = `${appState.items.length} tétel`;
+                badgeEl.textContent = `${expenseCount} tétel`;
+            }
+            if (balanceEl) {
+                balanceEl.className = `text-2xl sm:text-3xl font-extrabold tracking-tight tabular-nums mt-3 ${
+                    balanceMonthly < 0 ? 'text-rose-400' : 'text-sky-300'
+                }`;
+                balanceEl.innerHTML = `${formatNumberHU(balanceMonthly)} <span class="text-base sm:text-lg font-semibold text-zinc-500">Ft</span>`;
             }
 
             categories.forEach(cat => {
@@ -862,11 +1195,21 @@
                 const listEl = document.getElementById(`list-${cat}`);
 
                 if (subtotalEl) {
-                    subtotalEl.innerHTML = `${formatNumberHU(catSum)} <span class="text-xs font-medium text-zinc-400">Ft / hó</span>`;
+                    const unitColor = cat === 'income' ? 'text-teal-200/70' : 'text-zinc-400';
+                    subtotalEl.innerHTML = `${formatNumberHU(catSum)} <span class="text-xs font-medium ${unitColor}">Ft / hó</span>`;
                 }
                 if (barEl) {
-                    const pct = totalMonthly > 0 ? Math.min(100, Math.round((catSum / totalMonthly) * 100)) : 0;
-                    barEl.style.width = `${pct}%`;
+                    if (cat === 'income') {
+                        const ratio = totalIncomeMonthly > 0
+                            ? Math.min(100, Math.round((totalExpenseMonthly / totalIncomeMonthly) * 100))
+                            : 0;
+                        barEl.style.width = `${ratio}%`;
+                    } else {
+                        const pct = totalExpenseMonthly > 0
+                            ? Math.min(100, Math.round((catSum / totalExpenseMonthly) * 100))
+                            : 0;
+                        barEl.style.width = `${pct}%`;
+                    }
                 }
 
                 if (!listEl) return;
@@ -887,7 +1230,7 @@
                             <p class="text-sm font-medium text-zinc-100 truncate">${escapeHTML(item.name)}</p>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span class="text-sm font-bold text-zinc-100 tabular-nums whitespace-nowrap">
+                            <span class="text-sm font-bold ${cat === 'income' ? 'text-teal-300' : 'text-zinc-100'} tabular-nums whitespace-nowrap">
                                 ${formatHUF(item.amount)}
                             </span>
                             <button type="button" data-action="edit" data-id="${escapeHTML(item.id)}"
@@ -910,7 +1253,6 @@
             });
         }
 
-        // Biztonsági mentés állapotjelző frissítése a fejlécben
         function updateBackupStatusUI() {
             const btn = document.getElementById('btn-backup-status');
             const dot = document.getElementById('backup-status-dot');
@@ -931,7 +1273,6 @@
             }
         }
 
-        // Állapot mentése a localStorage-ba (és opcionálisan automata GitHub feltöltés indítása)
         function saveState(markDirty = false) {
             if (markDirty) {
                 appState.hasUnsavedExport = true;
@@ -949,7 +1290,6 @@
             }
         }
 
-        // GitHub szinkron beállítások betöltése és mentése
         function loadGitHubConfig() {
             try {
                 const raw = localStorage.getItem(GITHUB_SYNC_KEY);
@@ -996,7 +1336,6 @@
             }
         }
 
-        // UTF-8 biztonságos Base64 kódolás a GitHub Contents API-hoz
         function encodeBase64UTF8(str) {
             const bytes = new TextEncoder().encode(str);
             let binary = '';
@@ -1006,7 +1345,6 @@
             return btoa(binary);
         }
 
-        // Késleltetett (debounce) automata feltöltés, hogy gyors egymás utáni gépelésnél ne küldjön felesleges kérést
         function scheduleGitHubSync() {
             if (githubPushTimer) {
                 clearTimeout(githubPushTimer);
@@ -1016,7 +1354,6 @@
             }, 600);
         }
 
-        // adatok.json közvetlen létrehozása vagy frissítése a GitHub repositoryban
         async function pushAdatokToGitHub(notifyOnSuccess = true) {
             const owner = String(githubConfig.owner || '').trim();
             const repo = String(githubConfig.repo || '').trim();
@@ -1040,7 +1377,6 @@
                     'Content-Type': 'application/json'
                 };
 
-                // 1. Megnézzük, létezik-e már az adatok.json a repóban (ha igen, kell a sha értéke a felülíráshoz)
                 let existingSha = null;
                 const getRes = await fetch(apiUrl, { headers, cache: 'no-store' });
                 if (getRes.ok) {
@@ -1052,7 +1388,6 @@
                     throw new Error(`GitHub olvasási hiba (${getRes.status})`);
                 }
 
-                // 2. Elkészítjük a friss JSON tartalmat
                 const nowIso = new Date().toISOString();
                 const payloadObj = {
                     app: 'MONO',
@@ -1120,7 +1455,6 @@
             modal.classList.remove('flex');
         }
 
-        // Állapot betöltése a localStorage-ból
         function loadState() {
             try {
                 const raw = localStorage.getItem(STORAGE_KEY);
@@ -1146,7 +1480,6 @@
             }
         }
 
-        // Kártyasorrend érvényesítése (mind az 5 kategória pontosan egyszer szerepeljen)
         function sanitizeCardOrder(order) {
             if (!Array.isArray(order)) return [...DEFAULT_CARD_ORDER];
             const valid = order.filter(cat => DEFAULT_CARD_ORDER.includes(cat));
@@ -1157,7 +1490,6 @@
             return unique;
         }
 
-        // Kártyák DOM sorrendjének alkalmazása az elmentett állapot szerint
         function applyCardOrder() {
             const grid = document.getElementById('cards-grid');
             if (!grid) return;
@@ -1170,7 +1502,6 @@
             });
         }
 
-        // Aktuális DOM sorrend kiolvasása és mentése
         function persistCurrentGridOrder() {
             const grid = document.getElementById('cards-grid');
             if (!grid) return;
@@ -1185,7 +1516,6 @@
             }
         }
 
-        // Szabadon árendezhető Drag & Drop (egér + érintőképernyő) inicializálása
         function initCardDragAndDrop() {
             const grid = document.getElementById('cards-grid');
             if (!grid) return;
@@ -1199,7 +1529,6 @@
                 const handle = card.querySelector('.drag-handle');
                 if (!handle) return;
 
-                // Asztali böngésző: csak a fogantyúról indítva válik húzhatóvá, így a szövegkijelölés és űrlapok zavartalanok
                 handle.addEventListener('pointerdown', () => {
                     card.setAttribute('draggable', 'true');
                 });
@@ -1255,7 +1584,6 @@
                     card.classList.remove('drag-over');
                 });
 
-                // Mobil / érintőképernyő támogatás a fogantyún keresztül
                 handle.addEventListener('touchstart', (e) => {
                     if (e.touches.length !== 1) return;
                     activeTouchCard = card;
@@ -1293,7 +1621,6 @@
             });
         }
 
-        // Új tétel felvétele
         function addItem(category, name, amount) {
             const cleanName = String(name || '').trim();
             const numAmount = Math.abs(Math.round(Number(amount)));
@@ -1315,7 +1642,6 @@
             return true;
         }
 
-        // Törlés megerősítő ablak megnyitása
         function openDeleteModal(id) {
             const item = appState.items.find(i => i.id === id);
             if (!item) return;
@@ -1329,7 +1655,6 @@
             modal.classList.add('flex');
         }
 
-        // Törlés megerősítő ablak bezárása
         function closeDeleteModal() {
             pendingDeleteId = null;
             const modal = document.getElementById('modal-delete');
@@ -1337,7 +1662,6 @@
             modal.classList.remove('flex');
         }
 
-        // Szerkesztés modális ablak megnyitása
         function openEditModal(id) {
             const item = appState.items.find(i => i.id === id);
             if (!item) return;
@@ -1350,7 +1674,6 @@
 
             nameInput.value = item.name;
             amountInput.value = item.amount;
-            nameInput.disabled = false;
 
             const modal = document.getElementById('modal-edit');
             modal.classList.remove('hidden');
@@ -1361,7 +1684,6 @@
             }, 30);
         }
 
-        // Szerkesztés modális ablak bezárása
         function closeEditModal() {
             pendingEditId = null;
             const modal = document.getElementById('modal-edit');
@@ -1369,7 +1691,6 @@
             modal.classList.remove('flex');
         }
 
-        // Biztonsági mentés (.json) exportálása (alapértelmezetten adatok.json néven a GitHub szinkronhoz)
         function exportBackupJSON() {
             const nowIso = new Date().toISOString();
             const payload = {
@@ -1393,10 +1714,9 @@
             appState.hasUnsavedExport = false;
             appState.lastExportedAt = nowIso;
             saveState(false);
-            showToast('adatok.json letöltve (feltölthető a GitHub mappába)');
+            showToast('adatok.json letöltve');
         }
 
-        // JSON adatok tisztítása és érvényesítése
         function parseAndSanitizeItems(parsed) {
             const rawItems = Array.isArray(parsed) ? parsed : (parsed && parsed.items);
             if (!Array.isArray(rawItems)) {
@@ -1420,9 +1740,7 @@
                 }));
         }
 
-        // Automatikus betöltés a mellette lévő adatok.json fájlból (GitHub Pages / szerver esetén)
         async function tryLoadRemoteAdatokJSON() {
-            // Helyi file:// megnyitásnál a böngésző CORS miatt tiltja a fetch-et
             if (window.location.protocol === 'file:') return;
 
             try {
@@ -1436,7 +1754,6 @@
                 const remoteExportedAt = (parsed && parsed.exportedAt) ? String(parsed.exportedAt) : null;
                 const localExportedAt = appState.lastExportedAt ? String(appState.lastExportedAt) : null;
 
-                // Betöltjük, ha még nincs helyi adatunk, vagy ha a GitHubon lévő adatok.json frissebb
                 const shouldApplyRemote =
                     appState.items.length === 0 ||
                     (remoteExportedAt && (!localExportedAt || remoteExportedAt > localExportedAt));
@@ -1453,12 +1770,9 @@
                     renderAll();
                     showToast(`Automatikusan betöltve az adatok.json fájlból (${cleaned.length} tétel)`);
                 }
-            } catch (err) {
-                // Ha még nincs feltöltve adatok.json a mappába, csendben a helyi tárhelyet használjuk
-            }
+            } catch (err) {}
         }
 
-        // Biztonsági mentés (.json) visszatöltése
         function importBackupJSON(file) {
             if (!file) return;
             const reader = new FileReader();
@@ -1488,7 +1802,6 @@
             reader.readAsText(file);
         }
 
-        // PWA mobilapp ikon (PNG) és manifest dinamikus generálása
         function initMobileAppAssets() {
             try {
                 function createMonolithIconDataURL(size) {
@@ -1498,7 +1811,6 @@
                     const ctx = canvas.getContext('2d');
                     if (!ctx) return '';
 
-                    // Sötét háttér finom átmenettel
                     const bgGrad = ctx.createLinearGradient(0, 0, size, size);
                     bgGrad.addColorStop(0, '#181a20');
                     bgGrad.addColorStop(1, '#090a0d');
@@ -1506,8 +1818,6 @@
                     ctx.fillRect(0, 0, size, size);
 
                     const s = size / 28;
-
-                    // Bal monolit oszlop
                     ctx.fillStyle = '#ffffff';
                     ctx.beginPath();
                     ctx.moveTo(5 * s, 21 * s);
@@ -1517,7 +1827,6 @@
                     ctx.closePath();
                     ctx.fill();
 
-                    // Jobb monolit oszlop
                     ctx.fillStyle = '#a1a1aa';
                     ctx.beginPath();
                     ctx.moveTo(23 * s, 21 * s);
@@ -1527,7 +1836,6 @@
                     ctx.closePath();
                     ctx.fill();
 
-                    // Középső ciánkék ék
                     ctx.fillStyle = '#38bdf8';
                     ctx.beginPath();
                     ctx.moveTo(14 * s, 11.2 * s);
@@ -1567,13 +1875,62 @@
                 if (manifestLink) {
                     manifestLink.href = URL.createObjectURL(manifestBlob);
                 }
-            } catch (err) {
-                console.warn('Mobilapp ikon inicializálási figyelmeztetés:', err);
-            }
+            } catch (err) {}
         }
 
-        // Eseménykezelők bekötése betöltéskor
         document.addEventListener('DOMContentLoaded', () => {
+            // Bejelentkezési állapot ellenőrzése
+            const savedUser = readSavedLoginUser();
+            if (savedUser === '123') {
+                setAuthenticatedUI(true);
+            } else {
+                setAuthenticatedUI(false);
+            }
+
+            // Jelszó megjelenítés / elrejtés
+            const togglePwdBtn = document.getElementById('btn-toggle-password');
+            const pwdInput = document.getElementById('login-password');
+            if (togglePwdBtn && pwdInput) {
+                togglePwdBtn.addEventListener('click', () => {
+                    const isHidden = pwdInput.type === 'password';
+                    pwdInput.type = isHidden ? 'text' : 'password';
+                    togglePwdBtn.textContent = isHidden ? 'Elrejt' : 'Mutat';
+                });
+            }
+
+            // Bejelentkezési űrlap beküldése (123 / 123)
+            const loginForm = document.getElementById('form-login');
+            if (loginForm) {
+                loginForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const userVal = document.getElementById('login-username').value.trim();
+                    const passVal = document.getElementById('login-password').value.trim();
+                    const rememberVal = document.getElementById('login-remember').checked;
+                    const errBox = document.getElementById('login-error');
+
+                    if (userVal === '123' && passVal === '123') {
+                        if (errBox) errBox.classList.add('hidden');
+                        persistSavedLoginUser('123', rememberVal);
+                        setAuthenticatedUI(true);
+                        showToast('Sikeres belépés a MONO-ba');
+                    } else {
+                        if (errBox) errBox.classList.remove('hidden');
+                    }
+                });
+            }
+
+            // Kilépés gomb
+            const logoutBtn = document.getElementById('btn-logout');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    clearSavedLoginUser();
+                    document.getElementById('login-username').value = '';
+                    document.getElementById('login-password').value = '';
+                    setAuthenticatedUI(false);
+                });
+            }
+
+            // Alkalmazás adatok és kártyák inicializálása
             loadState();
             loadGitHubConfig();
             applyCardOrder();
@@ -1583,62 +1940,22 @@
             initMobileAppAssets();
             tryLoadRemoteAdatokJSON();
 
-            document.getElementById('form-streaming').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const nameEl = document.getElementById('input-streaming-name');
-                const amountEl = document.getElementById('input-streaming-amount');
-                if (addItem('streaming', nameEl.value, amountEl.value)) {
-                    nameEl.value = '';
-                    amountEl.value = '';
-                    nameEl.focus();
-                }
+            const categoryForms = ['income', 'streaming', 'housing', 'loans', 'telecom', 'business'];
+            categoryForms.forEach(cat => {
+                const form = document.getElementById(`form-${cat}`);
+                if (!form) return;
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const nameEl = document.getElementById(`input-${cat}-name`);
+                    const amountEl = document.getElementById(`input-${cat}-amount`);
+                    if (addItem(cat, nameEl.value, amountEl.value)) {
+                        nameEl.value = '';
+                        amountEl.value = '';
+                        nameEl.focus();
+                    }
+                });
             });
 
-            document.getElementById('form-housing').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const nameEl = document.getElementById('input-housing-name');
-                const amountEl = document.getElementById('input-housing-amount');
-                if (addItem('housing', nameEl.value, amountEl.value)) {
-                    nameEl.value = '';
-                    amountEl.value = '';
-                    nameEl.focus();
-                }
-            });
-
-            document.getElementById('form-loans').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const nameEl = document.getElementById('input-loans-name');
-                const amountEl = document.getElementById('input-loans-amount');
-                if (addItem('loans', nameEl.value, amountEl.value)) {
-                    nameEl.value = '';
-                    amountEl.value = '';
-                    nameEl.focus();
-                }
-            });
-
-            document.getElementById('form-telecom').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const nameEl = document.getElementById('input-telecom-name');
-                const amountEl = document.getElementById('input-telecom-amount');
-                if (addItem('telecom', nameEl.value, amountEl.value)) {
-                    nameEl.value = '';
-                    amountEl.value = '';
-                    nameEl.focus();
-                }
-            });
-
-            document.getElementById('form-business').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const nameEl = document.getElementById('input-business-name');
-                const amountEl = document.getElementById('input-business-amount');
-                if (addItem('business', nameEl.value, amountEl.value)) {
-                    nameEl.value = '';
-                    amountEl.value = '';
-                    nameEl.focus();
-                }
-            });
-
-            // Lista gombok (szerkesztés / törlés) delegált kezelése
             document.querySelector('main').addEventListener('click', (e) => {
                 const btn = e.target.closest('button[data-action]');
                 if (!btn) return;
@@ -1648,7 +1965,6 @@
                 if (action === 'edit') openEditModal(id);
             });
 
-            // Törlés modális gombok
             document.getElementById('btn-cancel-delete').addEventListener('click', closeDeleteModal);
             document.getElementById('btn-confirm-delete').addEventListener('click', () => {
                 if (!pendingDeleteId) return;
@@ -1662,7 +1978,6 @@
                 }
             });
 
-            // Szerkesztés modális gombok és űrlap
             document.getElementById('btn-cancel-edit').addEventListener('click', closeEditModal);
             document.getElementById('form-edit-item').addEventListener('submit', (e) => {
                 e.preventDefault();
@@ -1683,7 +1998,6 @@
                 showToast(`${newName} frissítve (${formatHUF(newAmount)})`);
             });
 
-            // Modális ablakok bezárása háttérre kattintással vagy Escape gombbal
             document.getElementById('modal-delete').addEventListener('click', (e) => {
                 if (e.target.id === 'modal-delete') closeDeleteModal();
             });
@@ -1698,7 +2012,6 @@
                 }
             });
 
-            // GitHub Szinkron modális kezelése
             document.getElementById('btn-github-sync').addEventListener('click', openGitHubModal);
             document.getElementById('btn-cancel-github').addEventListener('click', closeGitHubModal);
             document.getElementById('modal-github').addEventListener('click', (e) => {
@@ -1734,7 +2047,6 @@
                 if (ok) closeGitHubModal();
             });
 
-            // Export, Import és állapotjelző gombok
             document.getElementById('btn-export').addEventListener('click', exportBackupJSON);
             document.getElementById('btn-backup-status').addEventListener('click', exportBackupJSON);
             document.getElementById('input-import').addEventListener('change', (e) => {
