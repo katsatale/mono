@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T23:22:35.277Z",
+  "exportedAt": "2026-11-20T23:23:48.463Z",
   "cardOrder": [
     "income",
     "streaming",
@@ -82,6 +82,12 @@
       "category": "business",
       "name": "Járulékok",
       "amount": 100000
+    },
+    {
+      "id": "id-mwplv7kc-axai",
+      "category": "loans",
+      "name": "Munkás Hitel",
+      "amount": 68055
     }
   ]
 }
