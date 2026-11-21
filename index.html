@@ -1627,6 +1627,32 @@
         let activePage = 'finance'; // 'finance' | 'shopping'
         let selectedNewPanelColor = 'sky';
         let pendingSavingsAdjust = null; // { id, mode: 'deposit' | 'withdraw' | 'edit' }
+        let pendingDeleteId = null;
+        let pendingEditId = null;
+        let isGitHubPushing = false;
+        let githubPushTimer = null;
+        let draftAvatarDataUrl = '';
+
+        let userProfile = {
+            username: '123',
+            password: '123',
+            displayName: '123',
+            email: '',
+            webhookUrl: '',
+            avatarDataUrl: ''
+        };
+
+        let githubConfig = {
+            owner: 'katsatale',
+            repo: 'mono',
+            path: 'adatok.json',
+            token: '',
+            autoSync: true
+        };
+
+        function getUserStorageKey(username) {
+            return STORAGE_KEY_PREFIX + String(username || '123').toLowerCase().trim();
+        }
 
         let appState = {
             items: [],
@@ -3798,6 +3824,86 @@
                     }
                 });
             });
+
+            // Kártyán belüli tétel szerkesztés / törlés gombok delegált kezelése
+            document.getElementById('cards-grid').addEventListener('click', (e) => {
+                if (activeSharedSnapshot) return;
+                const btn = e.target.closest('button[data-action]');
+                if (!btn) return;
+                const action = btn.dataset.action;
+                const id = btn.dataset.id;
+                if (action === 'edit') {
+                    openEditModal(id);
+                } else if (action === 'delete') {
+                    openDeleteModal(id);
+                }
+            });
+
+            // Törlés megerősítő modális gombjai
+            document.getElementById('btn-cancel-delete').addEventListener('click', closeDeleteModal);
+            document.getElementById('btn-confirm-delete').addEventListener('click', () => {
+                if (!pendingDeleteId) return;
+                const target = appState.items.find(i => i.id === pendingDeleteId);
+                appState.items = appState.items.filter(i => i.id !== pendingDeleteId);
+                closeDeleteModal();
+                saveState(true);
+                renderAll();
+                if (target) {
+                    showToast(`${target.name} törölve`);
+                }
+            });
+
+            // Bevásárlólista űrlap és műveletek bekötése
+            const shoppingForm = document.getElementById('form-shopping');
+            if (shoppingForm) {
+                shoppingForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const nameEl = document.getElementById('input-shopping-name');
+                    const qtyEl = document.getElementById('input-shopping-qty');
+                    const priceEl = document.getElementById('input-shopping-price');
+                    if (addShoppingItem(nameEl.value, qtyEl.value, priceEl.value)) {
+                        nameEl.value = '';
+                        qtyEl.value = '';
+                        priceEl.value = '';
+                        nameEl.focus();
+                    }
+                });
+            }
+
+            const shoppingListEl = document.getElementById('list-shopping');
+            if (shoppingListEl) {
+                shoppingListEl.addEventListener('change', (e) => {
+                    if (activeSharedSnapshot) return;
+                    const cb = e.target.closest('input[data-shopping-action="toggle"]');
+                    if (!cb) return;
+                    const item = (appState.shoppingItems || []).find(s => s.id === cb.dataset.id);
+                    if (!item) return;
+                    item.checked = cb.checked;
+                    saveState(true);
+                    renderShoppingList();
+                });
+
+                shoppingListEl.addEventListener('click', (e) => {
+                    if (activeSharedSnapshot) return;
+                    const btn = e.target.closest('button[data-shopping-action="delete"]');
+                    if (!btn) return;
+                    appState.shoppingItems = (appState.shoppingItems || []).filter(s => s.id !== btn.dataset.id);
+                    saveState(true);
+                    renderShoppingList();
+                    showToast('Tétel törölve a bevásárlólistáról');
+                });
+            }
+
+            const clearCheckedShoppingBtn = document.getElementById('btn-clear-checked-shopping');
+            if (clearCheckedShoppingBtn) {
+                clearCheckedShoppingBtn.addEventListener('click', () => {
+                    if (activeSharedSnapshot) return;
+                    appState.shoppingItems = (appState.shoppingItems || []).filter(s => !s.checked);
+                    saveState(true);
+                    renderShoppingList();
+                    showToast('Kipipált tételek törölve');
+                });
+            }
 
             // Megtakarítási cél űrlap és műveletek
             const savingsForm = document.getElementById('form-savings');
