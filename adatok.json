@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-21T07:32:08.358Z",
+  "exportedAt": "2026-11-21T07:32:12.713Z",
   "cardOrder": [
     "income",
     "streaming",
@@ -102,12 +102,6 @@
       "category": "business",
       "name": "Üzemanyag",
       "amount": 40000
-    },
-    {
-      "id": "id-mwq3b7im-x380",
-      "category": "income",
-      "name": "222",
-      "amount": 222
     }
   ],
   "shoppingItems": [],
