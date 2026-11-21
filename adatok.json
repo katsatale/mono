@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-21T07:32:23.376Z",
+  "exportedAt": "2026-11-21T07:39:21.363Z",
   "cardOrder": [
     "income",
     "streaming",
@@ -105,7 +105,14 @@
     }
   ],
   "shoppingItems": [],
-  "savingsGoals": [],
+  "savingsGoals": [
+    {
+      "id": "sav-mwq3khmm-0l4z",
+      "name": "SOS",
+      "currentAmount": 540000,
+      "targetAmount": 1000000
+    }
+  ],
   "profile": {
     "username": "123",
     "password": "123",
