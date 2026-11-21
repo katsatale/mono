@@ -116,11 +116,42 @@
             font-variant-numeric: tabular-nums;
         }
 
+        .mono-header-bar {
+            background:
+                radial-gradient(ellipse 46% 140% at 12% 0%, rgba(56, 189, 248, 0.22) 0%, transparent 70%),
+                radial-gradient(ellipse 42% 140% at 52% -10%, rgba(139, 92, 246, 0.18) 0%, transparent 72%),
+                radial-gradient(ellipse 40% 130% at 88% 0%, rgba(20, 184, 166, 0.16) 0%, transparent 70%),
+                linear-gradient(180deg, rgba(16, 19, 28, 0.92) 0%, rgba(9, 11, 16, 0.86) 100%);
+            backdrop-filter: blur(22px) saturate(160%);
+            -webkit-backdrop-filter: blur(22px) saturate(160%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow:
+                0 14px 36px -14px rgba(0, 0, 0, 0.82),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+        }
+
         .header-micro-grid {
             background-image:
-                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 24px 24px;
+                linear-gradient(to right, rgba(255, 255, 255, 0.038) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.038) 1px, transparent 1px);
+            background-size: 28px 28px;
+        }
+
+        .header-shimmer-line {
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(56, 189, 248, 0.55) 28%,
+                rgba(167, 139, 250, 0.65) 52%,
+                rgba(45, 212, 191, 0.5) 76%,
+                transparent 100%);
+        }
+
+        .mono-wordmark {
+            background: linear-gradient(110deg, #ffffff 0%, #f4f4f5 38%, #bae6fd 72%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 26px rgba(56, 189, 248, 0.22);
         }
 
         input[type="number"]::-webkit-inner-spin-button,
@@ -199,6 +230,15 @@
             border-color: rgba(56, 189, 248, 0.8);
             box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.3), 0 18px 40px -10px rgba(0, 0, 0, 0.85);
         }
+        [data-top-section].is-dragging {
+            opacity: 0.45;
+            transform: scale(0.99);
+            border-color: rgba(56, 189, 248, 0.55);
+        }
+        [data-top-section].drag-over {
+            border-color: rgba(56, 189, 248, 0.8);
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.3), 0 18px 40px -10px rgba(0, 0, 0, 0.85);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-zinc-100 selection:text-zinc-950 relative">
@@ -214,17 +254,17 @@
     <!-- NYITÓ BEJELENTKEZÉSI FELÜLET -->
     <div id="login-screen" class="relative z-40 flex-1 flex items-center justify-center p-4 min-h-screen">
         <div class="w-full max-w-md rounded-3xl bg-[#11131a]/90 backdrop-blur-2xl border border-white/10 p-6 sm:p-8 shadow-2xl animate-modal">
-            <div class="flex items-center gap-3.5 mb-6">
-                <div class="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-[#1f222b] via-[#12141a] to-[#090a0d] text-white flex items-center justify-center shrink-0 shadow-lg ring-1 ring-white/15">
-                    <svg class="w-6 h-6" viewBox="0 0 28 28" fill="none">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-[#232836] via-[#131620] to-[#090b10] text-white flex items-center justify-center shrink-0 shadow-lg ring-1 ring-sky-400/25">
+                    <svg class="w-8 h-8" viewBox="0 0 28 28" fill="none">
                         <path d="M5 21V7L11.5 14V21H5Z" fill="#FFFFFF"/>
                         <path d="M23 21V7L16.5 14V21H23Z" fill="#A1A1AA"/>
                         <path d="M14 11.2L17.2 7.8L14 15.2L10.8 7.8L14 11.2Z" fill="#38bdf8"/>
                     </svg>
                 </div>
-                <div>
-                    <h1 class="text-xl font-black tracking-[0.16em] text-white leading-none">MONO</h1>
-                    <p class="text-xs text-zinc-400 mt-1">Privát pénzügyi áttekintő • Belépés</p>
+                <div class="flex flex-col justify-center">
+                    <h1 class="mono-wordmark text-xl font-black tracking-[0.2em] leading-none">MONO</h1>
+                    <p class="text-xs text-zinc-400 mt-1.5 leading-none">Privát pénzügyi áttekintő • Belépés</p>
                 </div>
             </div>
 
@@ -282,14 +322,16 @@
     </div>
 
     <!-- FEJLÉC (BEJELENTKEZÉS UTÁN LÁTHATÓ) -->
-    <header id="app-header" class="hidden sticky top-0 z-30 bg-[#090a0d]/80 backdrop-blur-xl border-b border-white/[0.07] header-micro-grid safe-header">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <header id="app-header" class="hidden sticky top-0 z-30 mono-header-bar safe-header">
+        <div class="header-micro-grid absolute inset-0 pointer-events-none opacity-80" aria-hidden="true"></div>
+        <div class="header-shimmer-line absolute inset-x-0 bottom-0 h-[1.5px] pointer-events-none" aria-hidden="true"></div>
+        <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col lg:grid lg:grid-cols-3 lg:items-center gap-4">
 
             <!-- Bal oldali blokk: MONO embléma, főcím és alcím -->
             <div class="flex items-center gap-3.5 min-w-0">
-                <div class="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-[#1f222b] via-[#12141a] to-[#090a0d] text-white flex items-center justify-center shrink-0 shadow-lg shadow-black/60 ring-1 ring-white/15 overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-tr from-white/[0.02] via-transparent to-white/[0.12]"></div>
-                    <svg class="w-6 h-6 relative z-10" viewBox="0 0 28 28" fill="none">
+                <div class="relative w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#232836] via-[#131620] to-[#090b10] text-white flex items-center justify-center shrink-0 shadow-lg shadow-sky-950/40 ring-1 ring-sky-400/25 overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-sky-400/[0.06] via-transparent to-white/[0.14]"></div>
+                    <svg class="w-7 h-7 sm:w-8 sm:h-8 relative z-10" viewBox="0 0 28 28" fill="none">
                         <path d="M5 21V7L11.5 14V21H5Z" fill="url(#mono-grad-1)"/>
                         <path d="M23 21V7L16.5 14V21H23Z" fill="url(#mono-grad-2)"/>
                         <path d="M14 11.2L17.2 7.8L14 15.2L10.8 7.8L14 11.2Z" fill="#38bdf8"/>
@@ -299,203 +341,225 @@
                                 <stop offset="1" stop-color="#A1A1AA"/>
                             </linearGradient>
                             <linearGradient id="mono-grad-2" x1="23" y1="7" x2="16.5" y2="21" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#E4E4E7"/>
+                                <stop stop-color="#D4D4D8"/>
                                 <stop offset="1" stop-color="#71717A"/>
                             </linearGradient>
                         </defs>
                     </svg>
                 </div>
-                <div class="min-w-0">
+                <div class="min-w-0 flex flex-col justify-center">
                     <div class="flex items-center gap-2">
-                        <h1 class="text-xl sm:text-2xl font-black tracking-[0.14em] text-white leading-none">
+                        <h1 class="mono-wordmark text-lg sm:text-xl font-black tracking-[0.22em] leading-none">
                             MONO
                         </h1>
-                        <!-- Oldalváltó: Pénzügyek / Bevásárlólista -->
-                        <nav class="inline-flex items-center p-1 rounded-xl bg-white/[0.04] border border-white/10" aria-label="Oldalváltó">
-                            <button id="nav-tab-finance" type="button"
-                                class="px-2.5 py-1 rounded-lg text-xs font-bold bg-zinc-100 text-zinc-950 transition cursor-pointer whitespace-nowrap">
-                                Pénzügyek
-                            </button>
-                            <button id="nav-tab-shopping" type="button"
-                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-zinc-400 hover:text-zinc-100 transition cursor-pointer whitespace-nowrap">
-                                <span>Bevásárlólista</span>
-                                <span id="nav-shopping-count" class="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 tabular-nums">0</span>
-                </button>
-            </nav>
-        </div>
-        <p id="header-subtitle" class="text-xs text-zinc-400 mt-1 truncate">
+                        <span class="hidden sm:inline-block w-1.5 h-1.5 rounded-full bg-sky-400/80 shadow-[0_0_8px_#38bdf8]"></span>
+                    </div>
+                    <p id="header-subtitle" class="text-xs text-zinc-400/95 truncate mt-1.5 leading-none">
                         Havi bevételek és fix kiadások áttekintése
                     </p>
                 </div>
             </div>
 
-            <!-- Jobb oldali blokk: Állapotjelző + GitHub Szinkron + Kilépés -->
-            <div class="flex flex-wrap items-center md:justify-end gap-2 shrink-0">
-                <button id="btn-backup-status" type="button"
-                    class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/20 transition cursor-pointer whitespace-nowrap"
-                    title="Minden adatod szinkronban van az utolsó mentéssel.">
-                    <span class="relative flex h-2 w-2 shrink-0">
-                        <span id="backup-status-ping" class="hidden animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                        <span id="backup-status-dot" class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
-                    </span>
-                    <span id="backup-status-text">Mentés naprakész</span>
-                </button>
-
-                <button id="btn-github-sync" type="button"
-                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-sky-500/10 text-sky-300 border border-sky-500/25 hover:bg-sky-500/20 transition cursor-pointer whitespace-nowrap"
-                    title="Automatikus mentés beállítása az adatok.json fájlba a GitHubon">
-                    <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
-                    </svg>
-                    <span id="github-sync-label">GitHub Szinkron</span>
-                </button>
-
-                <!-- Profil ikon és gomb -->
-                <button id="btn-open-profile" type="button"
-                    class="inline-flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-xl text-xs font-semibold bg-white/[0.05] text-zinc-200 border border-white/10 hover:bg-white/[0.1] hover:border-white/20 transition cursor-pointer whitespace-nowrap"
-                    title="Profil, felhasználónév, jelszó és profilkép kezelése">
-                    <span id="header-avatar-wrap" class="w-6 h-6 rounded-lg bg-gradient-to-br from-sky-500/25 to-violet-500/25 border border-white/15 text-sky-300 flex items-center justify-center overflow-hidden shrink-0">
-                        <svg id="header-avatar-fallback" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+            <!-- Középső blokk: Pontos dátum- és időkövető (mindig középen) -->
+            <div class="hidden lg:flex items-center justify-center">
+                <div id="header-clock-pill" class="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white/[0.045] border border-white/[0.09] shadow-inner backdrop-blur-md">
+                    <span class="w-6 h-6 rounded-lg bg-sky-500/15 border border-sky-400/25 text-sky-300 flex items-center justify-center shrink-0">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2.5"/>
+                            <path stroke-linecap="round" d="M16 2v4M8 2v4M3 10h18"/>
                         </svg>
-                        <img id="header-avatar-img" src="" alt="Profilkép" class="hidden w-full h-full object-cover">
                     </span>
-                    <span id="header-profile-name" class="max-w-[96px] truncate">Profil</span>
-                </button>
-
-                <!-- Megosztás gomb -->
-                <button id="btn-open-share" type="button"
-                    class="relative inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-violet-500/15 text-violet-300 border border-violet-500/30 hover:bg-violet-500/25 transition cursor-pointer whitespace-nowrap"
-                    title="Kalkuláció megosztása másik MONO felhasználóval vagy beérkezett megosztások">
-                    <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z"/>
-                    </svg>
-                    <span>Megosztás</span>
-                    <span id="share-inbox-badge" class="hidden ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-violet-400 text-zinc-950 tabular-nums">0</span>
-                </button>
-
-                <button id="btn-logout" type="button"
-                    class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-rose-500/10 text-rose-300 border border-rose-500/25 hover:bg-rose-500/20 transition cursor-pointer whitespace-nowrap"
-                    title="Kilépés és mentett belépés törlése">
-                    Kilépés
-                </button>
+                    <div class="flex items-center gap-2 text-xs leading-none whitespace-nowrap">
+                        <span id="header-live-date" class="font-semibold text-zinc-100 tracking-tight">2026. november 21.</span>
+                        <span class="text-zinc-600">•</span>
+                        <span id="header-live-day" class="font-medium text-zinc-400 capitalize">szombat</span>
+                        <span class="text-zinc-600">•</span>
+                        <span id="header-live-time" class="font-bold text-sky-300 tabular-nums tracking-wide">10:12:00</span>
+                    </div>
+                </div>
             </div>
 
+            <!-- Jobb oldali blokk: Beállítások (fogaskerék menü) + Kilépés -->
+            <div class="flex flex-wrap items-center justify-between lg:justify-end gap-2.5 shrink-0">
+                <!-- Kompakt dátum jelvény kisebb képernyőkre -->
+                <div class="lg:hidden inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-zinc-200 whitespace-nowrap">
+                    <span id="header-live-date-compact" class="font-semibold">2026. 11. 21.</span>
+                    <span class="text-zinc-600">•</span>
+                    <span id="header-live-time-compact" class="font-bold text-sky-300 tabular-nums">10:12</span>
+                </div>
+
+                <div class="flex items-center gap-2 ml-auto lg:ml-0">
+                    <!-- Beállítások fogaskerék ikon gomb (felugró ablakot nyit) -->
+                    <button id="btn-open-settings-modal" type="button" aria-label="Beállítások" title="Beállítások"
+                        class="group relative w-9 h-9 rounded-xl bg-white/[0.04] text-zinc-300 border border-white/10 hover:bg-white/[0.09] hover:text-white hover:border-white/20 transition cursor-pointer flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4 text-zinc-300 group-hover:text-sky-300 group-hover:rotate-45 transition-transform duration-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <circle cx="12" cy="12" r="2.75"/>
+                        </svg>
+                        <span id="settings-badge-dot" class="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-emerald-400 ring-2 ring-[#0e1118]"></span>
+                    </button>
+
+                    <!-- Kilépés gomb (külön marad a jobb szélen) -->
+                    <button id="btn-logout" type="button"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-rose-500/10 text-rose-300 border border-rose-500/25 hover:bg-rose-500/20 hover:text-rose-200 hover:border-rose-500/40 transition cursor-pointer whitespace-nowrap"
+                        title="Kijelentkezés">
+                        <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>
+                        </svg>
+                        <span>Kilépés</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </header>
 
-    <!-- Értesítési konténer (alert() helyett) -->
-    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+    <!-- ÉRTESÍTÉSI SÁV (TOAST) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- FŐ TARTALOM (BEJELENTKEZÉS UTÁN LÁTHATÓ) -->
-    <main id="app-main" class="hidden relative z-10 flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <main id="app-main" class="hidden relative z-10 flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 pt-5 pb-8 sm:pt-6 sm:pb-10">
+
+        <!-- KÜLÖN OLDALVÁLTÓ SÁV A FEJLÉC ALATT -->
+        <div class="mb-5 flex justify-center">
+            <nav class="inline-flex items-center p-1 rounded-2xl bg-[#11131a]/90 backdrop-blur-xl border border-white/10 shadow-lg" aria-label="Oldalváltó">
+                <button id="nav-tab-finance" type="button"
+                    class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-zinc-100 text-zinc-950 transition cursor-pointer whitespace-nowrap">
+                    Pénzügyek
+                </button>
+                <button id="nav-tab-shopping" type="button"
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-zinc-400 hover:text-zinc-100 transition cursor-pointer whitespace-nowrap">
+                    <span>Bevásárlólista</span>
+                    <span id="nav-shopping-count" class="px-1.5 py-0.5 rounded-full text-[11px] font-bold bg-cyan-500/20 text-cyan-300 tabular-nums">0</span>
+                </button>
+            </nav>
+        </div>
 
         <!-- 1. OLDAL: PÉNZÜGYEK -->
         <div id="page-finance">
 
-        <!-- MEGOSZTOTT NÉZET SÁV (CSAK HA MÁS KALKULÁCIÓJÁT NÉZED) -->
-        <div id="shared-view-banner" class="hidden mb-5 rounded-2xl bg-violet-500/10 border border-violet-500/30 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div class="flex items-center gap-3 min-w-0">
-                <div class="w-9 h-9 rounded-xl bg-violet-500/20 border border-violet-400/30 text-violet-300 flex items-center justify-center shrink-0">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                </div>
-                <div class="min-w-0">
-                    <p id="shared-view-title" class="text-sm font-bold text-white truncate">
-                        Megosztott kalkuláció megtekintése
-                    </p>
-                    <p id="shared-view-subtitle" class="text-xs text-violet-200/80 truncate">
-                        Csak olvasható nézet • A saját adataid érintetlenek
-                    </p>
-                </div>
-            </div>
-            <div class="flex items-center gap-2 shrink-0">
-                <button id="btn-copy-shared-to-own" type="button"
-                    class="px-3.5 py-2 rounded-xl text-xs font-bold bg-violet-400 text-zinc-950 hover:bg-violet-300 transition cursor-pointer">
-                    Átvétel saját fiókba
-                </button>
-                <button id="btn-exit-shared-view" type="button"
-                    class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/[0.08] text-zinc-100 border border-white/15 hover:bg-white/[0.14] transition cursor-pointer">
-                    Vissza a sajátomhoz
-                </button>
-            </div>
-        </div>
-
-        <!-- FELSŐ ÖSSZESÍTŐ SÁV: 4 KÁRTYA (BEVÉTEL, FIX KIADÁS, ÉVES KIADÁS, HAVI EGYENLEG) -->
+        <!-- ÖSSZESÍTŐ SÁV (4 KÜLÖNÁLLÓ, SZÍNKÓDOLT KÁRTYA) -->
         <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-            <!-- 1. Összesítő kártya: Összes bevétel / hó -->
-            <div class="monolith-card relative overflow-hidden rounded-2xl p-5 flex flex-col justify-between">
-                <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-teal-400/45 to-transparent"></div>
+            <!-- 1. Összesítő kártya: Összes bevétel / hó (TEAL / SMARAGD) -->
+            <div class="monolith-card relative overflow-hidden rounded-2xl p-5 flex flex-col justify-between !border-teal-500/30 !bg-gradient-to-br !from-teal-950/50 !via-[#131c1e]/90 !to-[#0e1417]/95">
+                <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-teal-400 to-transparent"></div>
                 <div class="flex items-center justify-between gap-2">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-zinc-400 whitespace-nowrap">
-                        Összes bevétel / hó
-                    </span>
-                    <span id="badge-income-items" class="text-xs font-medium text-teal-300 bg-teal-500/10 border border-teal-500/25 px-2.5 py-0.5 rounded-full tabular-nums whitespace-nowrap shrink-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="w-6 h-6 rounded-lg bg-teal-500/15 border border-teal-400/30 text-teal-300 flex items-center justify-center shrink-0">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 19V5m0 0l-5 5m5-5l5 5"/>
+                            </svg>
+                        </span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-teal-200/90 whitespace-nowrap truncate">
+                            Összes bevétel / hó
+                        </span>
+                    </div>
+                    <span id="badge-income-items" class="text-xs font-semibold text-teal-200 bg-teal-500/15 border border-teal-400/30 px-2.5 py-0.5 rounded-full tabular-nums whitespace-nowrap shrink-0">
                         0 tétel
                     </span>
                 </div>
                 <div id="display-total-income" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-teal-300 tabular-nums mt-3">
-                    0 <span class="text-base sm:text-lg font-semibold text-zinc-500">Ft</span>
+                    0 <span class="text-base sm:text-lg font-semibold text-teal-500/70">Ft</span>
                 </div>
             </div>
 
-            <!-- 2. Összesítő kártya: Havi fix kiadás -->
-            <div class="monolith-card relative overflow-hidden rounded-2xl p-5 flex flex-col justify-between">
-                <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent"></div>
+            <!-- 2. Összesítő kártya: Havi fix kiadás (ROSE / KORALL) -->
+            <div class="monolith-card relative overflow-hidden rounded-2xl p-5 flex flex-col justify-between !border-rose-500/30 !bg-gradient-to-br !from-rose-950/50 !via-[#1a141c]/90 !to-[#110f16]/95">
+                <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-rose-400 to-transparent"></div>
                 <div class="flex items-center justify-between gap-2">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-zinc-400 whitespace-nowrap">
-                        Összes fix kiadás / hó
-                    </span>
-                    <span id="badge-total-items" class="text-xs font-medium text-zinc-300 bg-white/[0.05] border border-white/10 px-2.5 py-0.5 rounded-full tabular-nums whitespace-nowrap shrink-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="w-6 h-6 rounded-lg bg-rose-500/15 border border-rose-400/30 text-rose-300 flex items-center justify-center shrink-0">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m0 0l-5-5m5 5l5-5"/>
+                            </svg>
+                        </span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-rose-200/90 whitespace-nowrap truncate">
+                            Összes fix kiadás / hó
+                        </span>
+                    </div>
+                    <span id="badge-total-items" class="text-xs font-semibold text-rose-200 bg-rose-500/15 border border-rose-400/30 px-2.5 py-0.5 rounded-full tabular-nums whitespace-nowrap shrink-0">
                         0 tétel
                     </span>
                 </div>
-                <div id="display-total-fixed" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white tabular-nums mt-3">
-                    0 <span class="text-base sm:text-lg font-semibold text-zinc-500">Ft</span>
+                <div id="display-total-fixed" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-rose-300 tabular-nums mt-3">
+                    0 <span class="text-base sm:text-lg font-semibold text-rose-500/70">Ft</span>
                 </div>
             </div>
 
-            <!-- 3. Összesítő kártya: Éves vetített kiadás -->
-            <div class="monolith-card relative overflow-hidden rounded-2xl p-5 flex flex-col justify-between">
-                <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/15 to-transparent"></div>
+            <!-- 3. Összesítő kártya: Éves vetített kiadás (AMBER / BOROSTYÁN) -->
+            <div class="monolith-card relative overflow-hidden rounded-2xl p-5 flex flex-col justify-between !border-amber-500/30 !bg-gradient-to-br !from-amber-950/45 !via-[#1b1714]/90 !to-[#121014]/95">
+                <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400 to-transparent"></div>
                 <div class="flex items-center justify-between gap-2">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-zinc-400 whitespace-nowrap">
-                        Éves vetített kiadás
-                    </span>
-                    <span class="text-xs font-medium text-zinc-500 whitespace-nowrap shrink-0">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="w-6 h-6 rounded-lg bg-amber-500/15 border border-amber-400/30 text-amber-300 flex items-center justify-center shrink-0">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                <path stroke-linecap="round" d="M16 2v4M8 2v4M3 10h18"/>
+                            </svg>
+                        </span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-200/90 whitespace-nowrap truncate">
+                            Éves vetített kiadás
+                        </span>
+                    </div>
+                    <span class="text-xs font-semibold text-amber-200/80 bg-amber-500/15 border border-amber-400/25 px-2 py-0.5 rounded-full whitespace-nowrap shrink-0">
                         12 hó
                     </span>
                 </div>
-                <div id="display-annual-fixed" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-200 tabular-nums mt-3">
-                    0 <span class="text-base sm:text-lg font-semibold text-zinc-500">Ft</span>
+                <div id="display-annual-fixed" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-amber-300 tabular-nums mt-3">
+                    0 <span class="text-base sm:text-lg font-semibold text-amber-500/70">Ft</span>
                 </div>
             </div>
 
-            <!-- 4. Összesítő kártya: Havi egyenleg -->
-            <div class="monolith-card relative overflow-hidden rounded-2xl p-5 flex flex-col justify-between">
-                <div class="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-sky-400/40 to-transparent"></div>
+            <!-- 4. Összesítő kártya: Havi egyenleg (SKY / INDIGÓ) -->
+            <div id="card-monthly-balance" class="monolith-card relative overflow-hidden rounded-2xl p-5 flex flex-col justify-between !border-sky-500/30 !bg-gradient-to-br !from-sky-950/55 !via-[#131824]/90 !to-[#0e121a]/95">
+                <div id="bar-monthly-balance-top" class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-sky-400 to-transparent"></div>
                 <div class="flex items-center justify-between gap-2">
-                    <span class="text-xs font-semibold uppercase tracking-wider text-zinc-400 whitespace-nowrap">
-                        Havi egyenleg
-                    </span>
-                    <span class="text-xs font-medium text-zinc-500 whitespace-nowrap shrink-0">
-                        Bevétel - kiadás
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span id="icon-monthly-balance" class="w-6 h-6 rounded-lg bg-sky-500/15 border border-sky-400/30 text-sky-300 flex items-center justify-center shrink-0">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M7 12h10M10 18h4"/>
+                            </svg>
+                        </span>
+                        <span id="label-monthly-balance" class="text-xs font-bold uppercase tracking-wider text-sky-200/90 whitespace-nowrap truncate">
+                            Havi egyenleg
+                        </span>
+                    </div>
+                    <span class="text-xs font-semibold text-sky-200/80 bg-sky-500/15 border border-sky-400/25 px-2 py-0.5 rounded-full whitespace-nowrap shrink-0">
+                        Nettó
                     </span>
                 </div>
-                <div id="display-monthly-balance" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-sky-300 tabular-nums mt-3">
-                    0 <span class="text-base sm:text-lg font-semibold text-zinc-500">Ft</span>
+                <div class="mt-3">
+                    <div id="display-monthly-balance" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-sky-300 tabular-nums">
+                        0 <span class="text-base sm:text-lg font-semibold text-sky-500/70">Ft</span>
+                    </div>
+                    <div id="simulator-balance-badge" class="hidden mt-2 flex items-center justify-between gap-2 pt-2 border-t border-white/10">
+                        <span id="simulator-balance-diff" class="text-[11px] font-bold text-emerald-300 tabular-nums truncate">
+                            Szimulátor: +0 Ft / hó
+                        </span>
+                        <button id="btn-reset-simulator" type="button"
+                            class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-white/10 text-zinc-100 hover:bg-white/20 transition cursor-pointer shrink-0">
+                            Visszaállít
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
 
+        <!-- ÁTRENDEZŐ FELSŐ PANELEK (MEGTAKARÍTÁSOK ÉS ÖSSZES BEVÉTEL) -->
+        <div id="top-sections-container" class="mt-5 sm:mt-6 space-y-5 sm:space-y-6">
+
         <!-- MEGTAKARÍTÁSOK SZEKCIÓ -->
-        <section id="savings-section" class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6 mt-5 sm:mt-6">
+        <section id="savings-section" data-top-section="savings" class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6">
             <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-400/80 to-transparent"></div>
 
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3.5">
                 <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="top-drag-handle drag-handle p-1 -ml-1 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.06] transition shrink-0" title="Húzd a panelt az átrendezéshez" aria-label="Panel mozgatása">
+                        <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                            <circle cx="5.5" cy="3.5" r="1.25"/><circle cx="10.5" cy="3.5" r="1.25"/>
+                            <circle cx="5.5" cy="8" r="1.25"/><circle cx="10.5" cy="8" r="1.25"/>
+                            <circle cx="5.5" cy="12.5" r="1.25"/><circle cx="10.5" cy="12.5" r="1.25"/>
+                        </svg>
+                    </div>
                     <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 flex items-center justify-center shrink-0">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3"/>
@@ -563,14 +627,76 @@
             <ul id="list-savings" class="max-h-64 overflow-y-auto pr-1 divide-y divide-white/[0.06] custom-scroll"></ul>
         </section>
 
+        <!-- ÖSSZES BEVÉTEL KÜLÖNÁLLÓ SZEKCIÓ (ELKÜLÖNÍTVE A KIADÁSOKTÓL) -->
+        <section id="income-section" data-top-section="income" data-card-category="income" class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6">
+            <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-teal-400/80 to-transparent"></div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3.5">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="top-drag-handle drag-handle p-1 -ml-1 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.06] transition shrink-0" title="Húzd a panelt az átrendezéshez" aria-label="Panel mozgatása">
+                        <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
+                            <circle cx="5.5" cy="3.5" r="1.25"/><circle cx="10.5" cy="3.5" r="1.25"/>
+                            <circle cx="5.5" cy="8" r="1.25"/><circle cx="10.5" cy="8" r="1.25"/>
+                            <circle cx="5.5" cy="12.5" r="1.25"/><circle cx="10.5" cy="12.5" r="1.25"/>
+                        </svg>
+                    </div>
+                    <div class="w-9 h-9 rounded-xl bg-teal-500/10 border border-teal-500/25 text-teal-300 flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18M17 7.5c0-1.933-2.239-3.5-5-3.5s-5 1.567-5 3.5S9.239 11 12 11s5 1.567 5 3.5S14.761 18 12 18s-5-1.567-5-3.5"/>
+                        </svg>
+                    </div>
+                    <div class="min-w-0">
+                        <h2 class="text-base font-bold tracking-tight text-white">
+                            Összes bevétel
+                        </h2>
+                        <p class="text-xs text-zinc-400 truncate">
+                            Havi rendszeres és eseti bevételek
+                        </p>
+                    </div>
+                </div>
+                <span id="subtotal-income" class="text-sm font-bold text-teal-300 tabular-nums whitespace-nowrap shrink-0 bg-teal-500/10 border border-teal-500/25 px-3 py-1.5 rounded-xl">
+                    0 <span class="text-xs font-medium text-teal-200/70">Ft / hó</span>
+                </span>
+            </div>
+
+            <div class="w-full h-[3px] bg-white/[0.05] rounded-full overflow-hidden mb-4" title="Kiadások aránya a bevételhez képest">
+                <div id="bar-income" class="h-full bg-teal-400/80 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+
+            <form id="form-income" class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 mb-4">
+                <div class="sm:col-span-6">
+                    <label class="sr-only" for="input-income-name">Bevétel forrása</label>
+                    <input id="input-income-name" type="text" required maxlength="50"
+                        placeholder="Megnevezés (pl. Fizetés, Mellékállás, Osztalék)"
+                        class="monolith-input w-full rounded-xl px-3.5 py-2 text-sm text-zinc-100 placeholder-zinc-500">
+                </div>
+                <div class="sm:col-span-3 relative">
+                    <label class="sr-only" for="input-income-amount">Összeg (Ft)</label>
+                    <input id="input-income-amount" type="number" required min="1" step="1" placeholder="Összeg"
+                        class="monolith-input w-full rounded-xl pl-3.5 pr-8 py-2 text-sm font-medium text-zinc-100 placeholder-zinc-500 tabular-nums">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500 pointer-events-none">Ft</span>
+                </div>
+                <div class="sm:col-span-3">
+                    <button type="submit"
+                        class="w-full h-full bg-teal-400 hover:bg-teal-300 text-zinc-950 text-xs font-bold py-2 px-4 rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 shadow-xs">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Bevétel mentése
+                    </button>
+                </div>
+            </form>
+
+            <ul id="list-income" class="max-h-56 overflow-y-auto pr-1 divide-y divide-white/[0.06] custom-scroll"></ul>
+        </section>
+
+        </div>
+
         <!-- ESZTÉTIKUS ELVÁLASZTÓ SÁV -->
         <div class="my-6 sm:my-7 flex items-center gap-4">
             <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/[0.08] to-white/[0.08]"></div>
-            <span class="text-[11px] font-semibold uppercase tracking-widest text-zinc-500">
-                Bevételek &amp; Kiadási kategóriák • Átrendezhető
-            </span>
             <button id="btn-open-new-panel" type="button"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white/[0.06] text-zinc-100 border border-white/15 hover:bg-white/[0.12] hover:border-white/25 transition cursor-pointer whitespace-nowrap shrink-0">
+                class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold bg-white/[0.06] text-zinc-100 border border-white/15 hover:bg-white/[0.12] hover:border-white/25 transition cursor-pointer whitespace-nowrap shrink-0">
                 <svg class="w-3.5 h-3.5 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
                 </svg>
@@ -579,69 +705,8 @@
             <div class="h-px flex-1 bg-gradient-to-l from-transparent via-white/[0.08] to-white/[0.08]"></div>
         </div>
 
-        <!-- FŐ KÖLTSÉG ÉS BEVÉTEL BLOKKOK RÁCSA -->
+        <!-- FŐ KIADÁSI KATEGÓRIÁK RÁCSA (CSAK KIADÁSOK) -->
         <section id="cards-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-            <!-- 0. KÁRTYA: ÖSSZES BEVÉTEL (TÜRKIZ AKCENTUS) -->
-            <div data-card-category="income" class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6 h-[340px] flex flex-col">
-                <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-teal-400/80 to-transparent"></div>
-
-                <div class="flex items-center justify-between gap-2.5 pb-2.5 shrink-0">
-                    <div class="flex items-center gap-2 min-w-0">
-                        <div class="drag-handle p-1 -ml-1 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.06] transition shrink-0" title="Húzd a kártyát az átrendezéshez" aria-label="Kártya mozgatása">
-                            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
-                                <circle cx="5.5" cy="3.5" r="1.25"/><circle cx="10.5" cy="3.5" r="1.25"/>
-                                <circle cx="5.5" cy="8" r="1.25"/><circle cx="10.5" cy="8" r="1.25"/>
-                                <circle cx="5.5" cy="12.5" r="1.25"/><circle cx="10.5" cy="12.5" r="1.25"/>
-                            </svg>
-                        </div>
-                        <div class="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/25 text-teal-300 flex items-center justify-center shrink-0">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18M17 7.5c0-1.933-2.239-3.5-5-3.5s-5 1.567-5 3.5S9.239 11 12 11s5 1.567 5 3.5S14.761 18 12 18s-5-1.567-5-3.5"/>
-                            </svg>
-                        </div>
-                        <h2 class="text-base font-bold tracking-tight text-white truncate">
-                            Összes bevétel
-                        </h2>
-                    </div>
-                    <span id="subtotal-income" class="text-sm font-bold text-teal-300 tabular-nums whitespace-nowrap shrink-0 bg-teal-500/10 border border-teal-500/25 px-3 py-1 rounded-lg">
-                        0 <span class="text-xs font-medium text-teal-200/70">Ft / hó</span>
-                    </span>
-                </div>
-
-                <div class="w-full h-[3px] bg-white/[0.05] rounded-full overflow-hidden mb-3 shrink-0" title="Kiadások aránya a bevételhez képest">
-                    <div id="bar-income" class="h-full bg-teal-400/80 rounded-full transition-all duration-300" style="width: 0%"></div>
-                </div>
-
-                <form id="form-income" class="space-y-2 shrink-0">
-                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
-                        <div class="sm:col-span-7">
-                            <label class="sr-only" for="input-income-name">Bevétel forrása</label>
-                            <input id="input-income-name" type="text" required maxlength="50"
-                                placeholder="Megnevezés (pl. Fizetés, Mellékállás)"
-                                class="monolith-input w-full rounded-xl px-3.5 py-2 text-sm text-zinc-100 placeholder-zinc-500">
-                        </div>
-                        <div class="sm:col-span-5 relative">
-                            <label class="sr-only" for="input-income-amount">Összeg (Ft)</label>
-                            <input id="input-income-amount" type="number" required min="1" step="1" placeholder="Összeg"
-                                class="monolith-input w-full rounded-xl pl-3.5 pr-8 py-2 text-sm font-medium text-zinc-100 placeholder-zinc-500 tabular-nums">
-                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500 pointer-events-none">Ft</span>
-                        </div>
-                    </div>
-
-                    <button type="submit"
-                        class="w-full bg-teal-400 hover:bg-teal-300 text-zinc-950 text-xs font-bold py-2 px-4 rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 shadow-xs">
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Bevétel mentése
-                    </button>
-                </form>
-
-                <div class="border-t border-white/[0.07] my-2.5 shrink-0"></div>
-
-                <ul id="list-income" class="flex-1 overflow-y-auto pr-1 divide-y divide-white/[0.06] custom-scroll"></ul>
-            </div>
 
             <!-- 1. KÁRTYA: STREAMING SZOLGÁLTATÁSOK (PIROSAS AKCENTUS) -->
             <div data-card-category="streaming" class="monolith-card relative overflow-hidden rounded-2xl p-5 sm:p-6 h-[340px] flex flex-col">
@@ -1396,93 +1461,7 @@
         </div>
     </div>
 
-    <!-- MODÁLIS ABLAK 5: KALKULÁCIÓ MEGOSZTÁSA ÉS BEÉRKEZETT MEGOSZTÁSOK -->
-    <div id="modal-share" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-xs" role="dialog" aria-modal="true" aria-labelledby="share-modal-title">
-        <div class="bg-[#13151b] border border-white/10 rounded-2xl max-w-lg w-full p-6 shadow-2xl animate-modal max-h-[90vh] overflow-y-auto custom-scroll">
-            <div class="flex items-center justify-between gap-2">
-                <div>
-                    <h3 id="share-modal-title" class="text-base font-bold text-white">
-                        Kalkuláció megosztása
-                    </h3>
-                    <p class="text-xs text-zinc-400 mt-0.5">
-                        Küldd el a kalkulációd másik felhasználónak, vagy nyiss meg egy megosztást
-                    </p>
-                </div>
-                <button id="btn-close-share-x" type="button"
-                    class="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.08] transition cursor-pointer"
-                    aria-label="Bezárás">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
-
-            <!-- 1. Küldés másik helyi MONO felhasználónak -->
-            <div class="mt-4 p-4 rounded-2xl bg-[#090a0d] border border-white/[0.08] space-y-3">
-                <div class="flex items-center justify-between gap-2">
-                    <span class="text-xs font-bold text-zinc-200">Küldés másik felhasználónak</span>
-                    <span id="share-users-count" class="text-[11px] text-zinc-500">0 másik fiók</span>
-                </div>
-
-                <form id="form-send-share" class="space-y-2.5">
-                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
-                        <div class="sm:col-span-7">
-                            <input id="share-target-username" type="text" list="mono-known-users-list" required
-                                placeholder="Címzett felhasználóneve"
-                                class="monolith-input w-full rounded-xl px-3.5 py-2 text-xs text-zinc-100 placeholder-zinc-500">
-                            <datalist id="mono-known-users-list"></datalist>
-                        </div>
-                        <div class="sm:col-span-5">
-                            <input id="share-note-input" type="text" maxlength="45"
-                                placeholder="Megjegyzés (opcionális)"
-                                class="monolith-input w-full rounded-xl px-3.5 py-2 text-xs text-zinc-100 placeholder-zinc-500">
-                        </div>
-                    </div>
-                    <button type="submit"
-                        class="w-full bg-violet-400 hover:bg-violet-300 text-zinc-950 text-xs font-bold py-2 px-4 rounded-xl transition cursor-pointer">
-                        Kalkuláció elküldése a felhasználónak
-                    </button>
-                </form>
-
-                <!-- Megosztási kód másolása (eszközök közötti megosztáshoz) -->
-                <div class="pt-2.5 border-t border-white/[0.06] flex items-center justify-between gap-2">
-                    <span class="text-[11px] text-zinc-400">Másik telefonra / böngészőbe küldenéd?</span>
-                    <button id="btn-copy-share-code" type="button"
-                        class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/[0.06] text-zinc-200 border border-white/10 hover:bg-white/[0.12] transition cursor-pointer shrink-0">
-                        Megosztási kód másolása
-                    </button>
-                </div>
-            </div>
-
-            <!-- 2. Megosztási kód beillesztése -->
-            <div class="mt-3.5 p-4 rounded-2xl bg-[#090a0d] border border-white/[0.08] space-y-2">
-                <label for="input-import-share-code" class="block text-xs font-bold text-zinc-200">
-                    Kapott megosztási kód megnyitása
-                </label>
-                <div class="flex gap-2">
-                    <input id="input-import-share-code" type="text"
-                        placeholder="Illeszd be a MONO-SHARE-... kódot"
-                        class="monolith-input flex-1 rounded-xl px-3.5 py-2 text-xs text-zinc-100 placeholder-zinc-500">
-                    <button id="btn-open-share-code" type="button"
-                        class="px-3.5 py-2 rounded-xl text-xs font-bold bg-zinc-100 text-zinc-950 hover:bg-white transition cursor-pointer shrink-0">
-                        Megnyitás
-                    </button>
-                </div>
-            </div>
-
-            <!-- 3. Veled megosztott kalkulációk listája -->
-            <div class="mt-4">
-                <div class="flex items-center justify-between mb-2">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                        Veled megosztott kalkulációk
-                    </h4>
-                </div>
-                <ul id="shared-inbox-list" class="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scroll"></ul>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODÁLIS ABLAK 6: ÚJ KÖLTSÉGPANEL LÉTREHOZÁSA -->
+    <!-- MODÁLIS ABLAK 5: ÚJ KÖLTSÉGPANEL LÉTREHOZÁSA -->
     <div id="modal-new-panel" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-xs" role="dialog" aria-modal="true" aria-labelledby="new-panel-modal-title">
         <div class="bg-[#13151b] border border-white/10 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-modal">
             <div class="flex items-center justify-between gap-2">
@@ -1562,6 +1541,94 @@
         </div>
     </div>
 
+    <!-- MODÁLIS ABLAK 6: BEÁLLÍTÁSOK FELUGRÓ ABLAK -->
+    <div id="modal-settings" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-xs" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+        <div class="bg-[#13151b] border border-white/10 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-modal">
+            <div class="flex items-center justify-between gap-2 pb-4 border-b border-white/[0.07]">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-9 h-9 rounded-xl bg-sky-500/15 border border-sky-400/25 text-sky-300 flex items-center justify-center shrink-0">
+                        <svg class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </div>
+                    <div class="min-w-0">
+                        <h3 id="settings-modal-title" class="text-base font-bold text-white">
+                            Beállítások
+                        </h3>
+                        <p class="text-xs text-zinc-400 truncate">
+                            Fiók: <span id="header-profile-name" class="font-semibold text-sky-300">Profil</span>
+                        </p>
+                    </div>
+                </div>
+                <button id="btn-close-settings-x" type="button"
+                    class="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.08] transition cursor-pointer"
+                    aria-label="Bezárás">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="mt-4 space-y-2.5">
+                <!-- 1. Profil beállítások -->
+                <button id="btn-open-profile" type="button"
+                    class="w-full flex items-center gap-3.5 p-3.5 rounded-2xl bg-[#090a0d] border border-white/[0.08] hover:border-sky-400/40 hover:bg-white/[0.04] transition cursor-pointer text-left">
+                    <span class="w-10 h-10 rounded-xl bg-sky-500/15 border border-sky-400/25 text-sky-300 flex items-center justify-center overflow-hidden shrink-0">
+                        <svg id="header-avatar-fallback" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+                        </svg>
+                        <img id="header-avatar-img" src="" alt="Profilkép" class="hidden w-full h-full object-cover">
+                    </span>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-bold text-white">Profil beállítások</p>
+                        <p class="text-xs text-zinc-400 truncate">Profilkép, felhasználónév, jelszó és e-mail</p>
+                    </div>
+                    <svg class="w-4 h-4 text-zinc-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+                    </svg>
+                </button>
+
+                <!-- 2. GitHub Szinkron -->
+                <button id="btn-github-sync" type="button"
+                    class="w-full flex items-center gap-3.5 p-3.5 rounded-2xl bg-[#090a0d] border border-white/[0.08] hover:border-violet-400/40 hover:bg-white/[0.04] transition cursor-pointer text-left"
+                    title="Automatikus mentés GitHubra (adatok.json)">
+                    <span class="w-10 h-10 rounded-xl bg-violet-500/15 border border-violet-400/25 text-violet-300 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                    </span>
+                    <div class="min-w-0 flex-1">
+                        <p id="github-sync-label" class="text-sm font-bold text-white">GitHub Szinkron</p>
+                        <p class="text-xs text-zinc-400 truncate">Automatikus felhő mentés (adatok.json)</p>
+                    </div>
+                    <svg class="w-4 h-4 text-zinc-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+                    </svg>
+                </button>
+
+                <!-- 3. Mentés állapota -->
+                <button id="btn-backup-status" type="button"
+                    class="w-full flex items-center gap-3.5 p-3.5 rounded-2xl bg-[#090a0d] border border-white/[0.08] hover:border-emerald-400/40 hover:bg-white/[0.04] transition cursor-pointer text-left"
+                    title="Mentés állapota">
+                    <span class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-400/25 flex items-center justify-center shrink-0">
+                        <span class="relative flex h-3 w-3">
+                            <span id="backup-status-ping" class="hidden animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                            <span id="backup-status-dot" class="relative inline-flex rounded-full h-3 w-3 bg-emerald-400"></span>
+                        </span>
+                    </span>
+                    <div class="min-w-0 flex-1">
+                        <p id="backup-status-text" class="text-sm font-bold text-emerald-300">Mentés naprakész</p>
+                        <p class="text-xs text-zinc-400 truncate">Kattints az azonnali szinkronhoz</p>
+                    </div>
+                    <svg class="w-4 h-4 text-zinc-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         /**
          * MONO — Személyes bevétel és fix költség kalkulátor (többfelhasználós megosztással)
@@ -1574,7 +1641,6 @@
         const PROFILE_STORAGE_KEY = 'mono_user_profile_v1';
         const PROFILE_COOKIE_KEY = 'mono_user_profile_meta_v1';
         const ACCOUNTS_REGISTRY_KEY = 'mono_accounts_registry_v1';
-        const SHARES_STORAGE_KEY = 'mono_shared_calculations_v1';
 
         const BASE_CATEGORY_LABELS = {
             income: 'Összes bevétel',
@@ -1587,7 +1653,8 @@
         };
 
         const BUILTIN_EXPENSE_CATEGORIES = ['streaming', 'housing', 'loans', 'telecom', 'business', 'pets'];
-        const BUILTIN_CARD_ORDER = ['income', 'streaming', 'housing', 'loans', 'telecom', 'business', 'pets'];
+        const BUILTIN_CARD_ORDER = ['streaming', 'housing', 'loans', 'telecom', 'business', 'pets'];
+        const DEFAULT_TOP_SECTION_ORDER = ['savings', 'income'];
 
         const PANEL_COLOR_THEMES = {
             sky: {
@@ -1623,11 +1690,10 @@
         };
 
         let activeUsername = '123';
-        let activeSharedSnapshot = null; // Ha nem null, épp egy megosztott kalkulációt nézünk
         let activePage = 'finance'; // 'finance' | 'shopping'
         let selectedNewPanelColor = 'sky';
         let pendingSavingsAdjust = null; // { id, mode: 'deposit' | 'withdraw' | 'edit' }
-        let pendingDeleteId = null;
+        let pendingDeleteAction = null; // { type: 'item' | 'savings' | 'shopping' | 'shopping-checked' | 'panel', id?: string }
         let pendingEditId = null;
         let isGitHubPushing = false;
         let githubPushTimer = null;
@@ -1660,14 +1726,12 @@
             savingsGoals: [],
             customPanels: [],
             cardOrder: [...BUILTIN_CARD_ORDER],
+            topSectionOrder: [...DEFAULT_TOP_SECTION_ORDER],
             hasUnsavedExport: false,
             lastExportedAt: null
         };
 
         function getActiveCustomPanels() {
-            if (activeSharedSnapshot && Array.isArray(activeSharedSnapshot.customPanels)) {
-                return activeSharedSnapshot.customPanels;
-            }
             return Array.isArray(appState.customPanels) ? appState.customPanels : [];
         }
 
@@ -1774,13 +1838,13 @@
 
             if (tabFinance) {
                 tabFinance.className = activePage === 'finance'
-                    ? 'px-2.5 py-1 rounded-lg text-xs font-bold bg-zinc-100 text-zinc-950 transition cursor-pointer whitespace-nowrap'
-                    : 'px-2.5 py-1 rounded-lg text-xs font-semibold text-zinc-400 hover:text-zinc-100 transition cursor-pointer whitespace-nowrap';
+                    ? 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-zinc-100 text-zinc-950 transition cursor-pointer whitespace-nowrap'
+                    : 'px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-zinc-400 hover:text-zinc-100 transition cursor-pointer whitespace-nowrap';
             }
             if (tabShopping) {
                 tabShopping.className = activePage === 'shopping'
-                    ? 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-cyan-400 text-zinc-950 transition cursor-pointer whitespace-nowrap'
-                    : 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-zinc-400 hover:text-zinc-100 transition cursor-pointer whitespace-nowrap';
+                    ? 'inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-cyan-400 text-zinc-950 transition cursor-pointer whitespace-nowrap'
+                    : 'inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-zinc-400 hover:text-zinc-100 transition cursor-pointer whitespace-nowrap';
             }
             if (subtitle) {
                 subtitle.textContent = activePage === 'shopping'
@@ -2125,57 +2189,105 @@
             const badgeEl = document.getElementById('badge-total-items');
             const balanceEl = document.getElementById('display-monthly-balance');
 
-            const sourceItems = activeSharedSnapshot ? activeSharedSnapshot.items : appState.items;
+            const sourceItems = appState.items;
+            let baselineIncomeMonthly = 0;
+            let baselineExpenseMonthly = 0;
+            let disabledCount = 0;
 
             sourceItems.forEach(item => {
                 const amt = Number(item.amount) || 0;
+                const isDisabled = Boolean(item.disabled);
+                if (isDisabled) disabledCount += 1;
+
                 if (item.category === 'income') {
-                    totalIncomeMonthly += amt;
-                    incomeCount += 1;
-                    categoryTotals.income += amt;
+                    baselineIncomeMonthly += amt;
+                    if (!isDisabled) {
+                        totalIncomeMonthly += amt;
+                        incomeCount += 1;
+                        categoryTotals.income += amt;
+                    }
                 } else if (expenseCategories.includes(item.category)) {
-                    totalExpenseMonthly += amt;
-                    expenseCount += 1;
-                    categoryTotals[item.category] = (categoryTotals[item.category] || 0) + amt;
+                    baselineExpenseMonthly += amt;
+                    if (!isDisabled) {
+                        totalExpenseMonthly += amt;
+                        expenseCount += 1;
+                        categoryTotals[item.category] = (categoryTotals[item.category] || 0) + amt;
+                    }
                 }
             });
 
             const balanceMonthly = totalIncomeMonthly - totalExpenseMonthly;
+            const baselineBalance = baselineIncomeMonthly - baselineExpenseMonthly;
+            const balanceDiff = balanceMonthly - baselineBalance;
 
             if (incomeEl) {
-                incomeEl.innerHTML = `${formatNumberHU(totalIncomeMonthly)} <span class="text-base sm:text-lg font-semibold text-zinc-500">Ft</span>`;
+                incomeEl.innerHTML = `${formatNumberHU(totalIncomeMonthly)} <span class="text-base sm:text-lg font-semibold text-teal-500/70">Ft</span>`;
             }
             if (incomeBadgeEl) {
                 incomeBadgeEl.textContent = `${incomeCount} tétel`;
             }
             if (totalEl) {
-                totalEl.innerHTML = `${formatNumberHU(totalExpenseMonthly)} <span class="text-base sm:text-lg font-semibold text-zinc-500">Ft</span>`;
+                totalEl.innerHTML = `${formatNumberHU(totalExpenseMonthly)} <span class="text-base sm:text-lg font-semibold text-rose-500/70">Ft</span>`;
             }
             if (annualEl) {
-                annualEl.innerHTML = `${formatNumberHU(totalExpenseMonthly * 12)} <span class="text-base sm:text-lg font-semibold text-zinc-500">Ft</span>`;
+                annualEl.innerHTML = `${formatNumberHU(totalExpenseMonthly * 12)} <span class="text-base sm:text-lg font-semibold text-amber-500/70">Ft</span>`;
             }
             if (badgeEl) {
                 badgeEl.textContent = `${expenseCount} tétel`;
             }
-            if (balanceEl) {
-                balanceEl.className = `text-2xl sm:text-3xl font-extrabold tracking-tight tabular-nums mt-3 ${
-                    balanceMonthly < 0 ? 'text-rose-400' : 'text-sky-300'
-                }`;
-                balanceEl.innerHTML = `${formatNumberHU(balanceMonthly)} <span class="text-base sm:text-lg font-semibold text-zinc-500">Ft</span>`;
-            }
 
-            const isReadOnly = Boolean(activeSharedSnapshot);
+            if (balanceEl) {
+                const isNegative = balanceMonthly < 0;
+                const cardBalance = document.getElementById('card-monthly-balance');
+                const topBalance = document.getElementById('bar-monthly-balance-top');
+                const iconBalance = document.getElementById('icon-monthly-balance');
+                const labelBalance = document.getElementById('label-monthly-balance');
+
+                if (cardBalance) {
+                    cardBalance.className = isNegative
+                        ? 'monolith-card relative overflow-hidden rounded-2xl p-5 flex flex-col justify-between !border-rose-500/45 !bg-gradient-to-br !from-rose-950/65 !via-[#1e1218]/90 !to-[#130d12]/95'
+                        : 'monolith-card relative overflow-hidden rounded-2xl p-5 flex flex-col justify-between !border-sky-500/30 !bg-gradient-to-br !from-sky-950/55 !via-[#131824]/90 !to-[#0e121a]/95';
+                }
+                if (topBalance) {
+                    topBalance.className = isNegative
+                        ? 'absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-rose-500 to-transparent'
+                        : 'absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-sky-400 to-transparent';
+                }
+                if (iconBalance) {
+                    iconBalance.className = isNegative
+                        ? 'w-6 h-6 rounded-lg bg-rose-500/20 border border-rose-400/35 text-rose-300 flex items-center justify-center shrink-0'
+                        : 'w-6 h-6 rounded-lg bg-sky-500/15 border border-sky-400/30 text-sky-300 flex items-center justify-center shrink-0';
+                }
+                if (labelBalance) {
+                    labelBalance.className = isNegative
+                        ? 'text-xs font-bold uppercase tracking-wider text-rose-200/90 whitespace-nowrap truncate'
+                        : 'text-xs font-bold uppercase tracking-wider text-sky-200/90 whitespace-nowrap truncate';
+                }
+
+                balanceEl.className = `text-2xl sm:text-3xl font-extrabold tracking-tight tabular-nums mt-3 ${
+                    isNegative ? 'text-rose-400' : 'text-sky-300'
+                }`;
+                balanceEl.innerHTML = `${formatNumberHU(balanceMonthly)} <span class="text-base sm:text-lg font-semibold ${isNegative ? 'text-rose-500/70' : 'text-sky-500/70'}">Ft</span>`;
+
+                const simBadge = document.getElementById('simulator-balance-badge');
+                const simDiffEl = document.getElementById('simulator-balance-diff');
+                if (simBadge && simDiffEl) {
+                    if (disabledCount > 0) {
+                        const sign = balanceDiff >= 0 ? '+' : '';
+                        simDiffEl.className = `text-[11px] font-bold tabular-nums truncate ${balanceDiff >= 0 ? 'text-emerald-300' : 'text-rose-300'}`;
+                        simDiffEl.textContent = `Szimulátor (${disabledCount} ki): ${sign}${formatHUF(balanceDiff)} / hó`;
+                        simBadge.classList.remove('hidden');
+                    } else {
+                        simBadge.classList.add('hidden');
+                    }
+                }
+            }
 
             categories.forEach(cat => {
                 const catSum = categoryTotals[cat] || 0;
                 const subtotalEl = document.getElementById(`subtotal-${cat}`);
                 const barEl = document.getElementById(`bar-${cat}`);
                 const listEl = document.getElementById(`list-${cat}`);
-                const formEl = document.getElementById(`form-${cat}`);
-
-                if (formEl) {
-                    formEl.classList.toggle('hidden', isReadOnly);
-                }
 
                 if (subtotalEl) {
                     const unitColor = cat === 'income' ? 'text-teal-200/70' : 'text-zinc-400';
@@ -2196,27 +2308,33 @@
                 }
 
                 if (!listEl) return;
-
                 const catItems = sourceItems.filter(item => item.category === cat);
                 if (catItems.length === 0) {
                     listEl.innerHTML = `
-                        <li class="py-6 text-center text-xs text-zinc-500">
-                            Még nincs rögzített tétel ebben a kategóriában.
+                        <li class="py-5 text-center text-xs text-zinc-500">
+                            Még nincs rögzített tétel.
                         </li>
                     `;
                     return;
                 }
 
-                listEl.innerHTML = catItems.map(item => `
-                    <li class="py-2.5 flex items-center justify-between gap-3 group">
-                        <div class="min-w-0 flex-1">
-                            <p class="text-sm font-medium text-zinc-100 truncate">${escapeHTML(item.name)}</p>
+                listEl.innerHTML = catItems.map(item => {
+                    const isDisabled = Boolean(item.disabled);
+                    return `
+                    <li class="py-2.5 flex items-center justify-between gap-2.5 group transition-opacity ${isDisabled ? 'opacity-50' : ''}">
+                        <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                            <button type="button" data-action="toggle-sim" data-id="${escapeHTML(item.id)}" role="switch" aria-checked="${!isDisabled}"
+                                class="relative inline-flex h-4 w-7 shrink-0 items-center rounded-full transition-colors cursor-pointer ${!isDisabled ? (cat === 'income' ? 'bg-teal-400' : 'bg-sky-400') : 'bg-zinc-700'}"
+                                title="${!isDisabled ? 'Ideiglenes kikapcsolás (szimulátor)' : 'Visszakapcsolás'}"
+                                aria-label="Tétel ideiglenes ki- és bekapcsolása">
+                                <span class="inline-block h-3 w-3 transform rounded-full bg-zinc-950 transition-transform ${!isDisabled ? 'translate-x-3.5' : 'translate-x-0.5'}"></span>
+                            </button>
+                            <p class="text-sm font-medium truncate ${isDisabled ? 'line-through text-zinc-400' : 'text-zinc-100'}">${escapeHTML(item.name)}</p>
                         </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span class="text-sm font-bold ${cat === 'income' ? 'text-teal-300' : 'text-zinc-100'} tabular-nums whitespace-nowrap">
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <span class="text-sm font-bold tabular-nums whitespace-nowrap ${isDisabled ? 'line-through text-zinc-500' : (cat === 'income' ? 'text-teal-300' : 'text-zinc-100')}">
                                 ${formatHUF(item.amount)}
                             </span>
-                            ${isReadOnly ? '' : `
                             <button type="button" data-action="edit" data-id="${escapeHTML(item.id)}"
                                 class="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.08] transition cursor-pointer"
                                 title="Tétel szerkesztése" aria-label="Tétel szerkesztése">
@@ -2231,10 +2349,10 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                 </svg>
                             </button>
-                            `}
                         </div>
                     </li>
-                `).join('');
+                `;
+                }).join('');
             });
 
             renderShoppingList();
@@ -2248,13 +2366,7 @@
             const targetBadgeEl = document.getElementById('savings-target-badge');
             const summaryEl = document.getElementById('savings-goal-summary');
             const barEl = document.getElementById('bar-savings');
-            const formEl = document.getElementById('form-savings');
             if (!listEl) return;
-
-            const isReadOnly = Boolean(activeSharedSnapshot);
-            if (formEl) {
-                formEl.classList.toggle('hidden', isReadOnly);
-            }
 
             const goals = Array.isArray(appState.savingsGoals) ? appState.savingsGoals : [];
             const totalCurrent = goals.reduce((sum, g) => sum + (Number(g.currentAmount) || 0), 0);
@@ -2309,34 +2421,31 @@
                             ` : ''}
                         </div>
 
-                        ${isReadOnly ? '' : `
-                            <div class="flex items-center gap-1.5 shrink-0">
-                                <button type="button" data-savings-action="quick-add" data-id="${escapeHTML(goal.id)}"
-                                    class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25 transition cursor-pointer"
-                                    title="+10 000 Ft befizetés">
-                                    +10k
-                                </button>
-                                <button type="button" data-savings-action="quick-sub" data-id="${escapeHTML(goal.id)}"
-                                    class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-white/[0.05] text-zinc-300 border border-white/10 hover:bg-white/[0.1] transition cursor-pointer"
-                                    title="-10 000 Ft kivét">
-                                    -10k
-                                </button>
-                                <button type="button" data-savings-action="delete" data-id="${escapeHTML(goal.id)}"
-                                    class="p-1.5 rounded-lg text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition cursor-pointer"
-                                    title="Cél törlése" aria-label="Cél törlése">
-                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        `}
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <button type="button" data-savings-action="quick-add" data-id="${escapeHTML(goal.id)}"
+                                class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25 transition cursor-pointer"
+                                title="+10 000 Ft befizetés">
+                                +10k
+                            </button>
+                            <button type="button" data-savings-action="quick-sub" data-id="${escapeHTML(goal.id)}"
+                                class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-white/[0.05] text-zinc-300 border border-white/10 hover:bg-white/[0.1] transition cursor-pointer"
+                                title="-10 000 Ft kivét">
+                                -10k
+                            </button>
+                            <button type="button" data-savings-action="delete" data-id="${escapeHTML(goal.id)}"
+                                class="p-1.5 rounded-lg text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition cursor-pointer"
+                                title="Cél törlése" aria-label="Cél törlése">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                        </div>
                     </li>
                 `;
             }).join('');
         }
 
         function addSavingsGoal(name, currentAmount, targetAmount) {
-            if (activeSharedSnapshot) return false;
             const cleanName = String(name || '').trim();
             const cur = Math.max(0, Math.round(Number(currentAmount) || 0));
             const tgt = Math.max(0, Math.round(Number(targetAmount) || 0));
@@ -2367,13 +2476,7 @@
             const totalBadgeEl = document.getElementById('shopping-total-badge');
             const barEl = document.getElementById('bar-shopping');
             const clearBtn = document.getElementById('btn-clear-checked-shopping');
-            const formEl = document.getElementById('form-shopping');
             if (!listEl) return;
-
-            const isReadOnly = Boolean(activeSharedSnapshot);
-            if (formEl) {
-                formEl.classList.toggle('hidden', isReadOnly);
-            }
 
             const items = Array.isArray(appState.shoppingItems) ? appState.shoppingItems : [];
             const totalCount = items.length;
@@ -2400,7 +2503,7 @@
                 barEl.style.width = `${pct}%`;
             }
             if (clearBtn) {
-                clearBtn.classList.toggle('hidden', isReadOnly || checkedCount === 0);
+                clearBtn.classList.toggle('hidden', checkedCount === 0);
             }
 
             if (items.length === 0) {
@@ -2419,9 +2522,9 @@
                 const priceNum = Number(item.price) || 0;
                 return `
                     <li class="py-2.5 flex items-center justify-between gap-3 group">
-                        <label class="flex items-center gap-3 min-w-0 flex-1 ${isReadOnly ? '' : 'cursor-pointer'} select-none">
+                        <label class="flex items-center gap-3 min-w-0 flex-1 cursor-pointer select-none">
                             <input type="checkbox" data-shopping-action="toggle" data-id="${escapeHTML(item.id)}"
-                                ${item.checked ? 'checked' : ''} ${isReadOnly ? 'disabled' : ''}
+                                ${item.checked ? 'checked' : ''}
                                 class="w-4 h-4 rounded accent-cyan-400 cursor-pointer shrink-0">
                             <span class="text-sm font-medium truncate ${item.checked ? 'line-through text-zinc-500' : 'text-zinc-100'}">
                                 ${escapeHTML(item.name)}
@@ -2438,15 +2541,13 @@
                                     ${formatHUF(priceNum)}
                                 </span>
                             ` : ''}
-                            ${isReadOnly ? '' : `
-                                <button type="button" data-shopping-action="delete" data-id="${escapeHTML(item.id)}"
-                                    class="p-1.5 rounded-lg text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition cursor-pointer"
-                                    title="Tétel törlése a listáról" aria-label="Tétel törlése a listáról">
-                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                                    </svg>
-                                </button>
-                            `}
+                            <button type="button" data-shopping-action="delete" data-id="${escapeHTML(item.id)}"
+                                class="p-1.5 rounded-lg text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition cursor-pointer"
+                                title="Tétel törlése a listáról" aria-label="Tétel törlése a listáról">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
                         </div>
                     </li>
                 `;
@@ -2454,7 +2555,6 @@
         }
 
         function addShoppingItem(name, qty, price) {
-            if (activeSharedSnapshot) return false;
             const cleanName = String(name || '').trim();
             const cleanQty = String(qty || '').trim();
             const numPrice = Math.max(0, Math.round(Number(price) || 0));
@@ -2484,23 +2584,27 @@
             const dot = document.getElementById('backup-status-dot');
             const ping = document.getElementById('backup-status-ping');
             const text = document.getElementById('backup-status-text');
+            const badgeDot = document.getElementById('settings-badge-dot');
             if (!btn || !dot || !ping || !text) return;
 
             if (appState.hasUnsavedExport) {
-                btn.className = 'inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs font-semibold text-amber-300 hover:bg-amber-500/20 transition cursor-pointer whitespace-nowrap';
-                dot.className = 'relative inline-flex rounded-full h-2 w-2 bg-amber-400';
+                btn.className = 'w-full flex items-center gap-3.5 p-3.5 rounded-2xl bg-[#090a0d] border border-white/[0.08] hover:border-amber-400/40 hover:bg-white/[0.04] transition cursor-pointer text-left';
+                dot.className = 'relative inline-flex rounded-full h-3 w-3 bg-amber-400';
+                if (badgeDot) badgeDot.className = 'absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-[#11141d]';
                 ping.classList.remove('hidden');
+                text.className = 'text-sm font-bold text-amber-300';
                 text.textContent = 'Nem exportált változás';
             } else {
-                btn.className = 'inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/20 transition cursor-pointer whitespace-nowrap';
-                dot.className = 'relative inline-flex rounded-full h-2 w-2 bg-emerald-400';
+                btn.className = 'w-full flex items-center gap-3.5 p-3.5 rounded-2xl bg-[#090a0d] border border-white/[0.08] hover:border-emerald-400/40 hover:bg-white/[0.04] transition cursor-pointer text-left';
+                dot.className = 'relative inline-flex rounded-full h-3 w-3 bg-emerald-400';
+                if (badgeDot) badgeDot.className = 'absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#11141d]';
                 ping.classList.add('hidden');
+                text.className = 'text-sm font-bold text-emerald-300';
                 text.textContent = 'Mentés naprakész';
             }
         }
 
         function saveState(markDirty = false) {
-            if (activeSharedSnapshot) return;
             if (markDirty) {
                 appState.hasUnsavedExport = true;
             }
@@ -2550,18 +2654,14 @@
         }
 
         function updateGitHubSyncButtonUI() {
-            const btn = document.getElementById('btn-github-sync');
             const label = document.getElementById('github-sync-label');
-            if (!btn || !label) return;
+            if (!label) return;
 
             if (githubConfig.token && githubConfig.autoSync) {
-                btn.className = 'inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-sky-500/15 text-sky-300 border border-sky-500/35 hover:bg-sky-500/25 transition cursor-pointer whitespace-nowrap';
-                label.textContent = isGitHubPushing ? 'Mentés GitHubra...' : 'Auto-mentés BE';
+                label.textContent = isGitHubPushing ? 'Mentés GitHubra...' : 'GitHub Auto-mentés BE';
             } else if (githubConfig.token) {
-                btn.className = 'inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/[0.05] text-zinc-300 border border-white/15 hover:bg-white/[0.1] transition cursor-pointer whitespace-nowrap';
-                label.textContent = 'GitHub kézi';
+                label.textContent = 'GitHub Szinkron (kézi)';
             } else {
-                btn.className = 'inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-sky-500/10 text-sky-300 border border-sky-500/25 hover:bg-sky-500/20 transition cursor-pointer whitespace-nowrap';
                 label.textContent = 'GitHub Szinkron';
             }
         }
@@ -2703,6 +2803,7 @@
                 savingsGoals: [],
                 customPanels: [],
                 cardOrder: [...BUILTIN_CARD_ORDER],
+                topSectionOrder: [...DEFAULT_TOP_SECTION_ORDER],
                 hasUnsavedExport: false,
                 lastExportedAt: null
             };
@@ -2742,6 +2843,9 @@
                     if (Array.isArray(parsed.cardOrder)) {
                         appState.cardOrder = sanitizeCardOrder(parsed.cardOrder);
                     }
+                    if (Array.isArray(parsed.topSectionOrder)) {
+                        appState.topSectionOrder = sanitizeTopSectionOrder(parsed.topSectionOrder);
+                    }
                 }
             } catch (err) {
                 console.warn('Nem sikerült beolvasni a mentett adatokat:', err);
@@ -2762,8 +2866,6 @@
                     el.remove();
                 }
             });
-
-            const isReadOnly = Boolean(activeSharedSnapshot);
 
             activePanels.forEach(panel => {
                 let card = grid.querySelector(`[data-card-category="${panel.id}"]`);
@@ -2858,20 +2960,27 @@
 
                     const delPanelBtn = card.querySelector(`[data-delete-panel="${panel.id}"]`);
                     delPanelBtn.addEventListener('click', () => {
-                        removeCustomPanel(panel.id);
+                        openDeletePanelModal(panel.id);
                     });
 
                     grid.appendChild(card);
                     bindCardDragEvents(card);
                 }
-
-                const delBtn = card.querySelector(`[data-delete-panel="${panel.id}"]`);
-                if (delBtn) delBtn.classList.toggle('hidden', isReadOnly);
             });
         }
 
+        function executeRemoveCustomPanel(panelId) {
+            const target = (appState.customPanels || []).find(p => p.id === panelId);
+            if (!target) return;
+            appState.customPanels = appState.customPanels.filter(p => p.id !== panelId);
+            appState.items = appState.items.filter(i => i.category !== panelId);
+            appState.cardOrder = sanitizeCardOrder((appState.cardOrder || []).filter(id => id !== panelId));
+            saveState(true);
+            renderAll();
+            showToast(`„${target.title}” panel törölve`);
+        }
+
         function createCustomPanel(title, subtitle, color) {
-            if (activeSharedSnapshot) return null;
             const cleanTitle = String(title || '').trim().slice(0, 36);
             const cleanSub = String(subtitle || '').trim().slice(0, 42);
             if (!cleanTitle) return null;
@@ -2895,7 +3004,6 @@
         }
 
         function removeCustomPanel(panelId) {
-            if (activeSharedSnapshot) return;
             const target = (appState.customPanels || []).find(p => p.id === panelId);
             if (!target) return;
             appState.customPanels = appState.customPanels.filter(p => p.id !== panelId);
@@ -2907,10 +3015,6 @@
         }
 
         function openNewPanelModal() {
-            if (activeSharedSnapshot) {
-                showToast('Megosztott nézetben nem hozható létre új panel.', 'error');
-                return;
-            }
             document.getElementById('new-panel-title').value = '';
             document.getElementById('new-panel-subtitle').value = '';
             selectedNewPanelColor = 'sky';
@@ -2952,6 +3056,143 @@
             return unique;
         }
 
+        // Felső panelek (Megtakarítások, Összes bevétel) sorrendjének érvényesítése és alkalmazása
+        function sanitizeTopSectionOrder(order) {
+            const allowed = [...DEFAULT_TOP_SECTION_ORDER];
+            if (!Array.isArray(order)) return allowed;
+            const valid = order.filter(id => allowed.includes(id));
+            const unique = [...new Set(valid)];
+            allowed.forEach(id => {
+                if (!unique.includes(id)) unique.push(id);
+            });
+            return unique;
+        }
+
+        function applyTopSectionOrder() {
+            const container = document.getElementById('top-sections-container');
+            if (!container) return;
+            const order = sanitizeTopSectionOrder(appState.topSectionOrder);
+            order.forEach(id => {
+                const sec = container.querySelector(`[data-top-section="${id}"]`);
+                if (sec) container.appendChild(sec);
+            });
+        }
+
+        function persistTopSectionOrder() {
+            const container = document.getElementById('top-sections-container');
+            if (!container) return;
+            const currentOrder = Array.from(container.querySelectorAll('[data-top-section]'))
+                .map(el => el.dataset.topSection);
+            const sanitized = sanitizeTopSectionOrder(currentOrder);
+            const changed = JSON.stringify(sanitized) !== JSON.stringify(appState.topSectionOrder);
+            appState.topSectionOrder = sanitized;
+            if (changed) {
+                saveState(true);
+                showToast('Panelek sorrendje elmentve');
+            }
+        }
+
+        function initTopSectionDragAndDrop() {
+            const container = document.getElementById('top-sections-container');
+            if (!container) return;
+
+            let draggedTopSec = null;
+            let touchTopSec = null;
+
+            window.addEventListener('pointerup', () => {
+                container.querySelectorAll('[data-top-section]').forEach(s => s.removeAttribute('draggable'));
+            });
+
+            Array.from(container.querySelectorAll('[data-top-section]')).forEach(sec => {
+                const handle = sec.querySelector('.top-drag-handle');
+                if (!handle) return;
+
+                handle.addEventListener('pointerdown', () => {
+                    sec.setAttribute('draggable', 'true');
+                });
+
+                sec.addEventListener('dragstart', (e) => {
+                    draggedTopSec = sec;
+                    sec.classList.add('is-dragging');
+                    if (e.dataTransfer) {
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('text/plain', sec.dataset.topSection);
+                    }
+                });
+
+                sec.addEventListener('dragend', () => {
+                    sec.classList.remove('is-dragging');
+                    sec.removeAttribute('draggable');
+                    container.querySelectorAll('[data-top-section]').forEach(s => s.classList.remove('drag-over'));
+                    draggedTopSec = null;
+                    persistTopSectionOrder();
+                });
+
+                sec.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    if (!draggedTopSec || draggedTopSec === sec) return;
+                    const rect = sec.getBoundingClientRect();
+                    const isAfter = (e.clientY - rect.top) > rect.height / 2;
+                    if (isAfter) {
+                        container.insertBefore(draggedTopSec, sec.nextSibling);
+                    } else {
+                        container.insertBefore(draggedTopSec, sec);
+                    }
+                });
+
+                sec.addEventListener('dragenter', (e) => {
+                    e.preventDefault();
+                    if (draggedTopSec && draggedTopSec !== sec) {
+                        sec.classList.add('drag-over');
+                    }
+                });
+
+                sec.addEventListener('dragleave', () => {
+                    sec.classList.remove('drag-over');
+                });
+
+                sec.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    sec.classList.remove('drag-over');
+                });
+
+                handle.addEventListener('touchstart', (e) => {
+                    if (e.touches.length !== 1) return;
+                    touchTopSec = sec;
+                    sec.classList.add('is-dragging');
+                }, { passive: true });
+
+                handle.addEventListener('touchmove', (e) => {
+                    if (!touchTopSec || e.touches.length !== 1) return;
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const elemBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+                    const targetSec = elemBelow ? elemBelow.closest('[data-top-section]') : null;
+
+                    container.querySelectorAll('[data-top-section]').forEach(s => s.classList.remove('drag-over'));
+
+                    if (targetSec && targetSec !== touchTopSec && container.contains(targetSec)) {
+                        targetSec.classList.add('drag-over');
+                        const rect = targetSec.getBoundingClientRect();
+                        const insertAfter = touch.clientY > rect.top + rect.height / 2;
+                        if (insertAfter) {
+                            container.insertBefore(touchTopSec, targetSec.nextSibling);
+                        } else {
+                            container.insertBefore(touchTopSec, targetSec);
+                        }
+                    }
+                }, { passive: false });
+
+                handle.addEventListener('touchend', () => {
+                    if (!touchTopSec) return;
+                    touchTopSec.classList.remove('is-dragging');
+                    container.querySelectorAll('[data-top-section]').forEach(s => s.classList.remove('drag-over'));
+                    touchTopSec = null;
+                    persistTopSectionOrder();
+                });
+            });
+        }
+
         // Kártyák DOM sorrendjének alkalmazása
         function applyCardOrder() {
             const grid = document.getElementById('cards-grid');
@@ -2967,7 +3208,6 @@
 
         // Aktuális DOM sorrend mentése
         function persistCurrentGridOrder() {
-            if (activeSharedSnapshot) return;
             const grid = document.getElementById('cards-grid');
             if (!grid) return;
             const currentOrder = Array.from(grid.querySelectorAll('[data-card-category]'))
@@ -3093,139 +3333,18 @@
             });
         }
 
-        // Aktuális DOM sorrend mentése
-        function persistCurrentGridOrder() {
-            if (activeSharedSnapshot) return;
-            const grid = document.getElementById('cards-grid');
-            if (!grid) return;
-            const currentOrder = Array.from(grid.querySelectorAll('[data-card-category]'))
-                .map(el => el.dataset.cardCategory);
-            const sanitized = sanitizeCardOrder(currentOrder);
-            const changed = JSON.stringify(sanitized) !== JSON.stringify(appState.cardOrder);
-            appState.cardOrder = sanitized;
-            if (changed) {
-                saveState(true);
-                showToast('Kártyák sorrendje elmentve');
-            }
-        }
-
-        // Drag & Drop kártya átrendezés inicializálása
-        function initCardDragAndDrop() {
-            const grid = document.getElementById('cards-grid');
-            if (!grid) return;
-
-            let draggedCard = null;
-            let activeTouchCard = null;
-            const cards = Array.from(grid.querySelectorAll('[data-card-category]'));
-
-            cards.forEach(card => {
-                const handle = card.querySelector('.drag-handle');
-                if (!handle) return;
-
-                handle.addEventListener('pointerdown', () => {
-                    card.setAttribute('draggable', 'true');
-                });
-                window.addEventListener('pointerup', () => {
-                    card.removeAttribute('draggable');
-                });
-
-                card.addEventListener('dragstart', (e) => {
-                    draggedCard = card;
-                    card.classList.add('is-dragging');
-                    if (e.dataTransfer) {
-                        e.dataTransfer.effectAllowed = 'move';
-                        e.dataTransfer.setData('text/plain', card.dataset.cardCategory);
-                    }
-                });
-
-                card.addEventListener('dragend', () => {
-                    card.classList.remove('is-dragging');
-                    card.removeAttribute('draggable');
-                    cards.forEach(c => c.classList.remove('drag-over'));
-                    draggedCard = null;
-                    persistCurrentGridOrder();
-                });
-
-                card.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    if (!draggedCard || draggedCard === card) return;
-
-                    const rect = card.getBoundingClientRect();
-                    const isAfter = (e.clientY - rect.top) > rect.height / 2 ||
-                                    ((e.clientX - rect.left) > rect.width / 2 && Math.abs(e.clientY - rect.top - rect.height / 2) < rect.height * 0.35);
-
-                    if (isAfter) {
-                        grid.insertBefore(draggedCard, card.nextSibling);
-                    } else {
-                        grid.insertBefore(draggedCard, card);
-                    }
-                });
-
-                card.addEventListener('dragenter', (e) => {
-                    e.preventDefault();
-                    if (draggedCard && draggedCard !== card) {
-                        card.classList.add('drag-over');
-                    }
-                });
-
-                card.addEventListener('dragleave', () => {
-                    card.classList.remove('drag-over');
-                });
-
-                card.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    card.classList.remove('drag-over');
-                });
-
-                handle.addEventListener('touchstart', (e) => {
-                    if (e.touches.length !== 1) return;
-                    activeTouchCard = card;
-                    card.classList.add('is-dragging');
-                }, { passive: true });
-
-                handle.addEventListener('touchmove', (e) => {
-                    if (!activeTouchCard || e.touches.length !== 1) return;
-                    e.preventDefault();
-                    const touch = e.touches[0];
-                    const elemBelow = document.elementFromPoint(touch.clientX, touch.clientY);
-                    const targetCard = elemBelow ? elemBelow.closest('[data-card-category]') : null;
-
-                    cards.forEach(c => c.classList.remove('drag-over'));
-
-                    if (targetCard && targetCard !== activeTouchCard && grid.contains(targetCard)) {
-                        targetCard.classList.add('drag-over');
-                        const rect = targetCard.getBoundingClientRect();
-                        const insertAfter = touch.clientY > rect.top + rect.height / 2;
-                        if (insertAfter) {
-                            grid.insertBefore(activeTouchCard, targetCard.nextSibling);
-                        } else {
-                            grid.insertBefore(activeTouchCard, targetCard);
-                        }
-                    }
-                }, { passive: false });
-
-                handle.addEventListener('touchend', () => {
-                    if (!activeTouchCard) return;
-                    activeTouchCard.classList.remove('is-dragging');
-                    cards.forEach(c => c.classList.remove('drag-over'));
-                    activeTouchCard = null;
-                    persistCurrentGridOrder();
-                });
-            });
-        }
-
-        // Új tétel felvétele
+        // Tétel hozzáadása
         function addItem(category, name, amount) {
-            if (activeSharedSnapshot) return false;
             const cleanName = String(name || '').trim();
-            const numAmount = Math.abs(Math.round(Number(amount)));
+            const numAmount = Math.abs(Math.round(Number(amount) || 0));
+            const labels = getAllCategoryLabels();
 
-            if (!cleanName || !Number.isFinite(numAmount) || numAmount <= 0) {
+            if (!labels[category] || !cleanName || numAmount <= 0) {
                 return false;
             }
 
-            appState.items.push({
-                id: 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6),
+            appState.items.unshift({
+                id: 'item-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6),
                 category,
                 name: cleanName,
                 amount: numAmount
@@ -3233,209 +3352,94 @@
 
             saveState(true);
             renderAll();
-            showToast(`${cleanName} mentve (${formatHUF(numAmount)})`);
+            showToast(`${cleanName} elmentve`);
             return true;
         }
 
-        // Törlés megerősítő ablak megnyitása
+        // Törlés megerősítő ablak megnyitása (minden adattípushoz)
+        function showDeleteConfirmModal({ title, category, summary, action }) {
+            pendingDeleteAction = action;
+            document.getElementById('delete-modal-title').textContent = title || 'Biztosan törlöd ezt a tételt?';
+            document.getElementById('delete-modal-category').textContent = category || 'Megerősítés szükséges';
+            document.getElementById('delete-modal-summary').textContent = summary || '';
+
+            const modal = document.getElementById('modal-delete');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
         function openDeleteModal(id) {
             const item = appState.items.find(i => i.id === id);
             if (!item) return;
 
             const labels = getAllCategoryLabels();
-            pendingDeleteId = id;
-            document.getElementById('delete-modal-category').textContent = labels[item.category] || item.category;
-            document.getElementById('delete-modal-summary').textContent = `${item.name} — ${formatHUF(item.amount)}`;
+            showDeleteConfirmModal({
+                title: 'Biztosan törlöd ezt a tételt?',
+                category: labels[item.category] || item.category,
+                summary: `${item.name} — ${formatHUF(item.amount)}`,
+                action: { type: 'item', id }
+            });
+        }
 
-            const modal = document.getElementById('modal-delete');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+        function openDeleteSavingsModal(id) {
+            const goal = (appState.savingsGoals || []).find(g => g.id === id);
+            if (!goal) return;
+
+            const targetText = Number(goal.targetAmount) > 0 ? ` / ${formatHUF(goal.targetAmount)}` : '';
+            showDeleteConfirmModal({
+                title: 'Biztosan törlöd ezt a megtakarítási célt?',
+                category: 'Megtakarítások',
+                summary: `${goal.name} — ${formatHUF(goal.currentAmount)}${targetText}`,
+                action: { type: 'savings', id }
+            });
+        }
+
+        function openDeleteShoppingModal(id) {
+            const item = (appState.shoppingItems || []).find(s => s.id === id);
+            if (!item) return;
+
+            const details = [
+                item.qty ? `(${item.qty})` : '',
+                Number(item.price) > 0 ? `— ${formatHUF(item.price)}` : ''
+            ].filter(Boolean).join(' ');
+
+            showDeleteConfirmModal({
+                title: 'Biztosan törlöd ezt a terméket a listáról?',
+                category: 'Bevásárlólista',
+                summary: `${item.name}${details ? ' ' + details : ''}`,
+                action: { type: 'shopping', id }
+            });
+        }
+
+        function openClearCheckedShoppingModal() {
+            const checkedItems = (appState.shoppingItems || []).filter(s => s.checked);
+            if (checkedItems.length === 0) return;
+
+            showDeleteConfirmModal({
+                title: 'Biztosan törlöd a kipipált tételeket?',
+                category: 'Bevásárlólista',
+                summary: `${checkedItems.length} db kosárba tett termék végleges törlése`,
+                action: { type: 'shopping-checked' }
+            });
+        }
+
+        function openDeletePanelModal(panelId) {
+            const panel = (appState.customPanels || []).find(p => p.id === panelId);
+            if (!panel) return;
+
+            const panelItemsCount = appState.items.filter(i => i.category === panelId).length;
+            showDeleteConfirmModal({
+                title: 'Biztosan törlöd ezt az egyedi panelt?',
+                category: 'Egyedi költségpanel',
+                summary: `${panel.title} (${panelItemsCount} rögzített tétel)`,
+                action: { type: 'panel', id: panelId }
+            });
         }
 
         // Törlés megerősítő ablak bezárása
         function closeDeleteModal() {
-            pendingDeleteId = null;
+            pendingDeleteAction = null;
             const modal = document.getElementById('modal-delete');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        // --- MEGOSZTÁS RENDSZER (FELHASZNÁLÓK KÖZÖTT + MEGOSZTÁSI KÓD) ---
-        function loadAllShares() {
-            try {
-                const raw = localStorage.getItem(SHARES_STORAGE_KEY);
-                if (!raw) return [];
-                const parsed = JSON.parse(raw);
-                return Array.isArray(parsed) ? parsed : [];
-            } catch (e) {
-                return [];
-            }
-        }
-
-        function saveAllShares(list) {
-            try {
-                localStorage.setItem(SHARES_STORAGE_KEY, JSON.stringify(list));
-            } catch (e) {}
-            updateShareInboxBadge();
-        }
-
-        function getIncomingSharesForCurrentUser() {
-            const me = String(activeUsername || '').toLowerCase();
-            return loadAllShares().filter(s => s && String(s.toUsername || '').toLowerCase() === me);
-        }
-
-        function updateShareInboxBadge() {
-            const badge = document.getElementById('share-inbox-badge');
-            if (!badge) return;
-            const count = getIncomingSharesForCurrentUser().length;
-            if (count > 0) {
-                badge.textContent = String(count);
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
-        }
-
-        function encodeSharePayloadCode() {
-            const payload = {
-                v: 1,
-                from: userProfile.displayName || activeUsername,
-                fromUsername: activeUsername,
-                sharedAt: new Date().toISOString(),
-                customPanels: appState.customPanels || [],
-                items: appState.items.map(it => ({
-                    category: it.category,
-                    name: it.name,
-                    amount: it.amount
-                }))
-            };
-            return 'MONO-SHARE-' + encodeBase64UTF8(JSON.stringify(payload));
-        }
-
-        function decodeSharePayloadCode(codeStr) {
-            const trimmed = String(codeStr || '').trim();
-            if (!trimmed.startsWith('MONO-SHARE-')) return null;
-            try {
-                const b64 = trimmed.slice('MONO-SHARE-'.length);
-                const binary = atob(b64);
-                const bytes = new Uint8Array(binary.length);
-                for (let i = 0; i < binary.length; i++) {
-                    bytes[i] = binary.charCodeAt(i);
-                }
-                const jsonStr = new TextDecoder().decode(bytes);
-                const parsed = JSON.parse(jsonStr);
-                if (!parsed || !Array.isArray(parsed.items)) return null;
-                const sharedPanels = Array.isArray(parsed.customPanels) ? parsed.customPanels : [];
-                const cleaned = parseAndSanitizeItems(parsed.items, sharedPanels);
-                if (!cleaned) return null;
-                return {
-                    id: 'code-' + Date.now(),
-                    fromDisplayName: String(parsed.from || parsed.fromUsername || 'Külső megosztás'),
-                    fromUsername: String(parsed.fromUsername || 'külső'),
-                    note: 'Megosztási kóddal megnyitva',
-                    sharedAt: parsed.sharedAt || new Date().toISOString(),
-                    customPanels: sharedPanels,
-                    items: cleaned
-                };
-            } catch (e) {
-                return null;
-            }
-        }
-
-        function enterSharedView(snapshot) {
-            activeSharedSnapshot = snapshot;
-            const banner = document.getElementById('shared-view-banner');
-            const titleEl = document.getElementById('shared-view-title');
-            const subEl = document.getElementById('shared-view-subtitle');
-            if (banner) banner.classList.remove('hidden');
-            if (titleEl) {
-                titleEl.textContent = `${snapshot.fromDisplayName} megosztott kalkulációja (${snapshot.items.length} tétel)`;
-            }
-            if (subEl) {
-                const notePart = snapshot.note ? ` • „${snapshot.note}”` : '';
-                subEl.textContent = `Csak olvasható nézet${notePart} • A saját adataid biztonságban vannak`;
-            }
-            renderAll();
-        }
-
-        function exitSharedView() {
-            activeSharedSnapshot = null;
-            const banner = document.getElementById('shared-view-banner');
-            if (banner) banner.classList.add('hidden');
-            renderAll();
-        }
-
-        function renderShareModalContent() {
-            const registry = loadAccountsRegistry();
-            const me = String(activeUsername || '').toLowerCase();
-            const otherUsers = Object.values(registry).filter(acc => acc && acc.username.toLowerCase() !== me);
-
-            const datalist = document.getElementById('mono-known-users-list');
-            const countEl = document.getElementById('share-users-count');
-            if (datalist) {
-                datalist.innerHTML = otherUsers.map(u =>
-                    `<option value="${escapeHTML(u.username)}">${escapeHTML(u.displayName || u.username)}</option>`
-                ).join('');
-            }
-            if (countEl) {
-                countEl.textContent = otherUsers.length > 0
-                    ? `${otherUsers.length} regisztrált másik fiók`
-                    : 'Új felhasználó névvel is megadható';
-            }
-
-            const inboxList = document.getElementById('shared-inbox-list');
-            if (!inboxList) return;
-            const incoming = getIncomingSharesForCurrentUser();
-
-            if (incoming.length === 0) {
-                inboxList.innerHTML = `
-                    <li class="py-5 px-3 rounded-xl bg-[#090a0d] border border-white/[0.06] text-center text-xs text-zinc-500">
-                        Még nem osztott meg veled senki kalkulációt.
-                    </li>
-                `;
-                return;
-            }
-
-            inboxList.innerHTML = incoming.map(sh => {
-                const incSum = sh.items.filter(i => i.category === 'income').reduce((a, b) => a + b.amount, 0);
-                const expSum = sh.items.filter(i => i.category !== 'income').reduce((a, b) => a + b.amount, 0);
-                return `
-                    <li class="p-3 rounded-xl bg-[#090a0d] border border-white/[0.08] flex items-center justify-between gap-3">
-                        <div class="min-w-0 flex-1">
-                            <p class="text-xs font-bold text-zinc-100 truncate">
-                                ${escapeHTML(sh.fromDisplayName)} <span class="text-zinc-500 font-normal">(@${escapeHTML(sh.fromUsername)})</span>
-                            </p>
-                            <p class="text-[11px] text-zinc-400 truncate mt-0.5">
-                                Bevétel: ${formatHUF(incSum)} • Kiadás: ${formatHUF(expSum)}${sh.note ? ` • ${escapeHTML(sh.note)}` : ''}
-                            </p>
-                        </div>
-                        <div class="flex items-center gap-1.5 shrink-0">
-                            <button type="button" data-share-action="view" data-share-id="${escapeHTML(sh.id)}"
-                                class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-violet-400 text-zinc-950 hover:bg-violet-300 transition cursor-pointer">
-                                Megnyitás
-                            </button>
-                            <button type="button" data-share-action="remove" data-share-id="${escapeHTML(sh.id)}"
-                                class="p-1.5 rounded-lg text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition cursor-pointer"
-                                title="Megosztás törlése">
-                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </li>
-                `;
-            }).join('');
-        }
-
-        function openShareModal() {
-            renderShareModalContent();
-            const modal = document.getElementById('modal-share');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeShareModal() {
-            const modal = document.getElementById('modal-share');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
         }
@@ -3523,7 +3527,8 @@
                     id: typeof item.id === 'string' ? item.id : `imp-${Date.now()}-${idx}`,
                     category: item.category,
                     name: item.name.trim().slice(0, 50),
-                    amount: Math.abs(Math.round(Number(item.amount)))
+                    amount: Math.abs(Math.round(Number(item.amount))),
+                    disabled: Boolean(item.disabled)
                 }));
         }
 
@@ -3681,90 +3686,171 @@
             } catch (err) {}
         }
 
+        function initHeaderLiveClock() {
+            const monthsHu = [
+                'január', 'február', 'március', 'április', 'május', 'június',
+                'július', 'augusztus', 'szeptember', 'október', 'november', 'december'
+            ];
+            const daysHu = [
+                'vasárnap', 'hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat'
+            ];
+
+            function updateClock() {
+                const now = new Date();
+                const year = now.getFullYear();
+                const monthIdx = now.getMonth();
+                const dayNum = now.getDate();
+                const dayName = daysHu[now.getDay()];
+
+                const pad = (n) => String(n).padStart(2, '0');
+                const hh = pad(now.getHours());
+                const mm = pad(now.getMinutes());
+                const ss = pad(now.getSeconds());
+
+                const fullDateStr = `${year}. ${monthsHu[monthIdx]} ${dayNum}.`;
+                const compactDateStr = `${year}. ${pad(monthIdx + 1)}. ${pad(dayNum)}.`;
+
+                const dateEl = document.getElementById('header-live-date');
+                const dayEl = document.getElementById('header-live-day');
+                const timeEl = document.getElementById('header-live-time');
+                const compactDateEl = document.getElementById('header-live-date-compact');
+                const compactTimeEl = document.getElementById('header-live-time-compact');
+
+                if (dateEl) dateEl.textContent = fullDateStr;
+                if (dayEl) dayEl.textContent = dayName;
+                if (timeEl) timeEl.textContent = `${hh}:${mm}:${ss}`;
+                if (compactDateEl) compactDateEl.textContent = compactDateStr;
+                if (compactTimeEl) compactTimeEl.textContent = `${hh}:${mm}`;
+            }
+
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            initHeaderLiveClock();
             function bootUserSession(username) {
                 activeUsername = username;
-                activeSharedSnapshot = null;
-                const banner = document.getElementById('shared-view-banner');
-                if (banner) banner.classList.add('hidden');
                 loadUserProfile();
                 loadState();
                 loadGitHubConfig();
+                applyTopSectionOrder();
                 renderAll();
                 applyCardOrder();
                 updateBackupStatusUI();
-                updateShareInboxBadge();
+                switchPage('finance');
+                tryLoadRemoteAdatokJSON();
             }
 
-            // Bejelentkezési állapot ellenőrzése
-            const registry = loadAccountsRegistry();
-            const savedUser = readSavedLoginUser();
-            if (savedUser && registry[savedUser.toLowerCase()]) {
-                setAuthenticatedUI(true);
-                bootUserSession(registry[savedUser.toLowerCase()].username);
-            } else {
-                setAuthenticatedUI(false);
+            // Beállítások felugró ablak (modál) kezelése
+            const settingsOpenBtn = document.getElementById('btn-open-settings-modal');
+            const settingsCloseXBtn = document.getElementById('btn-close-settings-x');
+            const settingsModal = document.getElementById('modal-settings');
+
+            function openSettingsModal() {
+                if (!settingsModal) return;
+                settingsModal.classList.remove('hidden');
+                settingsModal.classList.add('flex');
             }
 
-            // Jelszó megjelenítés / elrejtés
+            function closeSettingsModal() {
+                if (!settingsModal) return;
+                settingsModal.classList.add('hidden');
+                settingsModal.classList.remove('flex');
+            }
+
+            if (settingsOpenBtn) {
+                settingsOpenBtn.addEventListener('click', openSettingsModal);
+            }
+            if (settingsCloseXBtn) {
+                settingsCloseXBtn.addEventListener('click', closeSettingsModal);
+            }
+            if (settingsModal) {
+                settingsModal.addEventListener('click', (e) => {
+                    if (e.target.id === 'modal-settings') closeSettingsModal();
+                });
+            }
+
+            // Bejelentkezési űrlap bekötése
+            const loginForm = document.getElementById('form-login');
+            if (loginForm) {
+                loginForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const u = document.getElementById('login-username').value.trim();
+                    const p = document.getElementById('login-password').value;
+                    const remember = document.getElementById('login-remember').checked;
+                    const errEl = document.getElementById('login-error');
+
+                    const reg = loadAccountsRegistry();
+                    const found = reg[u.toLowerCase()];
+
+                    if (found && String(found.password) === String(p)) {
+                        if (errEl) errEl.classList.add('hidden');
+                        persistSavedLoginUser(found.username, remember);
+                        setAuthenticatedUI(true);
+                        bootUserSession(found.username);
+                    } else {
+                        if (errEl) errEl.classList.remove('hidden');
+                    }
+                });
+            }
+
             const togglePwdBtn = document.getElementById('btn-toggle-password');
-            const pwdInput = document.getElementById('login-password');
-            if (togglePwdBtn && pwdInput) {
+            if (togglePwdBtn) {
                 togglePwdBtn.addEventListener('click', () => {
+                    const pwdInput = document.getElementById('login-password');
                     const isHidden = pwdInput.type === 'password';
                     pwdInput.type = isHidden ? 'text' : 'password';
                     togglePwdBtn.textContent = isHidden ? 'Elrejt' : 'Mutat';
                 });
             }
 
-            // Bejelentkezési űrlap beküldése (bármely regisztrált fiókkal, vagy új fiók automatikus létrehozásával)
-            const loginForm = document.getElementById('form-login');
-            if (loginForm) {
-                loginForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const userVal = document.getElementById('login-username').value.trim();
-                    const passVal = document.getElementById('login-password').value.trim();
-                    const rememberVal = document.getElementById('login-remember').checked;
-                    const errBox = document.getElementById('login-error');
+            // Kártyán belüli tétel szerkesztés / törlés / szimulátor kapcsoló delegált kezelése
+            document.getElementById('cards-grid').addEventListener('click', (e) => {
+                const btn = e.target.closest('button[data-action]');
+                if (!btn) return;
+                const action = btn.dataset.action;
+                const id = btn.dataset.id;
+                if (action === 'toggle-sim') {
+                    const item = appState.items.find(i => i.id === id);
+                    if (!item) return;
+                    item.disabled = !item.disabled;
+                    saveState(true);
+                    renderAll();
+                } else if (action === 'edit') {
+                    openEditModal(id);
+                } else if (action === 'delete') {
+                    openDeleteModal(id);
+                }
+            });
 
-                    if (!userVal || !passVal) {
-                        if (errBox) errBox.classList.remove('hidden');
-                        return;
-                    }
+            // Bevétel panelen belüli tétel szerkesztés / törlés / szimulátor kapcsoló kezelése
+            document.getElementById('income-section').addEventListener('click', (e) => {
+                const btn = e.target.closest('button[data-action]');
+                if (!btn) return;
+                const action = btn.dataset.action;
+                const id = btn.dataset.id;
+                if (action === 'toggle-sim') {
+                    const item = appState.items.find(i => i.id === id);
+                    if (!item) return;
+                    item.disabled = !item.disabled;
+                    saveState(true);
+                    renderAll();
+                } else if (action === 'edit') {
+                    openEditModal(id);
+                } else if (action === 'delete') {
+                    openDeleteModal(id);
+                }
+            });
 
-                    const currentRegistry = loadAccountsRegistry();
-                    const key = userVal.toLowerCase();
-                    const existingAcc = currentRegistry[key];
-
-                    if (existingAcc) {
-                        if (existingAcc.password === passVal) {
-                            if (errBox) errBox.classList.add('hidden');
-                            persistSavedLoginUser(existingAcc.username, rememberVal);
-                            setAuthenticatedUI(true);
-                            bootUserSession(existingAcc.username);
-                            showToast(`Üdv újra, ${existingAcc.displayName || existingAcc.username}!`);
-                        } else {
-                            if (errBox) {
-                                errBox.textContent = 'Hibás jelszó ehhez a felhasználónévhez!';
-                                errBox.classList.remove('hidden');
-                            }
-                        }
-                    } else {
-                        // Új felhasználó létrehozása, ha még nem létezik ilyen fiók
-                        const newAcc = {
-                            username: userVal,
-                            password: passVal,
-                            displayName: userVal,
-                            avatarDataUrl: ''
-                        };
-                        currentRegistry[key] = newAcc;
-                        saveAccountsRegistry(currentRegistry);
-                        if (errBox) errBox.classList.add('hidden');
-                        persistSavedLoginUser(newAcc.username, rememberVal);
-                        setAuthenticatedUI(true);
-                        bootUserSession(newAcc.username);
-                        showToast(`Új MONO fiók létrehozva: ${newAcc.username}`);
-                    }
+            // Szimulátor visszaállító gomb
+            const resetSimBtn = document.getElementById('btn-reset-simulator');
+            if (resetSimBtn) {
+                resetSimBtn.addEventListener('click', () => {
+                    appState.items.forEach(item => { item.disabled = false; });
+                    saveState(true);
+                    renderAll();
+                    showToast('Összes kikapcsolt tétel visszaállítva');
                 });
             }
 
@@ -3773,7 +3859,6 @@
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', () => {
                     clearSavedLoginUser();
-                    activeSharedSnapshot = null;
                     document.getElementById('login-username').value = '';
                     document.getElementById('login-password').value = '';
                     setAuthenticatedUI(false);
@@ -3800,8 +3885,8 @@
 
             // Alkalmazás adatok és kártyák inicializálása
             initCardDragAndDrop();
+            initTopSectionDragAndDrop();
             initMobileAppAssets();
-            tryLoadRemoteAdatokJSON();
 
             // Oldalváltó gombok (Pénzügyek <-> Bevásárlólista)
             const navFinanceBtn = document.getElementById('nav-tab-finance');
@@ -3825,34 +3910,6 @@
                 });
             });
 
-            // Kártyán belüli tétel szerkesztés / törlés gombok delegált kezelése
-            document.getElementById('cards-grid').addEventListener('click', (e) => {
-                if (activeSharedSnapshot) return;
-                const btn = e.target.closest('button[data-action]');
-                if (!btn) return;
-                const action = btn.dataset.action;
-                const id = btn.dataset.id;
-                if (action === 'edit') {
-                    openEditModal(id);
-                } else if (action === 'delete') {
-                    openDeleteModal(id);
-                }
-            });
-
-            // Törlés megerősítő modális gombjai
-            document.getElementById('btn-cancel-delete').addEventListener('click', closeDeleteModal);
-            document.getElementById('btn-confirm-delete').addEventListener('click', () => {
-                if (!pendingDeleteId) return;
-                const target = appState.items.find(i => i.id === pendingDeleteId);
-                appState.items = appState.items.filter(i => i.id !== pendingDeleteId);
-                closeDeleteModal();
-                saveState(true);
-                renderAll();
-                if (target) {
-                    showToast(`${target.name} törölve`);
-                }
-            });
-
             // Bevásárlólista űrlap és műveletek bekötése
             const shoppingForm = document.getElementById('form-shopping');
             if (shoppingForm) {
@@ -3873,7 +3930,6 @@
             const shoppingListEl = document.getElementById('list-shopping');
             if (shoppingListEl) {
                 shoppingListEl.addEventListener('change', (e) => {
-                    if (activeSharedSnapshot) return;
                     const cb = e.target.closest('input[data-shopping-action="toggle"]');
                     if (!cb) return;
                     const item = (appState.shoppingItems || []).find(s => s.id === cb.dataset.id);
@@ -3884,24 +3940,16 @@
                 });
 
                 shoppingListEl.addEventListener('click', (e) => {
-                    if (activeSharedSnapshot) return;
                     const btn = e.target.closest('button[data-shopping-action="delete"]');
                     if (!btn) return;
-                    appState.shoppingItems = (appState.shoppingItems || []).filter(s => s.id !== btn.dataset.id);
-                    saveState(true);
-                    renderShoppingList();
-                    showToast('Tétel törölve a bevásárlólistáról');
+                    openDeleteShoppingModal(btn.dataset.id);
                 });
             }
 
             const clearCheckedShoppingBtn = document.getElementById('btn-clear-checked-shopping');
             if (clearCheckedShoppingBtn) {
                 clearCheckedShoppingBtn.addEventListener('click', () => {
-                    if (activeSharedSnapshot) return;
-                    appState.shoppingItems = (appState.shoppingItems || []).filter(s => !s.checked);
-                    saveState(true);
-                    renderShoppingList();
-                    showToast('Kipipált tételek törölve');
+                    openClearCheckedShoppingModal();
                 });
             }
 
@@ -3925,7 +3973,6 @@
             const savingsList = document.getElementById('list-savings');
             if (savingsList) {
                 savingsList.addEventListener('click', (e) => {
-                    if (activeSharedSnapshot) return;
                     const btn = e.target.closest('button[data-savings-action]');
                     if (!btn) return;
                     const action = btn.dataset.savingsAction;
@@ -3945,10 +3992,7 @@
                         renderSavingsGoals();
                         showToast(`-10 000 Ft kivéve: ${goal.name}`);
                     } else if (action === 'delete') {
-                        appState.savingsGoals = goals.filter(g => g.id !== id);
-                        saveState(true);
-                        renderSavingsGoals();
-                        showToast(`„${goal.name}” cél törölve`);
+                        openDeleteSavingsModal(id);
                     }
                 });
             }
@@ -3976,6 +4020,40 @@
             });
 
             document.getElementById('btn-cancel-edit').addEventListener('click', closeEditModal);
+            document.getElementById('btn-cancel-delete').addEventListener('click', closeDeleteModal);
+            document.getElementById('btn-confirm-delete').addEventListener('click', () => {
+                if (!pendingDeleteAction) return;
+                const action = pendingDeleteAction;
+                closeDeleteModal();
+
+                if (action.type === 'item') {
+                    const item = appState.items.find(i => i.id === action.id);
+                    appState.items = appState.items.filter(i => i.id !== action.id);
+                    saveState(true);
+                    renderAll();
+                    if (item) showToast(`${item.name} törölve`);
+                } else if (action.type === 'savings') {
+                    const goals = appState.savingsGoals || [];
+                    const goal = goals.find(g => g.id === action.id);
+                    appState.savingsGoals = goals.filter(g => g.id !== action.id);
+                    saveState(true);
+                    renderSavingsGoals();
+                    if (goal) showToast(`„${goal.name}” cél törölve`);
+                } else if (action.type === 'shopping') {
+                    const item = (appState.shoppingItems || []).find(s => s.id === action.id);
+                    appState.shoppingItems = (appState.shoppingItems || []).filter(s => s.id !== action.id);
+                    saveState(true);
+                    renderShoppingList();
+                    if (item) showToast(`„${item.name}” törölve a bevásárlólistáról`);
+                } else if (action.type === 'shopping-checked') {
+                    appState.shoppingItems = (appState.shoppingItems || []).filter(s => !s.checked);
+                    saveState(true);
+                    renderShoppingList();
+                    showToast('Kipipált tételek törölve');
+                } else if (action.type === 'panel') {
+                    executeRemoveCustomPanel(action.id);
+                }
+            });
             document.getElementById('form-edit-item').addEventListener('submit', (e) => {
                 e.preventDefault();
                 if (!pendingEditId) return;
@@ -3983,148 +4061,22 @@
                 if (!item) return;
 
                 const newName = document.getElementById('edit-item-name').value.trim();
-                const newAmount = Math.abs(Math.round(Number(document.getElementById('edit-item-amount').value)));
+                const newAmount = Math.abs(Math.round(Number(document.getElementById('edit-item-amount').value) || 0));
 
-                if (!newName || !Number.isFinite(newAmount) || newAmount <= 0) return;
+                if (!newName || newAmount <= 0) return;
 
                 item.name = newName;
                 item.amount = newAmount;
+                saveState(true);
+                renderAll();
                 closeEditModal();
-                saveState(true);
-                renderAll();
-                showToast(`${newName} frissítve (${formatHUF(newAmount)})`);
+                showToast(`${newName} frissítve`);
             });
 
-            document.getElementById('modal-delete').addEventListener('click', (e) => {
-                if (e.target.id === 'modal-delete') closeDeleteModal();
+            document.getElementById('btn-github-sync').addEventListener('click', () => {
+                closeSettingsModal();
+                openGitHubModal();
             });
-            document.getElementById('modal-edit').addEventListener('click', (e) => {
-                if (e.target.id === 'modal-edit') closeEditModal();
-            });
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    closeDeleteModal();
-                    closeEditModal();
-                    closeGitHubModal();
-                    closeProfileModal();
-                    closeShareModal();
-                    closeNewPanelModal();
-                }
-            });
-
-            // Megosztás modális eseménykezelők
-            document.getElementById('btn-open-share').addEventListener('click', openShareModal);
-            document.getElementById('btn-close-share-x').addEventListener('click', closeShareModal);
-            document.getElementById('modal-share').addEventListener('click', (e) => {
-                if (e.target.id === 'modal-share') closeShareModal();
-            });
-
-            document.getElementById('form-send-share').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const targetRaw = document.getElementById('share-target-username').value.trim();
-                const noteVal = document.getElementById('share-note-input').value.trim();
-
-                if (!targetRaw) return;
-                if (targetRaw.toLowerCase() === activeUsername.toLowerCase()) {
-                    showToast('Saját magadnak nem szükséges elküldeni.', 'error');
-                    return;
-                }
-
-                const sourceItems = activeSharedSnapshot ? activeSharedSnapshot.items : appState.items;
-                const sourcePanels = activeSharedSnapshot ? (activeSharedSnapshot.customPanels || []) : (appState.customPanels || []);
-                const allShares = loadAllShares();
-                allShares.unshift({
-                    id: 'sh-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6),
-                    fromUsername: activeUsername,
-                    fromDisplayName: userProfile.displayName || activeUsername,
-                    toUsername: targetRaw,
-                    note: noteVal,
-                    sharedAt: new Date().toISOString(),
-                    customPanels: sourcePanels,
-                    items: sourceItems.map(it => ({
-                        id: it.id,
-                        category: it.category,
-                        name: it.name,
-                        amount: it.amount
-                    }))
-                });
-                saveAllShares(allShares);
-                document.getElementById('share-target-username').value = '';
-                document.getElementById('share-note-input').value = '';
-                renderShareModalContent();
-                showToast(`Kalkuláció megosztva vele: ${targetRaw}`);
-            });
-
-            document.getElementById('btn-copy-share-code').addEventListener('click', () => {
-                const code = encodeSharePayloadCode();
-                const tempInput = document.createElement('textarea');
-                tempInput.value = code;
-                document.body.appendChild(tempInput);
-                tempInput.select();
-                document.execCommand('copy');
-                tempInput.remove();
-                showToast('Megosztási kód vágólapra másolva');
-            });
-
-            document.getElementById('btn-open-share-code').addEventListener('click', () => {
-                const inputEl = document.getElementById('input-import-share-code');
-                const decoded = decodeSharePayloadCode(inputEl.value);
-                if (!decoded) {
-                    showToast('Érvénytelen MONO megosztási kód!', 'error');
-                    return;
-                }
-                inputEl.value = '';
-                closeShareModal();
-                enterSharedView(decoded);
-                showToast(`${decoded.fromDisplayName} kalkulációja megnyitva`);
-            });
-
-            document.getElementById('shared-inbox-list').addEventListener('click', (e) => {
-                const btn = e.target.closest('button[data-share-action]');
-                if (!btn) return;
-                const action = btn.dataset.shareAction;
-                const shareId = btn.dataset.shareId;
-                const allShares = loadAllShares();
-
-                if (action === 'view') {
-                    const found = allShares.find(s => s.id === shareId);
-                    if (found) {
-                        closeShareModal();
-                        enterSharedView(found);
-                    }
-                } else if (action === 'remove') {
-                    const updated = allShares.filter(s => s.id !== shareId);
-                    saveAllShares(updated);
-                    renderShareModalContent();
-                    showToast('Megosztás eltávolítva');
-                }
-            });
-
-            document.getElementById('btn-exit-shared-view').addEventListener('click', () => {
-                exitSharedView();
-                showToast('Visszatértél a saját kalkulációdhoz');
-            });
-
-            document.getElementById('btn-copy-shared-to-own').addEventListener('click', () => {
-                if (!activeSharedSnapshot) return;
-                const copiedPanels = Array.isArray(activeSharedSnapshot.customPanels) ? activeSharedSnapshot.customPanels : [];
-                const copiedItems = activeSharedSnapshot.items.map((it, idx) => ({
-                    id: `imp-${Date.now()}-${idx}`,
-                    category: it.category,
-                    name: it.name,
-                    amount: it.amount
-                }));
-                appState.customPanels = copiedPanels;
-                appState.items = copiedItems;
-                appState.cardOrder = sanitizeCardOrder([...(appState.cardOrder || []), ...copiedPanels.map(p => p.id)]);
-                exitSharedView();
-                saveState(true);
-                renderAll();
-                applyCardOrder();
-                showToast(`${copiedItems.length} tétel átvéve a saját fiókodba`);
-            });
-
-            document.getElementById('btn-github-sync').addEventListener('click', openGitHubModal);
             document.getElementById('btn-cancel-github').addEventListener('click', closeGitHubModal);
             document.getElementById('modal-github').addEventListener('click', (e) => {
                 if (e.target.id === 'modal-github') closeGitHubModal();
@@ -4160,6 +4112,7 @@
             });
 
             document.getElementById('btn-backup-status').addEventListener('click', () => {
+                closeSettingsModal();
                 if (githubConfig.token) {
                     pushAdatokToGitHub(true);
                 } else {
@@ -4168,7 +4121,10 @@
             });
 
             // Profil modális eseménykezelők
-            document.getElementById('btn-open-profile').addEventListener('click', openProfileModal);
+            document.getElementById('btn-open-profile').addEventListener('click', () => {
+                closeSettingsModal();
+                openProfileModal();
+            });
             document.getElementById('btn-cancel-profile').addEventListener('click', closeProfileModal);
             document.getElementById('btn-close-profile-x').addEventListener('click', closeProfileModal);
             document.getElementById('modal-profile').addEventListener('click', (e) => {
@@ -4285,6 +4241,16 @@
                 closeProfileModal();
                 showToast('Profil beállítások sikeresen elmentve');
             });
+
+            // Automatikus visszaléptetés, ha el volt mentve a munkamenet
+            const savedUser = readSavedLoginUser();
+            const reg = loadAccountsRegistry();
+            if (savedUser && reg[savedUser.toLowerCase()]) {
+                setAuthenticatedUI(true);
+                bootUserSession(reg[savedUser.toLowerCase()].username);
+            } else {
+                setAuthenticatedUI(false);
+            }
         });
     </script>
 </body>
