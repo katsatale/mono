@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-21T07:32:19.741Z",
+  "exportedAt": "2026-11-21T07:32:23.376Z",
   "cardOrder": [
     "income",
     "streaming",
@@ -104,15 +104,7 @@
       "amount": 40000
     }
   ],
-  "shoppingItems": [
-    {
-      "id": "shop-mwq3bgf3-8n1m",
-      "name": "22",
-      "qty": "22",
-      "price": 222,
-      "checked": false
-    }
-  ],
+  "shoppingItems": [],
   "savingsGoals": [],
   "profile": {
     "username": "123",
