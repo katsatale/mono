@@ -1,15 +1,17 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-20T23:32:12.255Z",
+  "exportedAt": "2026-11-21T07:32:08.358Z",
   "cardOrder": [
     "income",
     "streaming",
     "loans",
     "telecom",
     "business",
-    "housing"
+    "housing",
+    "pets"
   ],
+  "customPanels": [],
   "items": [
     {
       "id": "id-mwplkq65-nyc1",
@@ -100,6 +102,22 @@
       "category": "business",
       "name": "Üzemanyag",
       "amount": 40000
+    },
+    {
+      "id": "id-mwq3b7im-x380",
+      "category": "income",
+      "name": "222",
+      "amount": 222
     }
-  ]
+  ],
+  "shoppingItems": [],
+  "savingsGoals": [],
+  "profile": {
+    "username": "123",
+    "password": "123",
+    "displayName": "123",
+    "email": "",
+    "webhookUrl": "",
+    "avatarDataUrl": ""
+  }
 }
