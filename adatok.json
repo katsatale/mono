@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-25T20:58:32.988Z",
+  "exportedAt": "2026-11-25T20:58:56.659Z",
   "cardOrder": [
     "streaming",
     "loans",
@@ -72,7 +72,7 @@
       "id": "id-mwplrzpf-3l1y",
       "category": "telecom",
       "name": "Telekom Vezetékes Telefon",
-      "amount": 920,
+      "amount": 1,
       "disabled": false
     },
     {
