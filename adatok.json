@@ -1,7 +1,7 @@
 {
   "app": "MONO",
   "version": 1,
-  "exportedAt": "2026-11-21T09:56:14.711Z",
+  "exportedAt": "2026-11-25T20:58:16.449Z",
   "cardOrder": [
     "streaming",
     "loans",
@@ -16,91 +16,106 @@
       "id": "id-mwplkq65-nyc1",
       "category": "streaming",
       "name": "Netflix",
-      "amount": 3190
+      "amount": 3190,
+      "disabled": false
     },
     {
       "id": "id-mwpll88e-km25",
       "category": "streaming",
       "name": "Apple tárhely",
-      "amount": 1290
+      "amount": 1290,
+      "disabled": false
     },
     {
       "id": "id-mwpllpen-8u6i",
       "category": "streaming",
       "name": "Disney",
-      "amount": 2990
+      "amount": 2990,
+      "disabled": false
     },
     {
       "id": "id-mwplmbhk-c3dq",
       "category": "streaming",
       "name": "Prime Video",
-      "amount": 1900
+      "amount": 1900,
+      "disabled": false
     },
     {
       "id": "id-mwplnwx3-flec",
       "category": "streaming",
       "name": "YouTube Premium",
-      "amount": 3490
+      "amount": 3490,
+      "disabled": false
     },
     {
       "id": "id-mwplol7m-bmka",
       "category": "streaming",
       "name": "Prime Video 2",
-      "amount": 990
+      "amount": 990,
+      "disabled": false
     },
     {
       "id": "id-mwplqor7-69r8",
       "category": "telecom",
       "name": "Telekom MOBIL",
-      "amount": 5440
+      "amount": 5440,
+      "disabled": false
     },
     {
       "id": "id-mwplrbcw-fyvx",
       "category": "telecom",
       "name": "Telekom VEZETÉKES INTERNET",
-      "amount": 7440
+      "amount": 5395,
+      "disabled": false
     },
     {
       "id": "id-mwplrzpf-3l1y",
       "category": "telecom",
       "name": "Telekom Vezetékes Telefon",
-      "amount": 920
+      "amount": 920,
+      "disabled": false
     },
     {
       "id": "id-mwplsni4-agbv",
       "category": "housing",
       "name": "Albérlet",
-      "amount": 160000
+      "amount": 160000,
+      "disabled": false
     },
     {
       "id": "id-mwpltd5f-o0jf",
       "category": "business",
       "name": "Könyvelés",
-      "amount": 15000
+      "amount": 15000,
+      "disabled": false
     },
     {
       "id": "id-mwpltn72-olll",
       "category": "business",
       "name": "Járulékok",
-      "amount": 100000
+      "amount": 100000,
+      "disabled": false
     },
     {
       "id": "id-mwplv7kc-axai",
       "category": "loans",
       "name": "Munkás Hitel",
-      "amount": 68055
+      "amount": 68055,
+      "disabled": false
     },
     {
       "id": "id-mwplxlwz-vuoo",
       "category": "loans",
       "name": "Hitelkártya",
-      "amount": 31113
+      "amount": 31113,
+      "disabled": false
     },
     {
       "id": "id-mwpm1lfb-wo22",
       "category": "business",
       "name": "Üzemanyag",
-      "amount": 40000
+      "amount": 40000,
+      "disabled": false
     }
   ],
   "shoppingItems": [],
